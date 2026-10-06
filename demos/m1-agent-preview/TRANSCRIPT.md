@@ -63,6 +63,10 @@ $ docker compose exec app python3 -c "..." # GET /stats, three times
 200 {"requests":3}
 ```
 
+> Captured against `flask==3.1.0`. The pin has since moved to `3.1.3` for two low-severity
+> Flask advisories, so a fresh `pip install` prints that version instead. Nothing else in
+> this transcript changes.
+
 Notice the app container did not start until `redis` reported healthy, that's the
 `condition: service_healthy` rule doing exactly what it's for. The stats counter went
 1, 2, 3, in order, against a real Redis instance, not an in-memory stub. The container
