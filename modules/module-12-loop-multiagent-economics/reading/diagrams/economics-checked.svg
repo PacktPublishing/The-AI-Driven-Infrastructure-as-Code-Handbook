@@ -1,0 +1,28 @@
+<svg viewBox="0 0 900 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A bar chart comparing an advertised sixty to ninety percent token savings claim against a measured roughly eight and a half percent, with a third bar showing a measured cost increase for a different tool at low reasoning effort.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="900" height="340">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="23" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  <rect x="0" y="0" width="900" height="340" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <text x="450" y="30" text-anchor="middle" font-size="14" fill="black">The economics, checked</text>
+
+    <line x1="140" y1="270" x2="800" y2="270" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+
+    <rect x="190" y="80" width="120" height="190" fill="#ffe6cc" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+    <text x="250" y="70" text-anchor="middle" font-size="12" fill="black">60 to 90%</text>
+    <text x="250" y="292" text-anchor="middle" font-size="10" fill="black">advertised</text>
+
+    <rect x="390" y="240" width="120" height="30" fill="#d5e8d4" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+    <text x="450" y="230" text-anchor="middle" font-size="12" fill="black">~8.5%</text>
+    <text x="450" y="292" text-anchor="middle" font-size="10" fill="black">measured (caveman)</text>
+
+    <rect x="590" y="270" width="120" height="26" fill="#f8cecc" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+    <text x="650" y="260" text-anchor="middle" font-size="12" fill="black">cost increase</text>
+    <text x="650" y="316" text-anchor="middle" font-size="10" fill="black">measured (rtk, low effort)</text>
+
+    <text x="450" y="332" text-anchor="middle" font-size="11" fill="black">paired A/B measurement, not the marketing page</text>
+  </g>
+</svg>

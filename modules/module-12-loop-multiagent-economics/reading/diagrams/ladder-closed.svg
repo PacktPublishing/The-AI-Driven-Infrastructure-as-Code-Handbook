@@ -1,0 +1,46 @@
+<svg viewBox="0 0 900 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="All six steps of the autonomy ladder listed together with the gate beside each one, from suggest at the bottom to unattended at the top.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="900" height="400">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="29" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  <rect x="0" y="0" width="900" height="400" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="12" fill="black">
+    <text x="450" y="26" text-anchor="middle" font-size="14">The whole ladder, one more time</text>
+
+    <g stroke="black" stroke-width="1.8">
+      <rect x="90"  y="330" width="330" height="40" rx="6" fill="#dae8fc" filter="url(#sketch)"/>
+      <rect x="90"  y="280" width="330" height="40" rx="6" fill="#d5e8d4" filter="url(#sketch)"/>
+      <rect x="90"  y="230" width="330" height="40" rx="6" fill="#ffe6cc" filter="url(#sketch)"/>
+      <rect x="90"  y="180" width="330" height="40" rx="6" fill="#f8cecc" filter="url(#sketch)"/>
+      <rect x="90"  y="130" width="330" height="40" rx="6" fill="#e1d5e7" filter="url(#sketch)"/>
+      <rect x="90"  y="80"  width="330" height="40" rx="6" fill="#dae8fc" filter="url(#sketch)"/>
+    </g>
+
+    <text x="255" y="355">1 · suggest, agent proposes text</text>
+    <text x="255" y="305">2 · draft, agent writes files</text>
+    <text x="255" y="255">3 · propose with plan</text>
+    <text x="255" y="205">4 · gated apply</text>
+    <text x="255" y="155">5 · supervised autonomy</text>
+    <text x="255" y="105">6 · unattended</text>
+
+    <g stroke="black" stroke-width="1.4" fill="none">
+      <rect x="470" y="330" width="340" height="40" rx="6" stroke-dasharray="4 4"/>
+      <rect x="470" y="280" width="340" height="40" rx="6" stroke-dasharray="4 4"/>
+      <rect x="470" y="230" width="340" height="40" rx="6" stroke-dasharray="4 4"/>
+      <rect x="470" y="180" width="340" height="40" rx="6" stroke-dasharray="4 4"/>
+      <rect x="470" y="130" width="340" height="40" rx="6" stroke-dasharray="4 4"/>
+      <rect x="470" y="80"  width="340" height="40" rx="6" stroke-dasharray="4 4"/>
+    </g>
+
+    <text x="640" y="355" text-anchor="middle">gate: nothing to approve yet</text>
+    <text x="640" y="305" text-anchor="middle">gate: human reads every line</text>
+    <text x="640" y="255" text-anchor="middle">gate: human reads the plan</text>
+    <text x="640" y="205" text-anchor="middle">gate: checks + human approval</text>
+    <text x="640" y="155" text-anchor="middle">gate: human reviews outcomes</text>
+    <text x="640" y="105" text-anchor="middle">gate: human reviews exceptions</text>
+
+    <text x="450" y="392" text-anchor="middle">no step is safe without the gate right beside it</text>
+  </g>
+</svg>

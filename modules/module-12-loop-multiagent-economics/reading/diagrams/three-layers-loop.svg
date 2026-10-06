@@ -1,0 +1,26 @@
+<svg viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The three-layer diagnostic from module one, context, harness, and loop, drawn as three stacked boxes with the loop box highlighted as the one this module finally builds.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="900" height="320">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="9" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  <rect x="0" y="0" width="900" height="320" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <text x="450" y="30" text-anchor="middle" font-size="14" fill="black">The third layer, finally</text>
+
+    <rect x="260" y="60" width="380" height="60" rx="10" fill="#dae8fc" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+    <text x="450" y="85" text-anchor="middle" font-size="13" fill="black">context</text>
+    <text x="450" y="104" text-anchor="middle" font-size="11" fill="black">built in module 3</text>
+
+    <rect x="260" y="140" width="380" height="60" rx="10" fill="#d5e8d4" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+    <text x="450" y="165" text-anchor="middle" font-size="13" fill="black">harness</text>
+    <text x="450" y="184" text-anchor="middle" font-size="11" fill="black">built in modules 4 through 8</text>
+
+    <rect x="260" y="220" width="380" height="60" rx="10" fill="#ffe6cc" stroke="black" stroke-width="3" filter="url(#sketch)"/>
+    <text x="450" y="245" text-anchor="middle" font-size="13" fill="black">loop</text>
+    <text x="450" y="264" text-anchor="middle" font-size="11" fill="black">built here, in this module</text>
+
+    <text x="450" y="305" text-anchor="middle" font-size="12" fill="black">nine of twelve modules in, and this box was still empty</text>
+  </g>
+</svg>

@@ -1,0 +1,31 @@
+<svg viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A loop drawn as a circle with two required parts, a trigger arrow entering the circle and a stopping condition gate closing it, both needed before it counts as a real loop.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="900" height="320">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="11" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="900" height="320" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <text x="450" y="30" text-anchor="middle" font-size="14" fill="black">A loop needs two things</text>
+
+    <circle cx="450" cy="175" r="105" fill="none" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
+    <text x="450" y="180" text-anchor="middle" font-size="13" fill="black">agent</text>
+    <text x="450" y="198" text-anchor="middle" font-size="11" fill="black">runs the task again</text>
+
+    <path d="M180,175 L340,175" stroke="black" stroke-width="2.4" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <rect x="80" y="145" width="150" height="60" rx="10" fill="#dae8fc" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+    <text x="155" y="170" text-anchor="middle" font-size="13" fill="black">trigger</text>
+    <text x="155" y="188" text-anchor="middle" font-size="10" fill="black">schedule, event, webhook</text>
+
+    <path d="M560,175 L720,175" stroke="black" stroke-width="2.4" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <rect x="670" y="145" width="170" height="60" rx="10" fill="#f8cecc" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+    <text x="755" y="170" text-anchor="middle" font-size="13" fill="black">stopping condition</text>
+    <text x="755" y="188" text-anchor="middle" font-size="10" fill="black">exact, checkable, or it doesn't count</text>
+
+    <text x="450" y="300" text-anchor="middle" font-size="12" fill="black">miss either one and it isn't a loop, it's a wish with extra steps</text>
+  </g>
+</svg>

@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Stopping Condition + Economics Check — M12, Agentic Infrastructure as Code</title>
+<style>
+  :root{
+    --ink:#1e1e1e; --gray:#757575; --paper:#ffffff;
+    --p-green:#d5e8d4; --p-red:#f8cecc; --p-blue:#dae8fc; --p-orange:#ffe6cc; --p-purple:#e1d5e7;
+    --border:#bdbdbd;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--paper); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  .wrap{ max-width:1050px; margin:0 auto; padding:28px 20px 60px; }
+  h1{ font-size:22px; margin:0 0 4px; }
+  h2.section{ font-size:16px; margin:32px 0 10px; border-top:1px solid var(--border); padding-top:20px; }
+  .sub{ color:var(--gray); margin:0 0 22px; font-size:14px; }
+
+  .picker{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+  .opt{ border:1.5px solid var(--border); border-radius:8px; padding:10px 14px; cursor:pointer; font-size:13px; }
+  .opt.selected{ border-color:var(--ink); background:var(--p-blue); font-weight:600; }
+
+  .runbox{ border:2px solid var(--ink); border-radius:10px; padding:16px; min-height:150px; }
+  .tick-row{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
+  .tick{ min-width:110px; border-radius:6px; padding:6px 10px; font-size:12px; border:1.5px solid var(--border); background:#fafafa; }
+  .tick.continue{ background:var(--p-orange); border-color:var(--ink); }
+  .tick.stopped{ background:var(--p-green); border-color:#4caf50; }
+  .tick.escalate{ background:var(--p-red); border-color:#c62828; }
+
+  button{ border:1.5px solid var(--ink); background:#fff; border-radius:6px; padding:7px 14px;
+    font-size:13px; cursor:pointer; margin-right:8px; }
+  button:hover{ background:#f2f2f2; }
+  button.primary{ background:var(--ink); color:#fff; }
+  button.primary:hover{ background:#333; }
+
+  .verdict{ margin-top:12px; border-radius:8px; padding:10px 12px; font-size:13.5px; }
+  .verdict.pass{ background:var(--p-green); }
+  .verdict.fail{ background:var(--p-red); }
+
+  .econ-row{ display:grid; grid-template-columns: 160px 1fr; gap:12px; align-items:center; margin-bottom:12px; font-size:13px; }
+  .bar-outer{ height:22px; border:1.5px solid var(--ink); border-radius:6px; overflow:hidden; background:#fafafa; }
+  .bar-fill{ height:100%; display:flex; align-items:center; padding-left:6px; font-size:11px; color:#000; }
+  .bar-fill.advertised{ background:var(--p-orange); }
+  .bar-fill.measured{ background:var(--p-green); }
+  .bar-fill.increase{ background:var(--p-red); }
+
+  footer{ margin-top:34px; font-size:12px; color:var(--gray); border-top:1px solid var(--border); padding-top:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Stopping Condition + Economics Check</h1>
+  <p class="sub">Module 12 &middot; Loop Engineering, Multi-Agent Ops, Economics &middot; two small
+    tools: does your stopping condition actually stop, and does a token-savings claim actually hold up?</p>
+
+  <h2 class="section">1. Does this stopping condition actually stop?</h2>
+  <p class="sub" style="margin-bottom:10px;">Pick a stopping condition, then run the loop.</p>
+  <div class="picker" id="conditionPicker">
+    <div class="opt selected" data-cond="precise">"stop when checkov exits 0" (precise, checkable)</div>
+    <div class="opt" data-cond="vague">"stop when it looks done" (vague)</div>
+  </div>
+  <div class="runbox">
+    <div class="tick-row" id="tickRow"></div>
+    <button id="runBtn" class="primary">Run 4 loop iterations</button>
+    <button id="resetBtn">Reset</button>
+    <div id="verdictBox"></div>
+  </div>
+
+  <h2 class="section">2. The advertised number vs the measured number</h2>
+  <p class="sub" style="margin-bottom:10px;">Real, sourced figures from this chapter, not rounded to the marketing page.</p>
+  <div class="econ-row">
+    <div>Caveman, advertised</div>
+    <div class="bar-outer"><div class="bar-fill advertised" style="width:80%">60&ndash;90%</div></div>
+  </div>
+  <div class="econ-row">
+    <div>Caveman, measured</div>
+    <div class="bar-outer"><div class="bar-fill measured" style="width:9%">~8.5%</div></div>
+  </div>
+  <div class="econ-row">
+    <div>rtk, measured</div>
+    <div class="bar-outer"><div class="bar-fill increase" style="width:15%">cost increase</div></div>
+  </div>
+
+  <footer>
+    Self-contained, no network calls. Part of <strong>Module 12: Loop Engineering, Multi-Agent
+    Ops, Economics</strong>, Agentic Infrastructure as Code.
+  </footer>
+</div>
+
+<script>
+let selectedCond = 'precise';
+let running = false;
+
+document.querySelectorAll('#conditionPicker .opt').forEach(el => {
+  el.onclick = () => {
+    document.querySelectorAll('#conditionPicker .opt').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedCond = el.dataset.cond;
+    reset();
+  };
+});
+
+function reset() {
+  document.getElementById('tickRow').innerHTML = '';
+  document.getElementById('verdictBox').innerHTML = '';
+}
+
+document.getElementById('resetBtn').onclick = reset;
+
+document.getElementById('runBtn').onclick = () => {
+  reset();
+  const row = document.getElementById('tickRow');
+  const verdict = document.getElementById('verdictBox');
+  let stopped = false;
+  for (let i = 1; i <= 4; i++) {
+    const div = document.createElement('div');
+    div.className = 'tick';
+    if (selectedCond === 'precise') {
+      if (i < 3) {
+        div.textContent = `Run ${i}: checkov fails, fix applied`;
+        div.className += ' continue';
+      } else {
+        div.textContent = `Run ${i}: checkov exits 0, STOPPED`;
+        div.className += ' stopped';
+        stopped = true;
+      }
+    } else {
+      div.textContent = `Run ${i}: "looks done"? no clear signal, CONTINUE`;
+      div.className += ' continue';
+      if (i === 4) {
+        div.textContent = `Run ${i}: still no exact check to stop on, ESCALATE to a human`;
+        div.className = 'tick escalate';
+      }
+    }
+    row.appendChild(div);
+    if (stopped) break;
+  }
+  if (selectedCond === 'precise') {
+    verdict.innerHTML = '<div class="verdict pass">Real stopping condition: the loop ran exactly as many times as it needed to, then stopped on its own. This is what step 6 requires.</div>';
+  } else {
+    verdict.innerHTML = '<div class="verdict fail">Vague stopping condition: nothing ever tells the loop it is actually done, so it either runs forever or needs a human to notice and step in, exactly the failure mode step 6 cannot tolerate.</div>';
+  }
+};
+
+reset();
+</script>
+</body>
+</html>

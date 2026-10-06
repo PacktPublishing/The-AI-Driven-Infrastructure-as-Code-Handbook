@@ -1,0 +1,31 @@
+<svg viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Step six on the autonomy ladder, unattended, drawn as a loop running on its own with a single escalation path to a human, only for exceptions.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="900" height="320">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="13" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="900" height="320" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <text x="450" y="30" text-anchor="middle" font-size="14" fill="black">Step 6, unattended</text>
+
+    <circle cx="280" cy="170" r="90" fill="#e1d5e7" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
+    <text x="280" y="165" text-anchor="middle" font-size="13" fill="black">loop runs</text>
+    <text x="280" y="184" text-anchor="middle" font-size="11" fill="black">on its own, on schedule</text>
+
+    <path d="M370,140 L620,90" stroke="black" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <text x="500" y="100" text-anchor="middle" font-size="10" fill="black">only if stopping condition fails</text>
+
+    <rect x="620" y="60" width="200" height="60" rx="10" fill="#f8cecc" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+    <text x="720" y="85" text-anchor="middle" font-size="13" fill="black">human</text>
+    <text x="720" y="103" text-anchor="middle" font-size="10" fill="black">reviews the exception</text>
+
+    <path d="M370,200 L840,235" stroke="black" stroke-width="1.6" filter="url(#sketch)"/>
+    <text x="720" y="255" text-anchor="middle" font-size="11" fill="black">everything else: no human touches it</text>
+
+    <text x="450" y="300" text-anchor="middle" font-size="12" fill="black">only safe once the harness underneath already catches what you would have</text>
+  </g>
+</svg>
