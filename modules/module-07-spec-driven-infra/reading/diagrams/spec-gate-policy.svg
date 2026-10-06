@@ -1,0 +1,33 @@
+<svg viewBox="0 0 940 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The authority boundary line from module one, with three real stages marked on it: a spec box shaping the intent before generation, a gate box blocking apply, and a policy box checking the plan, each labeled with what it does and what it does not do.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="940" height="260">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="53" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="940" height="260" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <path d="M40,140 L900,140" stroke="black" stroke-width="2.4" marker-end="url(#arrow)" filter="url(#sketch)" fill="none"/>
+    <text x="470" y="120" text-anchor="middle" font-size="12" fill="black">intent -&gt; apply, in order</text>
+
+    <rect x="60" y="30" width="180" height="55" rx="8" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="150" y="63" text-anchor="middle" font-size="12" fill="black">spec (M07)</text>
+    <text x="150" y="100" text-anchor="middle" font-size="11" fill="black">shapes the ask</text>
+    <path d="M150,85 L150,140" stroke="black" stroke-width="2" filter="url(#sketch)" fill="none"/>
+
+    <rect x="380" y="30" width="180" height="55" rx="8" fill="#f8cecc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="470" y="63" text-anchor="middle" font-size="12" fill="black">gate (M06)</text>
+    <text x="470" y="100" text-anchor="middle" font-size="11" fill="black">blocks apply</text>
+    <path d="M470,85 L470,140" stroke="black" stroke-width="2" filter="url(#sketch)" fill="none"/>
+
+    <rect x="700" y="30" width="180" height="55" rx="8" fill="#ffe6cc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="790" y="63" text-anchor="middle" font-size="12" fill="black">policy (M09)</text>
+    <text x="790" y="100" text-anchor="middle" font-size="11" fill="black">checks the plan</text>
+    <path d="M790,85 L790,140" stroke="black" stroke-width="2" filter="url(#sketch)" fill="none"/>
+
+    <text x="470" y="200" text-anchor="middle" font-size="13" fill="black">three different jobs, none of them stands in for the other two</text>
+  </g>
+</svg>

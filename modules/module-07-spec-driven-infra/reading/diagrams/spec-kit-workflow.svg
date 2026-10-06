@@ -1,0 +1,39 @@
+<svg viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Four boxes in a row, specify, plan, tasks, implement, each an arrow into the next, with the spec document sitting above all four as the thing each stage reads from and writes back to.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="900" height="260">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="7" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="900" height="260" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <rect x="330" y="20" width="240" height="45" rx="8" fill="#e1d5e7" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="450" y="48" text-anchor="middle" font-size="13" fill="black">the spec document</text>
+
+    <rect x="40" y="150" width="170" height="55" rx="8" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="125" y="183" text-anchor="middle" font-size="12" fill="black">/speckit-specify</text>
+
+    <rect x="255" y="150" width="170" height="55" rx="8" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="340" y="183" text-anchor="middle" font-size="12" fill="black">/speckit-plan</text>
+
+    <rect x="470" y="150" width="170" height="55" rx="8" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="555" y="183" text-anchor="middle" font-size="12" fill="black">/speckit-tasks</text>
+
+    <rect x="685" y="150" width="170" height="55" rx="8" fill="#d5e8d4" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="770" y="183" text-anchor="middle" font-size="12" fill="black">/speckit-implement</text>
+
+    <path d="M210,178 L 255,178" stroke="black" stroke-width="2.2" marker-end="url(#arrow)" filter="url(#sketch)" fill="none"/>
+    <path d="M425,178 L 470,178" stroke="black" stroke-width="2.2" marker-end="url(#arrow)" filter="url(#sketch)" fill="none"/>
+    <path d="M640,178 L 685,178" stroke="black" stroke-width="2.2" marker-end="url(#arrow)" filter="url(#sketch)" fill="none"/>
+
+    <path d="M125,150 C 125,100 300,65 340,65" stroke="black" stroke-width="1.8" stroke-dasharray="5 5" filter="url(#sketch)" fill="none"/>
+    <path d="M340,65 L340,150" stroke="black" stroke-width="1.8" stroke-dasharray="5 5" filter="url(#sketch)" fill="none"/>
+    <path d="M555,150 C 555,100 500,65 460,65" stroke="black" stroke-width="1.8" stroke-dasharray="5 5" filter="url(#sketch)" fill="none"/>
+    <path d="M770,150 C 770,90 600,65 570,65" stroke="black" stroke-width="1.8" stroke-dasharray="5 5" filter="url(#sketch)" fill="none"/>
+
+    <text x="450" y="240" text-anchor="middle" font-size="13" fill="black">each stage reads the spec, and writes back into it</text>
+  </g>
+</svg>

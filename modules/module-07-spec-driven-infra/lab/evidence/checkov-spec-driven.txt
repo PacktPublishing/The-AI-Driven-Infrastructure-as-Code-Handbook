@@ -1,0 +1,7 @@
+terraform scan results:
+
+Passed checks: 7, Failed checks: 1, Skipped checks: 0
+
+Check: CKV_AWS_153: "Autoscaling groups should supply tags to launch configurations"
+	FAILED for resource: aws_autoscaling_group.checkout_web
+	File: /main.tf:29-58

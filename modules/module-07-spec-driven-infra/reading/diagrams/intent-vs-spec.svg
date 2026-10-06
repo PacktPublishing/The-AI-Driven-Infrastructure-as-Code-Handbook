@@ -1,0 +1,38 @@
+<svg viewBox="0 0 980 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A one-line intent with a single arrow straight to generated code, next to a written spec broken into three labeled parts, requirements, constraints, and acceptance criteria, each with its own separate arrow into generation, routed clear of the boxes above.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="980" height="360">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="12" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="980" height="360" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <text x="140" y="35" text-anchor="middle" font-size="16" fill="black">One-line intent</text>
+    <rect x="30" y="55" width="220" height="55" rx="8" fill="#ffe6cc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="140" y="87" text-anchor="middle" font-size="12" fill="black">"give me a bucket for artifacts"</text>
+    <path d="M140,110 L140,160" stroke="black" stroke-width="2.2" marker-end="url(#arrow)" filter="url(#sketch)" fill="none"/>
+    <rect x="60" y="170" width="160" height="50" rx="8" fill="#f8cecc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="140" y="200" text-anchor="middle" font-size="12" fill="black">generated code</text>
+    <text x="140" y="245" text-anchor="middle" font-size="13" fill="black">one arrow, no check</text>
+
+    <line x1="330" y1="20" x2="330" y2="340" stroke="black" stroke-width="1.6" stroke-dasharray="6 6" filter="url(#sketch)"/>
+
+    <text x="620" y="35" text-anchor="middle" font-size="16" fill="black">A written spec</text>
+    <rect x="500" y="55" width="240" height="45" rx="8" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="620" y="83" text-anchor="middle" font-size="12" fill="black">requirements</text>
+    <rect x="500" y="115" width="240" height="45" rx="8" fill="#e1d5e7" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="620" y="143" text-anchor="middle" font-size="12" fill="black">constraints</text>
+    <rect x="500" y="175" width="240" height="45" rx="8" fill="#d5e8d4" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="620" y="203" text-anchor="middle" font-size="12" fill="black">acceptance criteria</text>
+
+    <path d="M740,77 C 920,90 790,220 790,280" stroke="black" stroke-width="2" marker-end="url(#arrow)" filter="url(#sketch)" fill="none"/>
+    <path d="M740,137 C 900,150 850,220 850,280" stroke="black" stroke-width="2" marker-end="url(#arrow)" filter="url(#sketch)" fill="none"/>
+    <path d="M740,197 C 900,205 910,240 910,280" stroke="black" stroke-width="2" marker-end="url(#arrow)" filter="url(#sketch)" fill="none"/>
+    <rect x="760" y="280" width="180" height="50" rx="8" fill="#f8cecc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="850" y="310" text-anchor="middle" font-size="12" fill="black">generated code</text>
+    <text x="850" y="350" text-anchor="middle" font-size="13" fill="black">three arrows, each checkable</text>
+  </g>
+</svg>

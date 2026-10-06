@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Spec-Driven vs Vibe-Coded Simulator — M07, Agentic Infrastructure as Code</title>
+<style>
+  :root{
+    --ink:#1e1e1e; --gray:#757575; --paper:#ffffff;
+    --p-green:#d5e8d4; --p-red:#f8cecc; --p-blue:#dae8fc; --p-orange:#ffe6cc; --p-purple:#e1d5e7;
+    --border:#bdbdbd;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--paper); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  .wrap{ max-width:1050px; margin:0 auto; padding:28px 20px 60px; }
+  h1{ font-size:22px; margin:0 0 4px; }
+  .sub{ color:var(--gray); margin:0 0 20px; font-size:14px; }
+  .ask{ border:1.5px solid var(--border); border-radius:8px; padding:12px 14px; margin-bottom:20px;
+    background:var(--p-orange); font-size:14px; }
+
+  .path-row{ display:flex; gap:14px; margin-bottom:20px; }
+  .path-btn{ flex:1; border:1.5px solid var(--border); border-radius:8px; padding:14px; cursor:pointer;
+    background:#fff; text-align:center; font-size:14px; font-weight:600; }
+  .path-btn.active{ border-color:var(--ink); border-width:2px; }
+  .path-btn.spec.active{ background:var(--p-blue); }
+  .path-btn.vibe.active{ background:var(--p-purple); }
+
+  .code-box{ font-family:ui-monospace,Menlo,monospace; font-size:12.5px; white-space:pre-wrap;
+    border:1px solid var(--border); border-radius:8px; padding:12px; background:#fafafa; margin-bottom:16px; }
+
+  .criteria{ display:flex; flex-direction:column; gap:6px; margin-bottom:20px; }
+  .crit{ display:flex; justify-content:space-between; align-items:center; border-radius:6px;
+    padding:8px 12px; font-size:13px; border:1px solid rgba(0,0,0,.12); }
+  .crit.met{ background:var(--p-green); }
+  .crit.unmet{ background:var(--p-red); }
+  .crit .badge{ font-weight:700; font-size:11px; }
+
+  .summary{ border-radius:8px; padding:12px 14px; font-size:13.5px; border:1.5px solid var(--border); }
+  .summary.spec{ background:var(--p-blue); }
+  .summary.vibe{ background:var(--p-purple); }
+
+  footer{ margin-top:30px; font-size:12px; color:var(--gray); border-top:1px solid var(--border); padding-top:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Spec-Driven vs Vibe-Coded</h1>
+  <p class="sub">Module 7 &middot; Spec-Driven Infrastructure &middot; the real checkov results
+    from this module's own lab. Same ask, two paths.</p>
+
+  <div class="ask"><strong>The ask:</strong> "Give me an autoscaling web tier for our checkout
+    service."</div>
+
+  <div class="path-row">
+    <button class="path-btn spec" id="specBtn">Write a spec first</button>
+    <button class="path-btn vibe" id="vibeBtn">Vibe code it</button>
+  </div>
+
+  <div id="codeBox" class="code-box"></div>
+  <div id="criteriaBox" class="criteria"></div>
+  <div id="summaryBox"></div>
+
+  <footer>
+    Self-contained, no network calls. The checkov numbers and specific failing checks here are the
+    real, captured results from <code>modules/module-07-spec-driven-infra/lab/</code>, not invented.
+    Part of <strong>Module 7: Spec-Driven Infrastructure</strong>, Agentic Infrastructure as Code.
+  </footer>
+</div>
+
+<script>
+const SPEC_CODE = `resource "aws_launch_template" "checkout_web" {
+  metadata_options {
+    http_tokens = "required"  # FR-005 / SC-005 / CKV_AWS_79
+  }
+}
+resource "aws_autoscaling_group" "checkout_web" {
+  health_check_grace_period = 180   # FR-001 / SC-001
+  min_size = 2
+  max_size = 4                      # FR-003 / SC-003
+  termination_policies = [
+    "OldestLaunchTemplate", "OldestInstance", "Default"
+  ]                                  # FR-002 / SC-002
+  default_cooldown = 90             # FR-004 / SC-004
+}
+resource "aws_autoscaling_policy" "checkout_web_cpu" {
+  target_tracking_configuration {
+    target_value = 55               # FR-004 / SC-004
+  }
+}`;
+
+const VIBE_CODE = `resource "aws_launch_template" "checkout_web" {
+  # no metadata_options block, IMDSv1 stays reachable
+}
+resource "aws_lb" "checkout" { ... }  # nobody asked for an ALB
+resource "aws_autoscaling_group" "checkout_web" {
+  health_check_grace_period = 60
+  min_size = 2
+  max_size = 6                      # arbitrary, not traced to a peak
+  # termination_policies left unset, AWS default applies
+}
+resource "aws_autoscaling_policy" "checkout_web_cpu" {
+  target_tracking_configuration {
+    target_value = 60
+    # default_cooldown left unset, 300s default applies
+  }
+}`;
+
+const CRITERIA = [
+  { key: 'grace', label: 'health_check_grace_period = 180, survives a cold boot (SC-001)', specMet: true, vibeMet: false },
+  { key: 'term', label: 'termination_policies protects newest launch template (SC-002)', specMet: true, vibeMet: false },
+  { key: 'cap', label: 'max_size = 4, traced to a measured peak, not a guess (SC-003)', specMet: true, vibeMet: false },
+  { key: 'cooldown', label: 'default_cooldown = 90, reacts to a real spike (SC-004)', specMet: true, vibeMet: false },
+  { key: 'imds', label: 'IMDSv2 required, CKV_AWS_79 (SC-005 / SC-006)', specMet: true, vibeMet: false },
+  { key: 'tags', label: 'Launch template tags present, CKV_AWS_153 (not in this spec)', specMet: false, vibeMet: true },
+];
+
+let path = null;
+
+function render(){
+  document.getElementById('specBtn').classList.toggle('active', path === 'spec');
+  document.getElementById('vibeBtn').classList.toggle('active', path === 'vibe');
+
+  const codeBox = document.getElementById('codeBox');
+  const criteriaBox = document.getElementById('criteriaBox');
+  const summaryBox = document.getElementById('summaryBox');
+
+  if (!path) {
+    codeBox.textContent = 'Pick a path above.';
+    criteriaBox.innerHTML = '';
+    summaryBox.innerHTML = '';
+    return;
+  }
+
+  codeBox.textContent = path === 'spec' ? SPEC_CODE : VIBE_CODE;
+
+  criteriaBox.innerHTML = '';
+  CRITERIA.forEach(c => {
+    const met = path === 'spec' ? c.specMet : c.vibeMet;
+    const row = document.createElement('div');
+    row.className = 'crit ' + (met ? 'met' : 'unmet');
+    row.innerHTML = `<span>${c.label}</span><span class="badge">${met ? 'PASS' : 'FAIL'}</span>`;
+    criteriaBox.appendChild(row);
+  });
+
+  const summary = document.getElementById('summaryBox');
+  if (path === 'spec') {
+    summary.className = 'summary spec';
+    summary.innerHTML = '<strong>checkov: Passed checks: 7, Failed checks: 1.</strong> Passes ' +
+      'CKV_AWS_79 (IMDSv2), exactly what FR-005 asked for. The 1 failure, CKV_AWS_153 (tags), is ' +
+      'real too, this spec never named it, that\'s not a flaw in spec-driven work, it\'s why the ' +
+      'pipeline gate in M09 still runs after this.';
+  } else {
+    summary.className = 'summary vibe';
+    summary.innerHTML = '<strong>checkov: Passed checks: 20, Failed checks: 14.</strong> Fails ' +
+      'CKV_AWS_79 (IMDSv1 left reachable), exactly what FR-005 would have caught, plus 9 more real ' +
+      'findings on the ALB nobody asked for: no deletion protection, no access logging, no WAF, ' +
+      'HTTP instead of HTTPS. Nothing stopped this from applying. That\'s the real gap, not a strawman.';
+  }
+}
+
+document.getElementById('specBtn').onclick = () => { path = 'spec'; render(); };
+document.getElementById('vibeBtn').onclick = () => { path = 'vibe'; render(); };
+render();
+</script>
+</body>
+</html>
