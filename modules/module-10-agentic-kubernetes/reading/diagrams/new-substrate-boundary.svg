@@ -1,0 +1,33 @@
+<svg viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The agent proposes, the pipeline decides boundary redrawn for Kubernetes, kubectl diff in place of terraform plan, before a gated apply.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="900" height="300">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="17" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="900" height="300" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+
+    <rect x="60" y="70" width="170" height="55" rx="8" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="145" y="102" text-anchor="middle" font-size="11" fill="black">agent proposes manifest</text>
+    <path d="M230,97 L320,97" stroke="black" stroke-width="2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+
+    <rect x="320" y="70" width="170" height="55" rx="8" fill="#ffe6cc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="405" y="97" text-anchor="middle" font-size="11" fill="black">kubectl diff</text>
+    <text x="405" y="113" text-anchor="middle" font-size="10" fill="black">read it first</text>
+    <path d="M490,97 L580,97" stroke="black" stroke-width="2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+
+    <rect x="580" y="70" width="170" height="55" rx="8" fill="#e1d5e7" stroke="black" stroke-width="2.2" stroke-dasharray="7 4" filter="url(#sketch)"/>
+    <text x="665" y="97" text-anchor="middle" font-size="11" fill="black">human approval</text>
+    <text x="665" y="113" text-anchor="middle" font-size="10" fill="black">the gate</text>
+    <path d="M750,97 L820,97" stroke="black" stroke-width="2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+
+    <rect x="770" y="150" width="90" height="45" rx="8" fill="#d5e8d4" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+    <text x="815" y="177" text-anchor="middle" font-size="11" fill="black">apply</text>
+
+    <text x="450" y="240" text-anchor="middle" font-size="14" fill="black">the agent proposes, the pipeline decides, on kubectl instead of terraform</text>
+  </g>
+</svg>

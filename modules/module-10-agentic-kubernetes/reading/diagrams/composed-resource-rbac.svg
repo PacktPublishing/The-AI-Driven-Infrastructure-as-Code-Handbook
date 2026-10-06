@@ -1,0 +1,31 @@
+<svg viewBox="0 0 820 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Crossplane composing a Secret and a Service works with the default ClusterRole, but composing a StatefulSet fails with an Informer sync timeout until an explicit RBAC grant for apps/statefulsets is added.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="820" height="300">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="13" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  <rect x="0" y="0" width="820" height="300" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <rect x="50" y="40" width="320" height="100" rx="10" fill="#d5e8d4" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
+    <text x="210" y="75" text-anchor="middle" font-size="15" fill="black">Secret, Service compose fine</text>
+    <text x="210" y="100" text-anchor="middle" font-size="12" fill="black">default ClusterRole already covers core/v1</text>
+
+    <rect x="450" y="40" width="320" height="100" rx="10" fill="#f8cecc" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
+    <text x="610" y="70" text-anchor="middle" font-size="15" fill="black">StatefulSet fails</text>
+    <text x="610" y="93" text-anchor="middle" font-size="12" fill="black">Informer sync timeout,</text>
+    <text x="610" y="111" text-anchor="middle" font-size="12" fill="black">reads like caching, is RBAC</text>
+
+    <rect x="230" y="190" width="360" height="80" rx="10" fill="#ffe6cc" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
+    <text x="410" y="220" text-anchor="middle" font-size="14" fill="black">fix: ClusterRole granting the crossplane</text>
+    <text x="410" y="242" text-anchor="middle" font-size="14" fill="black">ServiceAccount CRUD on apps/statefulsets</text>
+  </g>
+  <g stroke="black" stroke-width="2" fill="none" marker-end="url(#ah)">
+    <path d="M610,140 L440,190"/>
+  </g>
+  <defs>
+    <marker id="ah" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="black"/>
+    </marker>
+  </defs>
+</svg>

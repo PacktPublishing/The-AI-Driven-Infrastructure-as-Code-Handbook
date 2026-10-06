@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reconcile Loop Visualizer — M10, Agentic Infrastructure as Code</title>
+<style>
+  :root{
+    --ink:#1e1e1e; --gray:#757575; --paper:#ffffff;
+    --p-green:#d5e8d4; --p-red:#f8cecc; --p-blue:#dae8fc; --p-orange:#ffe6cc; --p-purple:#e1d5e7;
+    --border:#bdbdbd;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--paper); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  .wrap{ max-width:1000px; margin:0 auto; padding:28px 20px 60px; }
+  h1{ font-size:22px; margin:0 0 4px; }
+  .sub{ color:var(--gray); margin:0 0 22px; font-size:14px; }
+  .row{ display:grid; grid-template-columns: 1fr 1fr; gap:22px; align-items:start; }
+  @media (max-width: 760px){ .row{ grid-template-columns: 1fr; } }
+
+  .panel{ border:2px solid var(--ink); border-radius:10px; padding:16px; }
+  .panel h2{ font-size:14px; margin:0 0 10px; }
+  .state-box{ border-radius:8px; padding:12px; font-size:13px; border:1.5px solid rgba(0,0,0,.15);
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; white-space:pre-wrap; min-height:90px; }
+  .desired{ background:var(--p-blue); }
+  .observed.match{ background:var(--p-green); }
+  .observed.drift{ background:var(--p-red); }
+
+  .controls{ margin-top:16px; display:flex; gap:8px; flex-wrap:wrap; }
+  button{ border:1.5px solid var(--ink); background:#fff; border-radius:6px; padding:7px 14px;
+    font-size:13px; cursor:pointer; }
+  button:hover{ background:#f2f2f2; }
+  button:disabled{ opacity:.4; cursor:default; }
+  button.primary{ background:var(--ink); color:#fff; }
+  button.primary:hover{ background:#333; }
+
+  .loop-track{ margin-top:22px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .tick{ width:34px; height:34px; border-radius:50%; border:1.5px solid var(--border);
+    display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--gray); }
+  .tick.active{ border-color:var(--ink); background:var(--p-orange); color:var(--ink); font-weight:700; }
+  .tick.corrected{ border-color:#4caf50; background:var(--p-green); color:var(--ink); }
+
+  .compare{ margin-top:26px; border-top:1px solid var(--border); padding-top:18px; }
+  .compare-row{ display:grid; grid-template-columns: 140px 1fr; gap:10px; font-size:13px; margin-bottom:8px; }
+  .compare-row .label{ font-weight:600; }
+  .tag{ display:inline-block; border-radius:5px; padding:2px 8px; font-size:12px; margin-right:6px; border:1px solid rgba(0,0,0,.15); }
+  .tag.terraform{ background:var(--p-orange); }
+  .tag.reconcile{ background:var(--p-green); }
+
+  .log{ margin-top:14px; font-size:12.5px; color:var(--gray); font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    white-space:pre-wrap; min-height:20px; }
+  footer{ margin-top:34px; font-size:12px; color:var(--gray); border-top:1px solid var(--border); padding-top:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Reconcile Loop Visualizer</h1>
+  <p class="sub">Module 10 &middot; Agentic Kubernetes and Platform IaC &middot; Crossplane's controller
+    watches a namespaced XR continuously. Drift the live state away from what's desired and watch the
+    controller correct it, unattended, without anyone running a command.</p>
+
+  <div class="row">
+    <div class="panel">
+      <h2>Desired state (the XR spec, in git)</h2>
+      <div id="desired" class="state-box desired">kind: XAppConfig
+metadata:
+  name: checkout-service
+spec:
+  appName: checkout-service
+  replicas: 3</div>
+    </div>
+    <div class="panel">
+      <h2>Observed state (what's actually running)</h2>
+      <div id="observed" class="state-box observed match">kind: ConfigMap
+data:
+  appName: checkout-service
+  replicas: "3"</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="driftBtn">Drift it: edit the ConfigMap directly (replicas: 1)</button>
+    <button id="tickBtn" class="primary" disabled>Advance one reconcile tick</button>
+    <button id="resetBtn">Reset</button>
+  </div>
+
+  <div class="loop-track" id="loopTrack"></div>
+  <div class="log" id="logLine"></div>
+
+  <div class="compare">
+    <h2 style="font-size:14px; margin:0 0 12px;">Reconcile loop vs one-shot apply</h2>
+    <div class="compare-row">
+      <div class="label"><span class="tag terraform">terraform</span></div>
+      <div>One-shot: <code>apply</code> makes reality match the plan once. If something drifts an
+        hour later, nothing notices until a human runs <code>plan</code> again.</div>
+    </div>
+    <div class="compare-row">
+      <div class="label"><span class="tag reconcile">crossplane</span></div>
+      <div>Continuous: the controller compares desired vs observed on every tick, forever, and
+        corrects drift the moment it sees it, no human has to remember to re-run anything.</div>
+    </div>
+  </div>
+
+  <footer>
+    Self-contained, no network calls. "Ticks" here are simulated steps, not real wall-clock time,
+    the point is the shape of the loop, not its exact interval.
+    Part of <strong>Module 10: Agentic Kubernetes and Platform IaC</strong>,
+    Agentic Infrastructure as Code.
+  </footer>
+</div>
+
+<script>
+const DESIRED_REPLICAS = 3;
+let observedReplicas = 3;
+let ticking = false;
+let tickCount = 0;
+const MAX_TICKS = 5;
+
+const observedBox = document.getElementById('observed');
+const driftBtn = document.getElementById('driftBtn');
+const tickBtn = document.getElementById('tickBtn');
+const resetBtn = document.getElementById('resetBtn');
+const loopTrack = document.getElementById('loopTrack');
+const logLine = document.getElementById('logLine');
+
+function renderObserved() {
+  observedBox.textContent = `kind: ConfigMap\ndata:\n  appName: checkout-service\n  replicas: "${observedReplicas}"`;
+  const matches = observedReplicas === DESIRED_REPLICAS;
+  observedBox.className = 'state-box observed ' + (matches ? 'match' : 'drift');
+  tickBtn.disabled = matches;
+  driftBtn.disabled = !matches;
+}
+
+function renderTrack() {
+  loopTrack.innerHTML = '';
+  for (let i = 1; i <= MAX_TICKS; i++) {
+    const t = document.createElement('div');
+    t.className = 'tick';
+    if (i < tickCount) t.className += ' corrected';
+    else if (i === tickCount) t.className += ' active';
+    t.textContent = i;
+    loopTrack.appendChild(t);
+  }
+}
+
+driftBtn.onclick = () => {
+  observedReplicas = 1;
+  tickCount = 0;
+  logLine.textContent = 'Someone ran kubectl edit directly. Live state now says replicas: 1. Desired state (git) still says 3.';
+  renderObserved();
+  renderTrack();
+};
+
+tickBtn.onclick = () => {
+  tickCount++;
+  if (tickCount >= 2) {
+    observedReplicas = DESIRED_REPLICAS;
+    logLine.textContent = `Tick ${tickCount}: controller observed replicas=1, desired=3. Corrected it back to 3. Nobody ran a command.`;
+  } else {
+    logLine.textContent = `Tick ${tickCount}: controller observed the drift, queued a correction.`;
+  }
+  renderObserved();
+  renderTrack();
+};
+
+resetBtn.onclick = () => {
+  observedReplicas = DESIRED_REPLICAS;
+  tickCount = 0;
+  logLine.textContent = '';
+  renderObserved();
+  renderTrack();
+};
+
+renderObserved();
+renderTrack();
+</script>
+</body>
+</html>

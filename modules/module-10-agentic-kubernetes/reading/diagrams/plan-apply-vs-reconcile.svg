@@ -1,0 +1,31 @@
+<svg viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A one-shot Terraform plan then apply, next to Kubernetes continuously reconciling desired state against a live cluster.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="900" height="320">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="7" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="900" height="320" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+
+    <rect x="60" y="70" width="150" height="55" rx="8" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="135" y="102" text-anchor="middle" font-size="12" fill="black">terraform plan</text>
+    <path d="M210,97 L280,97" stroke="black" stroke-width="2.2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <rect x="280" y="70" width="150" height="55" rx="8" fill="#d5e8d4" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="355" y="102" text-anchor="middle" font-size="12" fill="black">terraform apply</text>
+    <text x="245" y="150" text-anchor="middle" font-size="12" fill="black">one shot, then it stops</text>
+
+    <rect x="600" y="60" width="220" height="140" rx="10" fill="#e1d5e7" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="710" y="90" text-anchor="middle" font-size="12" fill="black">controller reconcile loop</text>
+    <path d="M660,110 C640,140 640,160 660,180" stroke="black" stroke-width="2" fill="none" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <path d="M760,180 C780,160 780,140 760,110" stroke="black" stroke-width="2" fill="none" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <text x="710" y="150" text-anchor="middle" font-size="12" fill="black">desired vs actual,</text>
+    <text x="710" y="168" text-anchor="middle" font-size="12" fill="black">continuously</text>
+
+    <text x="710" y="230" text-anchor="middle" font-size="12" fill="black">never stops watching</text>
+    <text x="450" y="280" text-anchor="middle" font-size="14" fill="black">same intent as Terraform, a different mechanism underneath</text>
+  </g>
+</svg>

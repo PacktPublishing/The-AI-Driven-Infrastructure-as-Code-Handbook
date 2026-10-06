@@ -1,0 +1,30 @@
+<svg viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The same Postgres database delivered three ways: raw manifests requiring full knowledge of every field, a Helm chart requiring only values.yaml, and a Crossplane XR requiring only a five-line request.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="900" height="320">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="11" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  <rect x="0" y="0" width="900" height="320" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <rect x="40" y="60" width="240" height="200" rx="10" fill="#dae8fc" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
+    <text x="160" y="95" text-anchor="middle" font-size="16" fill="black">raw manifests</text>
+    <text x="160" y="150" text-anchor="middle" font-size="13" fill="black">Secret, Service,</text>
+    <text x="160" y="168" text-anchor="middle" font-size="13" fill="black">StatefulSet,</text>
+    <text x="160" y="186" text-anchor="middle" font-size="13" fill="black">every field explicit</text>
+    <text x="160" y="230" text-anchor="middle" font-size="12" fill="black">knows: everything</text>
+
+    <rect x="330" y="60" width="240" height="200" rx="10" fill="#d5e8d4" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
+    <text x="450" y="95" text-anchor="middle" font-size="16" fill="black">helm chart</text>
+    <text x="450" y="150" text-anchor="middle" font-size="13" fill="black">helm install</text>
+    <text x="450" y="168" text-anchor="middle" font-size="13" fill="black">--set dbName=X</text>
+    <text x="450" y="230" text-anchor="middle" font-size="12" fill="black">knows: values.yaml</text>
+
+    <rect x="620" y="60" width="240" height="200" rx="10" fill="#e1d5e7" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
+    <text x="740" y="95" text-anchor="middle" font-size="16" fill="black">crossplane xr</text>
+    <text x="740" y="150" text-anchor="middle" font-size="13" fill="black">dbName: billing</text>
+    <text x="740" y="168" text-anchor="middle" font-size="13" fill="black">storageSize: 1Gi</text>
+    <text x="740" y="230" text-anchor="middle" font-size="12" fill="black">knows: 2 fields</text>
+  </g>
+  <text x="450" y="300" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="14" fill="black">same Secret + Service + StatefulSet underneath, all three</text>
+</svg>
