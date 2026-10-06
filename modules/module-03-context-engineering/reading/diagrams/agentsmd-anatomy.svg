@@ -1,0 +1,47 @@
+<svg viewBox="0 0 820 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="An annotated AGENTS.md file with four sections labeled: provider pins, naming convention, module boundaries, and a never-do list.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="820" height="460">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="9" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="820" height="460" fill="white"/>
+  <text x="410" y="34" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="20" fill="black">AGENTS.md, annotated</text>
+
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="14" fill="black">
+    <rect x="60" y="60" width="340" height="360" fill="white" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="80" y="90">provider "aws" { }</text>
+    <text x="80" y="112">required_version = "~&gt; 1.9"</text>
+    <text x="80" y="150">naming: env-service-resource</text>
+    <text x="80" y="172">e.g. prod-billing-vpc</text>
+    <text x="80" y="210">one module per concern:</text>
+    <text x="80" y="232">networking/, compute/, data/</text>
+    <text x="80" y="270">never do:</text>
+    <text x="80" y="292">- a default on a secret var</text>
+    <text x="80" y="314">- apply without a plan first</text>
+    <text x="80" y="336">secrets: TF_VAR_ only,</text>
+    <text x="80" y="358">never a hardcoded default</text>
+  </g>
+
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="14" fill="black">
+    <path d="M400,100 L470,100" stroke="black" stroke-width="2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <text x="480" y="105">provider pins</text>
+
+    <path d="M400,160 L470,160" stroke="black" stroke-width="2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <text x="480" y="165">naming convention</text>
+
+    <path d="M400,220 L470,220" stroke="black" stroke-width="2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <text x="480" y="225">module boundaries</text>
+
+    <path d="M400,290 L470,290" stroke="black" stroke-width="2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <text x="480" y="295">the never-do list</text>
+
+    <path d="M400,345 L470,345" stroke="black" stroke-width="2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <text x="480" y="350">where secrets come from</text>
+  </g>
+
+  <text x="410" y="445" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="15" fill="black">what a new hire would get on day one, written down once</text>
+</svg>

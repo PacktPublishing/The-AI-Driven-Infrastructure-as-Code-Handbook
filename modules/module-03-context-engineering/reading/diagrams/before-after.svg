@@ -1,0 +1,33 @@
+<svg viewBox="0 0 820 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The same one-line intent into the same agent, minus context on the left produces a hardcoded secret, plus context on the right produces a sensitive variable set from the environment.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="820" height="340">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="9" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="820" height="340" fill="white"/>
+  <text x="410" y="34" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="20" fill="black">same intent, same agent, minus vs plus context</text>
+
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="14" fill="black">
+    <rect x="50" y="70" width="330" height="200" fill="#f8cecc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="215" y="100" text-anchor="middle" font-size="16">no AGENTS.md</text>
+    <text x="70" y="140">variable "key" {{</text>
+    <text x="70" y="162">  default = "AKIA..."</text>
+    <text x="70" y="184">}}</text>
+    <text x="215" y="230" text-anchor="middle" font-size="14">a plaintext default</text>
+
+    <rect x="440" y="70" width="330" height="200" fill="#d5e8d4" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="605" y="100" text-anchor="middle" font-size="16">with AGENTS.md</text>
+    <text x="460" y="140">variable "key" {{</text>
+    <text x="460" y="162">  sensitive = true</text>
+    <text x="460" y="184">}}</text>
+    <text x="605" y="230" text-anchor="middle" font-size="14">set via TF_VAR_key</text>
+  </g>
+
+  <path d="M380,170 L440,170" stroke="black" stroke-width="2.2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+
+  <text x="410" y="300" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="14" fill="black">the convention violation from the first run is gone in the second</text>
+</svg>

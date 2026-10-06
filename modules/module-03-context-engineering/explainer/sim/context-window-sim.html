@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Context Window Visualizer — M03, Agentic Infrastructure as Code</title>
+<style>
+  :root{
+    --ink:#1e1e1e;
+    --gray:#757575;
+    --paper:#ffffff;
+    --p-green:#d5e8d4;
+    --p-red:#f8cecc;
+    --p-blue:#dae8fc;
+    --p-orange:#ffe6cc;
+    --p-purple:#e1d5e7;
+    --border:#bdbdbd;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--paper); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  .wrap{ max-width:1100px; margin:0 auto; padding:28px 20px 60px; }
+  h1{ font-size:22px; margin:0 0 4px; }
+  .sub{ color:var(--gray); margin:0 0 24px; font-size:14px; }
+  .layout{ display:grid; grid-template-columns: 320px 1fr; gap:28px; align-items:start; }
+  @media (max-width: 800px){ .layout{ grid-template-columns: 1fr; } }
+
+  .chunks{ display:flex; flex-direction:column; gap:8px; }
+  .chunk-btn{ text-align:left; border:1.5px solid var(--border); border-radius:8px; padding:10px 12px;
+    background:#fff; cursor:pointer; font-size:13px; line-height:1.35; }
+  .chunk-btn:hover{ border-color:var(--ink); }
+  .chunk-btn .name{ font-weight:600; display:flex; justify-content:space-between; gap:8px; }
+  .chunk-btn .tag{ font-weight:400; color:var(--gray); font-size:11px; }
+  .chunk-btn .toks{ color:var(--gray); font-size:11px; margin-top:2px; }
+  .chunk-btn:disabled{ opacity:.35; cursor:default; }
+
+  .swatch{ display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:6px;
+    border:1px solid rgba(0,0,0,.15); vertical-align:middle; }
+
+  .window{ border:2px solid var(--ink); border-radius:10px; padding:16px; min-height:420px;
+    display:flex; flex-direction:column; gap:0; position:relative; overflow:hidden; background:#fff; }
+  .budget-row{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; }
+  .budget-row .n{ font-size:13px; color:var(--gray); }
+  .bar-outer{ height:22px; border:1.5px solid var(--ink); border-radius:6px; overflow:hidden;
+    display:flex; margin-bottom:16px; background:#fafafa; }
+  .bar-seg{ height:100%; display:flex; align-items:center; justify-content:center; font-size:10px;
+    white-space:nowrap; overflow:hidden; border-right:1px solid rgba(0,0,0,.15); }
+  .stack{ display:flex; flex-direction:column; gap:6px; flex:1; }
+  .item{ border-radius:6px; padding:8px 10px; font-size:12.5px; display:flex; justify-content:space-between;
+    align-items:center; border:1px solid rgba(0,0,0,.15); }
+  .item button{ border:none; background:transparent; cursor:pointer; color:var(--gray); font-size:14px; line-height:1; }
+  .item button:hover{ color:var(--ink); }
+
+  .verdict{ margin-top:16px; border-radius:8px; padding:12px 14px; font-size:13.5px; border:1.5px dashed var(--border); }
+  .verdict.pass{ background:var(--p-green); border-color:#4caf50; }
+  .verdict.fail{ background:var(--p-red); border-color:#e57373; }
+  .verdict.overflow{ background:var(--p-red); border-color:#c62828; }
+  .verdict .h{ font-weight:700; margin-bottom:2px; }
+
+  .toggle-row{ display:flex; align-items:center; gap:8px; margin:0 0 18px; font-size:13px; }
+  .toggle-row input{ transform:scale(1.1); }
+
+  .legend{ display:flex; flex-wrap:wrap; gap:12px; margin-top:18px; font-size:12px; color:var(--gray); }
+
+  .reset{ margin-top:14px; border:1.5px solid var(--ink); background:#fff; border-radius:6px;
+    padding:6px 12px; font-size:12.5px; cursor:pointer; }
+  .reset:hover{ background:#f2f2f2; }
+
+  footer{ margin-top:34px; font-size:12px; color:var(--gray); border-top:1px solid var(--border); padding-top:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Context Window Visualizer</h1>
+  <p class="sub">Module 3 &middot; Context Engineering for Infrastructure &middot; a context window is a fixed,
+    shared budget. Every token spent on noise is a token not spent on getting the task right. Add pieces
+    on the left, watch the window fill on the right, and see whether the agent would actually land the
+    task with what you gave it.</p>
+
+  <div class="toggle-row">
+    <input type="checkbox" id="policyToggle" />
+    <label for="policyToggle">Task: fix the checkov finding from M01 (hardcoded secret). Policy text
+      ("secrets are never a <code>default</code>") made visible in context?</label>
+  </div>
+
+  <div class="layout">
+    <div>
+      <div class="chunks" id="chunkList"></div>
+    </div>
+
+    <div class="window">
+      <div class="budget-row">
+        <strong>Context window</strong>
+        <span class="n" id="budgetLabel">0 / 2000 tokens</span>
+      </div>
+      <div class="bar-outer" id="barOuter"></div>
+      <div class="stack" id="stack"></div>
+      <div id="verdictBox"></div>
+      <button class="reset" id="resetBtn">Reset window</button>
+      <div class="legend">
+        <span><span class="swatch" style="background:var(--p-blue)"></span>context (AGENTS.md)</span>
+        <span><span class="swatch" style="background:var(--p-purple)"></span>skill (on-demand)</span>
+        <span><span class="swatch" style="background:var(--p-orange)"></span>one-off prompt</span>
+        <span><span class="swatch" style="background:var(--p-green)"></span>relevant retrieval</span>
+        <span><span class="swatch" style="background:var(--p-red)"></span>noise / irrelevant</span>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Self-contained, no network calls. Budget is a teaching number (2000 tokens), not a real model's
+    context limit &mdash; the point is the ratio of signal to noise, not the absolute size.
+    Part of <strong>Module 3: Context Engineering for Infrastructure</strong>,
+    Agentic Infrastructure as Code.
+  </footer>
+</div>
+
+<script>
+const BUDGET = 2000;
+
+const CHUNKS = [
+  { id:'agents', name:'AGENTS.md (no policy line)', tag:'context', toks:350, color:'var(--p-blue)', kind:'context', required:true },
+  { id:'agents-policy', name:'AGENTS.md (with policy line)', tag:'context', toks:400, color:'var(--p-blue)', kind:'context', required:true, policyVariant:true },
+  { id:'file-main', name:'main.tf (the file with the bug)', tag:'retrieval', toks:250, color:'var(--p-green)', kind:'retrieval', required:true },
+  { id:'skill', name:'terraform-module-conventions skill', tag:'skill', toks:180, color:'var(--p-purple)', kind:'skill' },
+  { id:'prompt', name:'"fix the checkov finding" (one-off ask)', tag:'prompt', toks:40, color:'var(--p-orange)', kind:'prompt', required:true },
+  { id:'noise-readme', name:'unrelated README history', tag:'noise', toks:600, color:'var(--p-red)', kind:'noise' },
+  { id:'noise-log', name:'full CI log, unrelated run', tag:'noise', toks:900, color:'var(--p-red)', kind:'noise' },
+  { id:'noise-other-mod', name:'a different, unrelated module', tag:'noise', toks:700, color:'var(--p-red)', kind:'noise' },
+];
+
+let added = [];
+
+function usedTokens(){ return added.reduce((s,c)=>s+c.toks,0); }
+
+function render(){
+  const policyOn = document.getElementById('policyToggle').checked;
+
+  const chunkList = document.getElementById('chunkList');
+  chunkList.innerHTML = '';
+  CHUNKS.forEach(c => {
+    if (c.id === 'agents' && policyOn) return;
+    if (c.id === 'agents-policy' && !policyOn) return;
+    const already = added.find(a => a.id === c.id);
+    const btn = document.createElement('button');
+    btn.className = 'chunk-btn';
+    btn.disabled = !!already;
+    btn.innerHTML = `<div class="name"><span><span class="swatch" style="background:${c.color}"></span>${c.name}</span><span class="tag">${c.tag}</span></div><div class="toks">${c.toks} tokens</div>`;
+    btn.onclick = () => { if (!already) { added.push(c); render(); } };
+    chunkList.appendChild(btn);
+  });
+
+  const used = usedTokens();
+  document.getElementById('budgetLabel').textContent = `${used} / ${BUDGET} tokens`;
+
+  const barOuter = document.getElementById('barOuter');
+  barOuter.innerHTML = '';
+  const totalForBar = Math.max(used, BUDGET);
+  added.forEach(c => {
+    const seg = document.createElement('div');
+    const pct = (c.toks / totalForBar) * 100;
+    seg.className = 'bar-seg';
+    seg.style.width = pct + '%';
+    seg.style.background = c.color;
+    seg.title = `${c.name} — ${c.toks} tokens`;
+    barOuter.appendChild(seg);
+  });
+  if (used < BUDGET) {
+    const rest = document.createElement('div');
+    rest.style.width = ((BUDGET - used) / totalForBar * 100) + '%';
+    rest.style.background = '#f0f0f0';
+    barOuter.appendChild(rest);
+  }
+
+  const stack = document.getElementById('stack');
+  stack.innerHTML = '';
+  added.forEach(c => {
+    const row = document.createElement('div');
+    row.className = 'item';
+    row.style.background = c.color;
+    row.innerHTML = `<span><span class="swatch" style="background:${c.color}"></span>${c.name} &middot; ${c.toks} tok</span>`;
+    const rm = document.createElement('button');
+    rm.textContent = '✕';
+    rm.onclick = () => { added = added.filter(a => a.id !== c.id); render(); };
+    row.appendChild(rm);
+    stack.appendChild(row);
+  });
+
+  const verdictBox = document.getElementById('verdictBox');
+  const overflow = used > BUDGET;
+  const hasPrompt = added.some(a => a.kind === 'prompt');
+  const hasRetrieval = added.some(a => a.kind === 'retrieval');
+  const hasContext = added.some(a => a.id === 'agents' || a.id === 'agents-policy');
+  const hasPolicyLine = added.some(a => a.id === 'agents-policy');
+  const noiseTokens = added.filter(a => a.kind === 'noise').reduce((s,a)=>s+a.toks,0);
+  const noiseShare = used > 0 ? noiseTokens / used : 0;
+
+  let html = '';
+  if (overflow) {
+    verdictBox.className = 'verdict overflow';
+    html = `<div class="h">Over budget</div>This is what a truncated or dropped context window looks
+      like. Something above gets silently cut, usually the thing you added last, not the thing that
+      matters least.`;
+  } else if (!hasPrompt) {
+    verdictBox.className = 'verdict fail';
+    html = `<div class="h">No task stated</div>Every real run needs the actual ask in context too.
+      Add the one-off prompt.`;
+  } else if (!hasRetrieval) {
+    verdictBox.className = 'verdict fail';
+    html = `<div class="h">Agent can't get this task right at all</div>That's the classic context
+      symptom from M01: no relevant file in the window, so there's nothing to fix. Add
+      <em>main.tf</em>.`;
+  } else if (!hasContext) {
+    verdictBox.className = 'verdict fail';
+    html = `<div class="h">Fixes the wrong thing, or fixes it the wrong way</div>Without AGENTS.md,
+      the agent has the file and the ask, but not your house convention. It may "fix" the finding by
+      deleting the variable instead of marking it <code>sensitive</code>, the way M03's own lab run 1
+      did it.`;
+  } else if (hasPolicyLine) {
+    verdictBox.className = 'verdict pass';
+    html = `<div class="h">Passes, policy text visible</div>This is the 11-of-14 fix from the reading:
+      once the actual policy line is in context, not just implied, the agent follows it. Noise share:
+      ${(noiseShare*100).toFixed(0)}%.`;
+  } else {
+    verdictBox.className = 'verdict fail';
+    html = `<div class="h">Still a coin flip</div>AGENTS.md is present but the specific rule ("secrets
+      are never a default") isn't spelled out in it. The agent has the shape of a convention without
+      the actual line to follow. Swap in the policy-line version of AGENTS.md.`;
+  }
+  verdictBox.innerHTML = html;
+}
+
+document.getElementById('resetBtn').onclick = () => { added = []; render(); };
+document.getElementById('policyToggle').onchange = () => {
+  added = added.filter(a => a.id !== 'agents' && a.id !== 'agents-policy');
+  render();
+};
+
+render();
+</script>
+</body>
+</html>

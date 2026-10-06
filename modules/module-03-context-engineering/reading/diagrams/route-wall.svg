@@ -1,0 +1,41 @@
+<svg viewBox="0 0 860 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A task's plan and progress written to a STATE.md file on disk instead of held only in the conversation, so a brand new session with zero memory reads the file and continues correctly.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="860" height="380">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="14" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="860" height="380" fill="white"/>
+
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <rect x="40" y="40" width="230" height="110" rx="10" fill="#f8cecc" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
+    <text x="155" y="75" text-anchor="middle" font-size="15" fill="black">session 1</text>
+    <text x="155" y="98" text-anchor="middle" font-size="12" fill="black">decision made,</text>
+    <text x="155" y="116" text-anchor="middle" font-size="12" fill="black">context cleared</text>
+
+    <g stroke="black" stroke-width="2.2" filter="url(#sketch)">
+      <line x1="270" y1="95" x2="345" y2="220" marker-end="url(#arrow)"/>
+    </g>
+    <text x="270" y="170" font-size="11" fill="black">writes</text>
+
+    <rect x="315" y="215" width="230" height="110" rx="10" fill="#e1d5e7" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
+    <text x="430" y="248" text-anchor="middle" font-size="15" fill="black">STATE.md</text>
+    <text x="430" y="271" text-anchor="middle" font-size="12" fill="black">what's done,</text>
+    <text x="430" y="289" text-anchor="middle" font-size="12" fill="black">the decision, next action</text>
+
+    <g stroke="black" stroke-width="2.2" filter="url(#sketch)">
+      <line x1="545" y1="245" x2="620" y2="120" marker-end="url(#arrow)"/>
+    </g>
+    <text x="555" y="170" font-size="11" fill="black">reads</text>
+
+    <rect x="590" y="40" width="230" height="110" rx="10" fill="#d5e8d4" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
+    <text x="705" y="75" text-anchor="middle" font-size="15" fill="black">session 2</text>
+    <text x="705" y="98" text-anchor="middle" font-size="12" fill="black">zero memory,</text>
+    <text x="705" y="116" text-anchor="middle" font-size="12" fill="black">continues correctly</text>
+  </g>
+
+  <text x="430" y="360" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="15" fill="black">the plan lives on disk, not in the conversation</text>
+</svg>

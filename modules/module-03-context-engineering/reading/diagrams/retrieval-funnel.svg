@@ -1,0 +1,28 @@
+<svg viewBox="0 0 800 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A funnel from the whole repository, to the files relevant to the task, to what actually lands inside the context window, the same path a human would take.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="800" height="420">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="9" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  <rect x="0" y="0" width="800" height="420" fill="white"/>
+  <text x="400" y="34" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="20" fill="black">the retrieval funnel</text>
+
+  <g stroke="black" stroke-width="2.4" fill="white" filter="url(#sketch)">
+    <path d="M100,80 L700,80 L560,190 L240,190 Z"/>
+    <path d="M240,190 L560,190 L480,300 L320,300 Z"/>
+    <path d="M320,300 L480,300 L440,380 L360,380 Z"/>
+  </g>
+
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" fill="black" text-anchor="middle">
+    <text x="400" y="130" font-size="17">the whole repo</text>
+    <text x="400" y="152" font-size="13">hundreds of files</text>
+
+    <text x="400" y="240" font-size="17">files relevant to the task</text>
+    <text x="400" y="262" font-size="13">names and paths an agent can guess</text>
+
+    <text x="400" y="345" font-size="16">what lands in context</text>
+  </g>
+
+  <text x="400" y="405" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="15" fill="black">an agent finds what a human would find, by the same names and paths</text>
+</svg>

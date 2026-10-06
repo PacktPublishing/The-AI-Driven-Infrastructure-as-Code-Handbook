@@ -1,0 +1,40 @@
+<svg viewBox="0 0 900 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three disciplines side by side: Reduce, filter noise at the input; Retain, store standing knowledge outside the window so it survives a reset; Route, externalize an in-progress plan to disk so a fresh session can pick it up exactly where the last one stopped.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="900" height="360">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="11" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  <rect x="0" y="0" width="900" height="360" fill="white"/>
+
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <rect x="40" y="50" width="250" height="230" rx="10" fill="#dae8fc" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
+    <text x="165" y="85" text-anchor="middle" font-size="20" fill="black">REDUCE</text>
+    <text x="165" y="115" text-anchor="middle" font-size="13" fill="black">what enters</text>
+    <text x="165" y="133" text-anchor="middle" font-size="13" fill="black">the window</text>
+    <text x="165" y="170" text-anchor="middle" font-size="12" fill="black">filter noisy tool</text>
+    <text x="165" y="188" text-anchor="middle" font-size="12" fill="black">output at the input</text>
+    <text x="165" y="225" text-anchor="middle" font-size="12" fill="black">checkov --compact</text>
+    <text x="165" y="243" text-anchor="middle" font-size="12" fill="black">85% smaller, same findings</text>
+
+    <rect x="325" y="50" width="250" height="230" rx="10" fill="#d5e8d4" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
+    <text x="450" y="85" text-anchor="middle" font-size="20" fill="black">RETAIN</text>
+    <text x="450" y="115" text-anchor="middle" font-size="13" fill="black">what survives</text>
+    <text x="450" y="133" text-anchor="middle" font-size="13" fill="black">a reset</text>
+    <text x="450" y="170" text-anchor="middle" font-size="12" fill="black">standing facts, written</text>
+    <text x="450" y="188" text-anchor="middle" font-size="12" fill="black">once, read every run</text>
+    <text x="450" y="225" text-anchor="middle" font-size="12" fill="black">AGENTS.md</text>
+    <text x="450" y="243" text-anchor="middle" font-size="12" fill="black">pins, naming, never-do</text>
+
+    <rect x="610" y="50" width="250" height="230" rx="10" fill="#e1d5e7" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
+    <text x="735" y="85" text-anchor="middle" font-size="20" fill="black">ROUTE</text>
+    <text x="735" y="115" text-anchor="middle" font-size="13" fill="black">where the plan</text>
+    <text x="735" y="133" text-anchor="middle" font-size="13" fill="black">actually lives</text>
+    <text x="735" y="170" text-anchor="middle" font-size="12" fill="black">in-progress state,</text>
+    <text x="735" y="188" text-anchor="middle" font-size="12" fill="black">on disk, not in chat</text>
+    <text x="735" y="225" text-anchor="middle" font-size="12" fill="black">STATE.md</text>
+    <text x="735" y="243" text-anchor="middle" font-size="12" fill="black">a fresh session reads it</text>
+  </g>
+
+  <text x="450" y="330" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="15" fill="black">miss one and the other two don't save you</text>
+</svg>
