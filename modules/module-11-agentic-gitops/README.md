@@ -51,8 +51,8 @@ modules/module-11-agentic-gitops/
 
 - **A real agent opened the PR, not the course author.** `claude -p ... --permission-mode
   acceptEdits --allowedTools "Read,Edit,Bash(git *),Bash(gh *)"` added a variable with a
-  hardcoded AWS-style key, committed, pushed, and ran `gh pr create` itself: real PR #4 on
-  `310-agentic-iac-labs`. Its own output flagged the mistake in passing without stopping
+  hardcoded AWS-style key, committed, pushed, and ran `gh pr create` itself: real PR #1 on the book's own
+  companion repository. Its own output flagged the mistake in passing without stopping
   itself, real evidence that a disclaimer isn't a gate.
 - **A real pipeline caught it.** Trivy (added this pass, matching M09's real pipeline,
   0 findings on this toy module, honestly reported as such) and Checkov ran in a
@@ -133,7 +133,7 @@ does not build it.
 - [x] `README.md` (this file), live + Udemy delivery guide
 - [x] No retired tools presented as current
 - [x] The lab's CI workflow is real and caught a real flaw an agent introduced on its own,
-      automatically: PR #4 on `310-agentic-iac-labs`, opened by `claude -p` itself,
+      automatically: PR #1 on the book's companion repo, opened by `claude -p` itself,
       `CKV_SECRET_2`, fixed by a second real agent session, then merged for real
 - [x] GitOps reconciliation demonstrated for real against a real `kind` cluster, including a
       real self-heal test, not described only in prose

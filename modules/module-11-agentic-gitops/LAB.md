@@ -309,7 +309,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/schoolofdevops/310-agentic-iac-book.git
+    repoURL: https://github.com/PacktPublishing/The-AI-Driven-Infrastructure-as-Code-Handbook.git
     targetRevision: main
     path: modules/module-11-agentic-gitops/lab/gitops-demo
   destination:
@@ -321,9 +321,9 @@ spec:
       selfHeal: true
 ```
 
-This is a real, public repo, this book's own companion repo `310-agentic-iac-book`, and
-`lab/gitops-demo/` is a plain `ConfigMap` manifest merged there just now, the same repo you
-opened a pull request against a moment ago.
+This is a real, public repo: the book's own companion repository, the one you cloned to get
+this lab. `lab/gitops-demo/` is a plain `ConfigMap` manifest that lives in it. Argo CD reads
+it over plain HTTPS with no credential, because the repository is public.
 
 ```
 kubectl --context kind-m11-lab apply -f lab/solution/argocd-app.yaml
