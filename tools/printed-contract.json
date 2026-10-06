@@ -1,0 +1,318 @@
+{
+ "01": {
+  "cmds": [
+   "terraform fmt -diff",
+   "terraform init -backend=false",
+   "terraform validate",
+   "terraform plan",
+   "checkov -d ."
+  ],
+  "paths": [],
+  "files": [
+   "AGENTS.md"
+  ]
+ },
+ "02": {
+  "cmds": [
+   "claude -p \"You are helping with a Terraform module. Do NOT write or create any files. Just",
+   "terraform fmt -check -diff",
+   "terraform init -backend=false -input=false",
+   "terraform validate",
+   "terraform validate",
+   "terraform plan",
+   "terraform plan",
+   "claude -p \"Write a Terraform module (main.tf) in the current directory implementing this",
+   "terraform fmt -check -diff",
+   "terraform init -backend=false -input=false",
+   "terraform validate",
+   "terraform plan",
+   "terraform plan",
+   "diff -u step1-suggested/main.tf step2-drafted/main.tf",
+   "checkov -d .",
+   "claude -p \"A single local_file resource writing 'hello' to hello.txt. Propose the change.\" \\"
+  ],
+  "paths": [],
+  "files": [
+   "main.tf"
+  ]
+ },
+ "03": {
+  "cmds": [
+   "cd labs/shared/floci-spike",
+   "checkov -d . --framework terraform > /tmp/verbose.txt",
+   "checkov -d . --framework terraform --compact --quiet > /tmp/compact.txt",
+   "wc -c /tmp/verbose.txt /tmp/compact.txt",
+   "claude -p \"Give me a local nginx container for testing, serving a static page I control, with its rendered HTML kept on disk so I can diff it in git. No secrets in the container. I don't need it exposed outside this machine.\" \\",
+   "checkov -d .",
+   "checkov -d .",
+   "claude -p \"Read STATE.md in this directory and do exactly what it says. Nothing else.\" \\",
+   "cat main.tf",
+   "checkov -d ."
+  ],
+  "paths": [
+   "labs/shared/floci-spike"
+  ],
+  "files": [
+   "AGENTS.md",
+   "main.tf"
+  ]
+ },
+ "04": {
+  "cmds": [
+   "claude -p \"Give me a small S3 bucket for build artifacts, with a credential for the uploader sidecar that ships them there.\" \\",
+   "terraform fmt -check",
+   "terraform init -backend=false && terraform validate",
+   "checkov -d . --framework secrets",
+   "claude -p \"Give me a small S3 bucket for build artifacts, with a credential for the uploader sidecar that ships them there.\" \\",
+   "terraform fmt -check",
+   "terraform init -backend=false && terraform validate",
+   "checkov -d . --framework secrets",
+   "python3 .claude/skills/vpc-environment-scaffold/scripts/check_cidr_overlap.py vpc/envs",
+   "python3 .claude/skills/vpc-environment-scaffold/scripts/check_cidr_overlap.py /tmp/m04-overlap-test",
+   "rm -rf /tmp/m04-overlap-test",
+   "grep -c \"credentials\\|id_rsa\" .claude/skills/terraform-formatter-untrusted/SKILL.md"
+  ],
+  "paths": [
+   "labs/shared/floci-spike/provider.tf."
+  ],
+  "files": [
+   "AGENTS.md",
+   "SKILL.md",
+   "check_cidr_overlap.py"
+  ]
+ },
+ "05": {
+  "cmds": [
+   "uvx awslabs.aws-iac-mcp-server@latest --help",
+   "claude -p --strict-mcp-config \"Without searching the web or using any tools, from what you already know: what is the exact latest version number of the kreuzwerker/docker Terraform provider, and what is the full list of top-level arguments the docker_container resource's healthcheck block accepts? Answer from memory only, give your best specific answer even if you're not fully sure.\"",
+   "claude -p \"Using the terraform MCP tools available to you, look up the exact latest version number of the kreuzwerker/docker Terraform provider on the registry, and the full list of top-level arguments the docker_container resource's healthcheck block accepts. Cite what the tool actually returned.\"",
+   "claude -p \"Using the terraform MCP tools available to you, look up the aws_db_parameter_group resource in the hashicorp/aws provider. Tell me: the exact required arguments, and what the 'family' argument value should be for a MySQL 8.0 RDS instance. Cite what the tool actually returned.\" --allowedTools \"mcp__terraform__*\"",
+   "terraform init",
+   "terraform apply -auto-approve",
+   "terraform show -json | python3 -c \"",
+   "checkov -d . --framework terraform --check CKV_AWS_16 --compact --quiet",
+   "checkov -d . --framework terraform --check CKV_AWS_16 --compact --quiet",
+   "terraform destroy -auto-approve"
+  ],
+  "paths": [],
+  "files": []
+ },
+ "06": {
+  "cmds": [
+   "terraform -chdir=module apply -auto-approve",
+   "terraform -chdir=module apply -auto-approve",
+   "./hooks/apply_with_gate.sh",
+   "terraform -chdir=module state list",
+   "./harness/propose.sh \"Add a new S3 bucket resource named 'audit' with bucket name 'm06-lab-audit'.\"",
+   "./harness/apply_with_approval.sh plans/add-a-new-s3-squishy-metcalfe.md",
+   "./harness/approve.sh plans/add-a-new-s3-squishy-metcalfe.md",
+   "./harness/apply_with_approval.sh plans/add-a-new-s3-squishy-metcalfe.md",
+   "terraform -chdir=module destroy -auto-approve"
+  ],
+  "paths": [
+   "module/main.tf",
+   "modules/module-06-guardrails/LAB.md",
+   "modules/module-06-guardrails/reading/reference.md"
+  ],
+  "files": [
+   "apply_with_approval.sh"
+  ]
+ },
+ "07": {
+  "cmds": [
+   "terraform fmt -check -diff .",
+   "terraform init -backend=false",
+   "terraform validate",
+   "checkov -d lab/spec-driven --compact --quiet",
+   "checkov -d lab/vibe-coded --compact --quiet",
+   "terraform apply -auto-approve",
+   "terraform state show aws_autoscaling_group.checkout_web",
+   "terraform destroy -auto-approve",
+   "tofu init -backend=false -input=false",
+   "tofu apply -auto-approve",
+   "tofu destroy -auto-approve"
+  ],
+  "paths": [
+   "lab/spec-driven",
+   "lab/vibe-coded"
+  ],
+  "files": []
+ },
+ "08": {
+  "cmds": [
+   "claude -p \"Review the S3 bucket in starter/main.tf and tell me if it's clean and ready to ship.\" \\",
+   "checkov -d starter --compact --quiet",
+   "./hooks/verify_claim.sh evidence/unbacked-claim.txt",
+   "./hooks/verify_claim.sh evidence/backed-claim.txt",
+   "checkov -d starter --compact --quiet",
+   "terraform -chdir=starter apply -auto-approve",
+   "terraform -chdir=starter destroy -auto-approve",
+   "./test_encryption.sh",
+   "./test_encryption.sh",
+   "terraform validate",
+   "terraform validate",
+   "terraform apply -auto-approve",
+   "terraform destroy -auto-approve"
+  ],
+  "paths": [],
+  "files": []
+ },
+ "09": {
+  "cmds": [
+   "cd labs/shared/floci-spike",
+   "trivy config --quiet --severity HIGH,CRITICAL .",
+   "checkov -d . --compact --quiet --framework terraform --skip-download",
+   "cd modules/module-09-verifying-ai-infra/lab",
+   "trivy config --quiet --severity HIGH,CRITICAL module",
+   "checkov -d module --compact --quiet --framework terraform --skip-download",
+   "terraform -chdir=module init -backend=false -input=false",
+   "terraform -chdir=module plan -out=/tmp/plan.bin -var=\"endpoint=http://localhost:4566\"",
+   "terraform -chdir=module show -json /tmp/plan.bin > /tmp/plan.json",
+   "conftest test --policy policy /tmp/plan.json",
+   "./pipeline.sh module",
+   "./pipeline.sh solution",
+   "python3 eval/rubric.py eval/fixture-bad.tf",
+   "python3 eval/rubric.py eval/fixture-good.tf",
+   "claude -p \"Write a Terraform aws_s3_bucket resource named 'reports', bucket name m09-eval-reports-live. Tag it Environment=lab, Owner=m09-lab, ManagedBy=terraform-module-conventions-skill. Write only the resource block to eval/fixture-live.tf, nothing else.\" \\",
+   "python3 eval/rubric.py eval/fixture-live.tf"
+  ],
+  "paths": [
+   "labs/shared/floci-spike",
+   "labs/shared/floci-spike/provider.tf",
+   "modules/module-09-verifying-ai-infra/lab"
+  ],
+  "files": [
+   "main.tf",
+   "pipeline.sh",
+   "required_tags.rego"
+  ]
+ },
+ "10": {
+  "cmds": [
+   "kind create cluster --config lab/starter/kind-config.yaml",
+   "kubectl get nodes",
+   "helm repo add crossplane-stable https://charts.crossplane.io/stable",
+   "helm repo update",
+   "kubectl --context kind-m10-lab create namespace crossplane-system",
+   "helm install crossplane crossplane-stable/crossplane \\",
+   "helm list -n crossplane-system",
+   "kubectl --context kind-m10-lab apply -f - <<'EOF'",
+   "kubectl --context kind-m10-lab get functions.pkg.crossplane.io",
+   "kubectl --context kind-m10-lab apply -f lab/solution/xrd.yaml",
+   "kubectl --context kind-m10-lab apply -f lab/solution/composition.yaml",
+   "kubectl --context kind-m10-lab apply -f lab/solution/xr.yaml",
+   "kubectl --context kind-m10-lab get xappconfig checkout-service -n default",
+   "kubectl --context kind-m10-lab delete -f lab/solution/xr.yaml",
+   "kubectl --context kind-m10-lab create namespace dbaas-manual",
+   "kubectl --context kind-m10-lab apply -f lab/manifests/postgres-secret.yaml \\",
+   "kubectl --context kind-m10-lab -n dbaas-manual rollout status statefulset/postgres --timeout=120s",
+   "kubectl --context kind-m10-lab -n dbaas-manual exec postgres-0 -- \\",
+   "helm install billing-db ./lab/charts/postgres-db -n dbaas-helm --create-namespace \\",
+   "kubectl --context kind-m10-lab -n dbaas-helm exec billing-db-postgres-0 -- \\",
+   "kubectl --context kind-m10-lab apply -f lab/solution/db-xrd.yaml",
+   "kubectl --context kind-m10-lab apply -f lab/solution/db-composer-rbac.yaml",
+   "kubectl --context kind-m10-lab apply -f lab/solution/db-composition.yaml",
+   "kubectl --context kind-m10-lab diff -f lab/solution/db-xr.yaml",
+   "kubectl --context kind-m10-lab apply -f lab/solution/db-xr.yaml",
+   "kubectl --context kind-m10-lab get xdatabase billing -n default",
+   "claude -p \"Read lab/solution/db-xrd.yaml to learn the XDatabase schema (apiVersion \\",
+   "kubectl --context kind-m10-lab diff -f lab/requests/analytics-xr.yaml",
+   "kubectl --context kind-m10-lab apply -f lab/requests/analytics-xr.yaml",
+   "kubectl --context kind-m10-lab get xdatabase analytics-db -n default"
+  ],
+  "paths": [
+   "lab/charts/postgres-db",
+   "lab/manifests/postgres-secret.yaml",
+   "lab/manifests/postgres-service.yaml",
+   "lab/manifests/postgres-statefulset.yaml",
+   "lab/requests/analytics-xr.yaml",
+   "lab/solution/composition.yaml",
+   "lab/solution/db-composer-rbac.yaml",
+   "lab/solution/db-composition.yaml",
+   "lab/solution/db-xr.yaml",
+   "lab/solution/db-xrd.yaml",
+   "lab/solution/xr.yaml",
+   "lab/solution/xrd.yaml",
+   "lab/starter/kind-config.yaml"
+  ],
+  "files": []
+ },
+ "11": {
+  "cmds": [
+   "claude -p \"Add a new Terraform variable named signing_key_id to",
+   "gh pr checks 1",
+   "gh run view 36970690837 --log-failed",
+   "claude -p \"You are on git branch m11-agent-proposed-demo, PR",
+   "gh pr checks 1",
+   "gh pr merge 1 --squash --delete-branch",
+   "gh pr view 1 --json state,mergeCommit -q '[.state, .mergeCommit.oid] | @tsv'",
+   "kind create cluster --name m11-lab --config lab/starter/kind-config.yaml",
+   "kubectl --context kind-m11-lab create namespace argocd",
+   "kubectl --context kind-m11-lab apply -n argocd --server-side --force-conflicts \\",
+   "kubectl --context kind-m11-lab -n argocd wait --for=condition=available --timeout=240s \\",
+   "kubectl --context kind-m11-lab apply -f lab/solution/argocd-app.yaml",
+   "kubectl --context kind-m11-lab get application m11-gitops-demo -n argocd",
+   "kubectl --context kind-m11-lab get configmap m11-gitops-demo -n default -o jsonpath='{.data.message}'",
+   "kubectl --context kind-m11-lab patch configmap m11-gitops-demo -n default --type merge \\",
+   "kubectl --context kind-m11-lab get configmap m11-gitops-demo -n default -o jsonpath='{.data.message}'",
+   "kubectl --context kind-m11-lab get configmap m11-gitops-demo -n default -o jsonpath='{.data.message}'"
+  ],
+  "paths": [
+   "lab/solution/argocd-app.yaml",
+   "lab/starter/kind-config.yaml",
+   "book/pull/1",
+   "modules/module-11-agentic-gitops/lab/pipeline-demo/**",
+   "modules/module-11-agentic-gitops/lab/pipeline-demo/main.tf."
+  ],
+  "files": []
+ },
+ "12": {
+  "cmds": [
+   "bash lab/solution/loop.sh /tmp/m12-try",
+   "rm -rf lab/solution/work",
+   "bash lab/solution/loop.sh lab/solution/work",
+   "bash lab/solution/loop.sh lab/solution/work",
+   "bash lab/solution/loop.sh lab/solution/work",
+   "cd modules/module-12-loop-multiagent-economics/lab",
+   "python3 finops/gate.py finops/plan-over-budget.json",
+   "python3 finops/gate.py finops/plan-in-budget.json",
+   "cd starter",
+   "terraform init -backend=false -input=false",
+   "terraform plan -out=tfplan.bin",
+   "terraform show -json tfplan.bin > ../finops/plan-real.json",
+   "cd ..",
+   "python3 finops/gate.py finops/plan-real.json"
+  ],
+  "paths": [
+   "lab/solution/loop.sh",
+   "lab/solution/work",
+   "modules/module-12-loop-multiagent-economics/lab"
+  ],
+  "files": []
+ },
+ "13": {
+  "cmds": [
+   "cd lab/tier1-floci",
+   "bash pipeline.sh starter",
+   "bash pipeline.sh solution",
+   "export CAPSTONE_HUMAN_APPROVED=1",
+   "bash pipeline.sh solution",
+   "terraform -chdir=solution apply -auto-approve -no-color",
+   "aws --endpoint-url=http://localhost:4566 s3api put-bucket-versioning --bucket capstone-app-uploads --versioning-configuration Status=Suspended --region us-east-1",
+   "terraform -chdir=solution plan -no-color -input=false",
+   "terraform -chdir=solution destroy -auto-approve -no-color",
+   "cd lab/tier2-kubernetes",
+   "./run.sh",
+   "kind delete cluster --name \"$CLUSTER_NAME\"",
+   "terraform destroy"
+  ],
+  "paths": [
+   "capstone/rubric.md",
+   "lab/tier1-floci",
+   "lab/tier2-kubernetes"
+  ],
+  "files": [
+   "AGENTS.md"
+  ]
+ }
+}

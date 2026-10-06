@@ -1,0 +1,19 @@
+name: Book contract
+
+# The book is printed and cites paths in this repository directly. This gate is what keeps
+# that true. Runs on every push to main and on every pull request, because main is the only
+# thing the book points at.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: every printed command and named path is real in this tree
+        run: ./tools/check-book-contract.sh
