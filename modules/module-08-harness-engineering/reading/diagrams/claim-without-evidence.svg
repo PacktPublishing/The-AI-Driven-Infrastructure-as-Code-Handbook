@@ -1,0 +1,25 @@
+<svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="An agent says checkov passes, no real command output anywhere nearby, a hook scans the claim and blocks it for missing evidence.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="880" height="300">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="41" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="880" height="300" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <rect x="60" y="50" width="320" height="90" rx="10" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="220" y="85" text-anchor="middle" font-size="13" fill="black">agent: "checkov passes,</text>
+    <text x="220" y="105" text-anchor="middle" font-size="13" fill="black">the module is clean"</text>
+    <text x="220" y="160" text-anchor="middle" font-size="12" fill="#999">no real checkov output anywhere in the turn</text>
+
+    <path d="M400,95 L520,95" stroke="black" stroke-width="2.4" marker-end="url(#arrow)" filter="url(#sketch)"/>
+
+    <rect x="530" y="50" width="290" height="90" rx="10" fill="#f8cecc" stroke="black" stroke-width="2.8" filter="url(#sketch)"/>
+    <text x="675" y="90" text-anchor="middle" font-size="15" fill="black">hook: BLOCK</text>
+    <text x="675" y="112" text-anchor="middle" font-size="11" fill="#333">claim found, no evidence found</text>
+  </g>
+  <text x="440" y="230" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="14" fill="black">a claim with no evidence never reaches "done"</text>
+</svg>

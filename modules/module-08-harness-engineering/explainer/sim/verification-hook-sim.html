@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Verification Hook Simulator — M08, Agentic Infrastructure as Code</title>
+<style>
+  :root{
+    --ink:#1e1e1e;
+    --gray:#757575;
+    --paper:#ffffff;
+    --p-green:#d5e8d4;
+    --p-red:#f8cecc;
+    --p-blue:#dae8fc;
+    --p-orange:#ffe6cc;
+    --p-purple:#e1d5e7;
+    --border:#bdbdbd;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--paper); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  .wrap{ max-width:1000px; margin:0 auto; padding:28px 20px 60px; }
+  h1{ font-size:22px; margin:0 0 4px; }
+  .sub{ color:var(--gray); margin:0 0 24px; font-size:14px; }
+
+  .claims{ display:flex; flex-direction:column; gap:8px; margin-bottom:18px; }
+  .claim-btn{ text-align:left; border:1.5px solid var(--border); border-radius:8px; padding:10px 12px;
+    background:#fff; cursor:pointer; font-size:13px; font-family:ui-monospace,Menlo,monospace; }
+  .claim-btn.active{ border-color:var(--ink); background:var(--p-blue); }
+
+  .toggle-row{ display:flex; align-items:center; gap:10px; margin:0 0 20px; font-size:14px; }
+  .toggle-row input{ transform:scale(1.2); }
+
+  .evidence-box{ border:1.5px dashed var(--border); border-radius:8px; padding:12px 14px;
+    font-family:ui-monospace,Menlo,monospace; font-size:12.5px; white-space:pre-wrap;
+    background:#fafafa; margin-bottom:20px; min-height:40px; }
+  .evidence-box.empty{ color:var(--gray); font-style:italic; font-family:inherit; }
+
+  .verdict{ border-radius:8px; padding:14px 16px; font-size:14px; border:1.5px solid var(--border); }
+  .verdict.pass{ background:var(--p-green); border-color:#4caf50; }
+  .verdict.block{ background:var(--p-red); border-color:#c62828; }
+  .verdict .h{ font-weight:700; margin-bottom:4px; font-family:ui-monospace,Menlo,monospace; }
+  .verdict .code{ font-family:ui-monospace,Menlo,monospace; font-size:12px; color:var(--gray); margin-top:6px; }
+
+  .hook-src{ margin-top:26px; border-top:1px solid var(--border); padding-top:14px; }
+  .hook-src pre{ background:#fafafa; border:1px solid var(--border); border-radius:8px; padding:12px;
+    font-size:11.5px; overflow-x:auto; }
+  footer{ margin-top:30px; font-size:12px; color:var(--gray); border-top:1px solid var(--border); padding-top:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Verification Hook Simulator</h1>
+  <p class="sub">Module 8 &middot; Harness Engineering &middot; the same regex-based hook from this
+    module's real lab (<code>verify_claim.sh</code>). Pick a completion claim, toggle whether real
+    command evidence sits beside it, and see the hook's actual verdict.</p>
+
+  <div class="claims" id="claimList"></div>
+
+  <div class="toggle-row">
+    <input type="checkbox" id="evidenceToggle" />
+    <label for="evidenceToggle">Attach real evidence: actual <code>checkov</code> output sitting
+      right next to the claim, not just the words</label>
+  </div>
+
+  <div class="evidence-box empty" id="evidenceBox">no evidence attached</div>
+
+  <div id="verdictBox"></div>
+
+  <div class="hook-src">
+    <strong>The real hook, from <code>modules/module-08-harness-engineering/lab/hooks/verify_claim.sh</code>:</strong>
+    <pre>CLAIM_RE='(checkov (passes|is clean|clean)|tests? pass(es)?|it works|this works|is clean now|no (more )?findings)'
+EVIDENCE_RE='(Passed checks: [0-9]+, Failed checks: [0-9]+|Check: CKV|exit code:? *0|\$ checkov)'
+
+if ! grep -Eiq "$CLAIM_RE" "$FILE"; then
+  echo "PASS: no completion claim found, nothing to verify"; exit 0
+fi
+if grep -Eiq "$EVIDENCE_RE" "$FILE"; then
+  echo "PASS: completion claim found, and real command evidence backs it up"; exit 0
+fi
+echo "BLOCK: completion claim found with no real command evidence in the transcript" &gt;&2
+exit 1</pre>
+  </div>
+
+  <footer>
+    Self-contained, no network calls. The claim/evidence text and regex logic here mirror the real
+    shell script this module's lab actually runs and verifies with <code>run.sh</code>. Part of
+    <strong>Module 8: Harness Engineering</strong>, Agentic Infrastructure as Code.
+  </footer>
+</div>
+
+<script>
+const CLAIMS = [
+  { id: 'checkov-clean', text: '"checkov is clean now, the module is done."', matchesClaimRe: true },
+  { id: 'tests-pass', text: '"Ran it, tests pass, ship it."', matchesClaimRe: true },
+  { id: 'it-works', text: '"This works, I checked."', matchesClaimRe: true },
+  { id: 'no-claim', text: '"Here is the updated main.tf, take a look."', matchesClaimRe: false },
+];
+
+const EVIDENCE_TEXT = 'Passed checks: 11, Failed checks: 0, Skipped checks: 0\n\n$ checkov -d . --compact --quiet\nexit code: 0';
+
+let selectedClaim = null;
+
+function render(){
+  const evidenceOn = document.getElementById('evidenceToggle').checked;
+
+  const claimList = document.getElementById('claimList');
+  claimList.innerHTML = '';
+  CLAIMS.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'claim-btn' + (selectedClaim && selectedClaim.id === c.id ? ' active' : '');
+    btn.textContent = c.text;
+    btn.onclick = () => { selectedClaim = c; render(); };
+    claimList.appendChild(btn);
+  });
+
+  const evidenceBox = document.getElementById('evidenceBox');
+  if (evidenceOn) {
+    evidenceBox.textContent = EVIDENCE_TEXT;
+    evidenceBox.className = 'evidence-box';
+  } else {
+    evidenceBox.textContent = 'no evidence attached';
+    evidenceBox.className = 'evidence-box empty';
+  }
+
+  const verdictBox = document.getElementById('verdictBox');
+  if (!selectedClaim) {
+    verdictBox.innerHTML = '';
+    return;
+  }
+
+  let html;
+  if (!selectedClaim.matchesClaimRe) {
+    verdictBox.className = 'verdict pass';
+    html = '<div class="h">PASS</div>no completion claim found, nothing to verify<div class="code">exit code: 0</div>';
+  } else if (evidenceOn) {
+    verdictBox.className = 'verdict pass';
+    html = '<div class="h">PASS</div>completion claim found, and real command evidence backs it up<div class="code">exit code: 0</div>';
+  } else {
+    verdictBox.className = 'verdict block';
+    html = '<div class="h">BLOCK</div>completion claim found with no real command evidence in the transcript<div class="code">exit code: 1</div>';
+  }
+  verdictBox.innerHTML = html;
+}
+
+document.getElementById('evidenceToggle').onchange = render;
+render();
+</script>
+</body>
+</html>
