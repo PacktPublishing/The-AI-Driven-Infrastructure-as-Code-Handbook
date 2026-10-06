@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Skill Discoverability Simulator — M04, Agentic Infrastructure as Code</title>
+<style>
+  :root{
+    --ink:#1e1e1e;
+    --gray:#757575;
+    --paper:#ffffff;
+    --p-green:#d5e8d4;
+    --p-red:#f8cecc;
+    --p-blue:#dae8fc;
+    --p-orange:#ffe6cc;
+    --p-purple:#e1d5e7;
+    --border:#bdbdbd;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--paper); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  .wrap{ max-width:1080px; margin:0 auto; padding:28px 20px 60px; }
+  h1{ font-size:22px; margin:0 0 4px; }
+  .sub{ color:var(--gray); margin:0 0 20px; font-size:14px; }
+  .disclaimer{ font-size:12px; color:var(--gray); background:#f7f7f7; border:1px solid var(--border);
+    border-radius:8px; padding:10px 12px; margin-bottom:20px; }
+
+  .task-row{ display:flex; gap:8px; margin-bottom:10px; }
+  #taskInput{ flex:1; font-size:14px; padding:10px 12px; border:1.5px solid var(--border); border-radius:8px; }
+  #taskInput:focus{ outline:2px solid var(--ink); }
+
+  .presets{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:24px; }
+  .preset-btn{ border:1.5px solid var(--border); border-radius:999px; padding:5px 12px;
+    background:#fff; cursor:pointer; font-size:12px; }
+  .preset-btn:hover{ border-color:var(--ink); }
+
+  .skills{ display:flex; flex-direction:column; gap:10px; }
+  .skill-card{ border:1.5px solid var(--border); border-radius:10px; padding:12px 14px; }
+  .skill-card.matched{ border-color:#2e7d32; background:var(--p-green); }
+  .skill-card .name{ font-weight:700; font-size:13.5px; font-family:ui-monospace,monospace; }
+  .skill-card .desc{ font-size:12.5px; color:var(--ink); margin-top:4px; }
+  .skill-card .desc.vague{ color:var(--gray); font-style:italic; }
+  .skill-card .verdict{ margin-top:8px; font-size:12px; font-weight:700; }
+  .skill-card .verdict.fire{ color:#2e7d32; }
+  .skill-card .verdict.no-fire{ color:var(--gray); }
+  .overlap{ font-size:11.5px; color:var(--gray); margin-top:4px; }
+  mark{ background:var(--p-orange); padding:0 2px; border-radius:3px; }
+
+  footer{ margin-top:34px; font-size:12px; color:var(--gray); border-top:1px solid var(--border); padding-top:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Skill Discoverability Simulator</h1>
+  <p class="sub">Module 4 &middot; Agent Skills for IaC &middot; type a task, and see which skills'
+    <code>description</code> field actually matches it closely enough to trigger, and which ones
+    sit there, correctly written, completely unused.</p>
+
+  <div class="disclaimer">This tool matches on shared words and phrases between your task and each
+    skill's real <code>description</code> field, a simplified stand-in for teaching purposes. A real
+    agent's matching is more capable than plain keyword overlap, but the lesson holds regardless of
+    the exact algorithm: a vague description gives it nothing concrete to match against, no matter
+    how the matching actually works under the hood.</p>
+
+  <div class="task-row">
+    <input type="text" id="taskInput" placeholder="Describe a task, e.g. 'write an S3 bucket module'" />
+  </div>
+  <div class="presets" id="presets"></div>
+
+  <div class="skills" id="skillList"></div>
+
+  <footer>
+    Self-contained, no network calls. The skill descriptions here are the real ones from this
+    course's own repo (<code>demos/m1-agent-preview</code>, and the ones written for M04's own lab),
+    plus one deliberately vague description to show what "correctly written, unused" looks like.
+    Part of <strong>Module 4: Agent Skills for IaC</strong>, Agentic Infrastructure as Code.
+  </footer>
+</div>
+
+<script>
+const SKILLS = [
+  {
+    name: 'container-conventions',
+    desc: 'House rules for any container built in this repo. Use whenever asked to write, generate, or extend a Dockerfile or docker-compose file.',
+    vague: false,
+    keywords: ['container', 'containers', 'dockerfile', 'docker-compose', 'docker', 'image', 'build']
+  },
+  {
+    name: 'terraform-module-conventions',
+    desc: 'House rules for any Terraform module written against this repo\'s AWS-shaped provider. Use whenever asked to write, generate, or extend a Terraform module for an AWS resource.',
+    vague: false,
+    keywords: ['terraform', 'module', 'modules', 'aws', 's3', 'bucket', 'dynamodb', 'resource', 'provider', 'iac', 'infrastructure']
+  },
+  {
+    name: 'terraform-best-practices',
+    desc: 'Terraform best practices.',
+    vague: true,
+    keywords: ['terraform']
+  },
+  {
+    name: 'checkov-remediation',
+    desc: 'Use whenever a checkov scan finding needs to be fixed in Terraform, explains the finding and proposes the specific remediation, not a generic security lecture.',
+    vague: false,
+    keywords: ['checkov', 'scan', 'finding', 'remediation', 'fix', 'security', 'secrets', 'secret']
+  },
+];
+
+const PRESETS = [
+  'write an S3 bucket module',
+  'fix this checkov finding about a hardcoded secret',
+  'build a Dockerfile for the API service',
+  'clean up this codebase',
+  'what are terraform best practices',
+];
+
+function $(id){ return document.getElementById(id); }
+
+function tokenize(s) {
+  return (s.toLowerCase().match(/[a-z0-9-]+/g) || []);
+}
+
+function matchSkill(taskText, skill) {
+  const taskTokens = new Set(tokenize(taskText));
+  const hits = skill.keywords.filter(k => taskTokens.has(k) || taskText.toLowerCase().includes(k));
+  return { hits, fires: hits.length > 0 && !skill.vague ? hits.length >= 1 : (hits.length > 0 && !skill.vague) };
+}
+
+function highlightDesc(desc, hits) {
+  let out = desc;
+  hits.forEach(h => {
+    const re = new RegExp('(' + h.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&') + ')', 'ig');
+    out = out.replace(re, '<mark>$1</mark>');
+  });
+  return out;
+}
+
+function render() {
+  const task = $('taskInput').value.trim();
+  const list = $('skillList');
+  list.innerHTML = '';
+
+  SKILLS.forEach(skill => {
+    const { hits, fires } = task ? matchSkill(task, skill) : { hits: [], fires: false };
+    const card = document.createElement('div');
+    card.className = 'skill-card' + (fires ? ' matched' : '');
+    const descHtml = task && hits.length ? highlightDesc(skill.desc, hits) : skill.desc;
+    card.innerHTML = `
+      <div class="name">${skill.name}</div>
+      <div class="desc${skill.vague ? ' vague' : ''}">"${descHtml}"</div>
+      ${task ? `<div class="verdict ${fires ? 'fire' : 'no-fire'}">${fires ? 'Triggered for this task' : (skill.vague ? 'Never fires, nothing concrete to match against' : 'Not matched for this task')}</div>` : ''}
+      ${task && hits.length ? `<div class="overlap">shared terms: ${hits.join(', ')}</div>` : ''}
+    `;
+    list.appendChild(card);
+  });
+}
+
+function renderPresets() {
+  const box = $('presets');
+  PRESETS.forEach(p => {
+    const b = document.createElement('button');
+    b.className = 'preset-btn';
+    b.textContent = p;
+    b.onclick = () => { $('taskInput').value = p; render(); };
+    box.appendChild(b);
+  });
+}
+
+$('taskInput').addEventListener('input', render);
+renderPresets();
+render();
+</script>
+</body>
+</html>

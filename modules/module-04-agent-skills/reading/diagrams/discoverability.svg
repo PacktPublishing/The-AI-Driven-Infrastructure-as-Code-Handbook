@@ -1,0 +1,36 @@
+<svg viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A task description flowing into a matcher, compared against several skill descriptions, one match found and invoked, others left untouched.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="900" height="300">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="11" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="900" height="300" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <rect x="30" y="110" width="180" height="80" rx="10" fill="#ffe6cc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="120" y="145" text-anchor="middle" font-size="13" fill="black">task:</text>
+    <text x="120" y="165" text-anchor="middle" font-size="12" fill="black">"write an S3 module"</text>
+
+    <path d="M215,150 L275,150" stroke="black" stroke-width="2.2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+
+    <rect x="285" y="100" width="130" height="100" rx="10" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="350" y="155" text-anchor="middle" font-size="13" fill="black">matcher</text>
+
+    <path d="M420,120 L560,60" stroke="black" stroke-width="2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <path d="M420,150 L560,150" stroke="black" stroke-width="2.4" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <path d="M420,180 L560,240" stroke="black" stroke-width="2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+
+    <rect x="570" y="30" width="290" height="55" rx="8" fill="white" stroke="#999" stroke-width="1.6" filter="url(#sketch)"/>
+    <text x="715" y="63" text-anchor="middle" font-size="12" fill="#999">"container conventions" — no match</text>
+
+    <rect x="570" y="122" width="290" height="55" rx="8" fill="#d5e8d4" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
+    <text x="715" y="155" text-anchor="middle" font-size="13" fill="black">"terraform-module-conventions" — matched, invoked</text>
+
+    <rect x="570" y="212" width="290" height="55" rx="8" fill="white" stroke="#999" stroke-width="1.6" filter="url(#sketch)"/>
+    <text x="715" y="245" text-anchor="middle" font-size="12" fill="#999">"deploy-pipeline" — no match</text>
+  </g>
+  <text x="450" y="290" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="14" fill="black">the description field is the whole match, a vague one never fires</text>
+</svg>

@@ -1,0 +1,32 @@
+<svg viewBox="0 0 860 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="An annotated SKILL.md file: YAML frontmatter with name and description fields at the top, plain instructions in the body below.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="860" height="340">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="4" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="860" height="340" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <rect x="60" y="30" width="420" height="300" rx="8" fill="white" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
+    <rect x="60" y="30" width="420" height="90" rx="8" fill="#e1d5e7" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+    <text x="80" y="55" font-size="13" fill="black">---</text>
+    <text x="80" y="78" font-size="13" fill="black">name: terraform-module-conventions</text>
+    <text x="80" y="101" font-size="13" fill="black">description: use whenever...</text>
+    <text x="80" y="145" font-size="13" fill="black"># Terraform module conventions</text>
+    <text x="80" y="175" font-size="13" fill="black">- pin the aws provider ~&gt; 6.0</text>
+    <text x="80" y="200" font-size="13" fill="black">- required tags block</text>
+    <text x="80" y="225" font-size="13" fill="black">- never a secret in a default</text>
+  </g>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="14">
+    <path d="M520,65 L600,65" stroke="black" stroke-width="2.2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <text x="610" y="70" fill="black">frontmatter: the matching key</text>
+    <path d="M520,180 L600,180" stroke="black" stroke-width="2.2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <text x="610" y="185" fill="black">body: plain, flat rules</text>
+    <path d="M520,265 L600,265" stroke="black" stroke-width="2.2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <text x="610" y="270" fill="black">an agent follows a rule</text>
+    <text x="610" y="290" fill="black">it can read, not one it infers</text>
+  </g>
+</svg>
