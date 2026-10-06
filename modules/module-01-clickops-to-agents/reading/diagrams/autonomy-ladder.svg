@@ -1,0 +1,36 @@
+<svg viewBox="0 0 820 620" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A six-step ladder, bottom to top: suggest, draft, propose with plan, gated apply, supervised autonomy, unattended.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="820" height="620">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="4" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+
+  <rect x="0" y="0" width="820" height="620" fill="white"/>
+  <text x="410" y="34" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="22" fill="black">The autonomy ladder</text>
+
+  <g stroke="black" stroke-width="3" filter="url(#sketch)">
+    <line x1="150" y1="560" x2="152.0" y2="70"/>
+    <line x1="230" y1="560" x2="232.0" y2="70"/>
+  </g>
+
+  <g stroke="black" stroke-width="3" filter="url(#sketch)">
+    <line x1="140" y1="540" x2="240" y2="542.0"/>
+    <line x1="140" y1="460" x2="240" y2="462.0"/>
+    <line x1="140" y1="380" x2="240" y2="382.0"/>
+    <line x1="140" y1="300" x2="240" y2="302.0"/>
+    <line x1="140" y1="220" x2="240" y2="222.0"/>
+    <line x1="140" y1="140" x2="240" y2="142.0"/>
+  </g>
+
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="17" fill="black">
+    <text x="270" y="546">1 &#183; suggest: agent proposes text, human types</text>
+    <text x="270" y="466">2 &#183; draft: agent writes files, human reads every line</text>
+    <text x="270" y="386">3 &#183; propose with plan: agent writes code + plan, human reads the plan</text>
+    <text x="270" y="306">4 &#183; gated apply: automated checks + human approval</text>
+    <text x="270" y="226">5 &#183; supervised: agent loops, human reviews outcomes</text>
+    <text x="270" y="146">6 &#183; unattended: agent runs to a stop condition, human reviews exceptions</text>
+  </g>
+
+  <text x="410" y="595" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="15" fill="black">no step is safe without the gate beside it</text>
+</svg>

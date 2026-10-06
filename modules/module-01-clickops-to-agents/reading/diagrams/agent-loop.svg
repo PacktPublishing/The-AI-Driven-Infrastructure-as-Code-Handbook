@@ -1,0 +1,42 @@
+<svg viewBox="0 0 700 620" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="An agent is a closed loop: intent feeds into act, act feeds into observe, observe feeds into decide, decide feeds back into act, and decide also exits to a stop condition.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="700" height="620">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="11" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="700" height="620" fill="white"/>
+  <text x="350" y="34" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="22" fill="black">An agent is a loop</text>
+
+  <g fill="none" stroke="black" stroke-width="2.5" filter="url(#sketch)">
+    <path d="M350,110 L500,225" marker-end="url(#arrow)"/>
+    <path d="M555,280 L555,408" marker-end="url(#arrow)"/>
+    <path d="M410,440 L282,440" marker-end="url(#arrow)"/>
+    <path d="M205,470 C205,570 660,570 660,330 C660,270 645,255 632,252" marker-end="url(#arrow)"/>
+    <path d="M160,440 C 90,370 90,300 130,260" marker-end="url(#arrow)"/>
+  </g>
+
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="16" fill="black" stroke="black" stroke-width="2">
+    <rect x="280" y="50"  width="140" height="60" fill="white" filter="url(#sketch)"/>
+    <rect x="480" y="220" width="150" height="60" fill="white" filter="url(#sketch)"/>
+    <rect x="410" y="410" width="150" height="60" fill="white" filter="url(#sketch)"/>
+    <rect x="130" y="410" width="150" height="60" fill="white" filter="url(#sketch)"/>
+  </g>
+
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="16" fill="black" text-anchor="middle">
+    <text x="350" y="85">Intent</text>
+    <text x="555" y="255">Act (tools)</text>
+    <text x="485" y="445">Observe</text>
+    <text x="205" y="445">Decide</text>
+  </g>
+
+  <polygon points="60,225 105,200 150,225 150,275 105,300 60,275"
+           fill="white" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+  <text x="105" y="255" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="16" fill="black">Stop</text>
+
+  <text x="350" y="590" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="14" fill="black">intent in, act with tools, observe, decide, repeat, until a stopping condition</text>
+</svg>

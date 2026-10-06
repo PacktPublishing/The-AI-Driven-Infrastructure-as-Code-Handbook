@@ -1,0 +1,61 @@
+<svg viewBox="0 0 820 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="An authority boundary: the agent generates an intent and a draft plan on the left, then a heavy line marks where its authority ends, and the pipeline on the right scans, checks policy and cost, gets human approval, and applies.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="820" height="460">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="13" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="820" height="460" fill="white"/>
+  <text x="410" y="34" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="21" fill="black">The agent proposes. The pipeline decides.</text>
+
+  <text x="185" y="70" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="18" fill="black">Agent</text>
+  <text x="600" y="70" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="18" fill="black">Pipeline</text>
+
+  <g stroke="black" stroke-width="5" filter="url(#sketch)">
+    <line x1="400" y1="90" x2="402.0" y2="420"/>
+  </g>
+  <text x="400" y="440" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="13" fill="black">the agent's authority ends here</text>
+
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="15" fill="black" stroke="black" stroke-width="2">
+    <rect x="90"  y="100" width="190" height="55" fill="white" filter="url(#sketch)"/>
+    <rect x="90"  y="190" width="190" height="55" fill="white" filter="url(#sketch)"/>
+    <rect x="90"  y="280" width="190" height="55" fill="white" filter="url(#sketch)"/>
+  </g>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="15" fill="black" text-anchor="middle">
+    <text x="185" y="133">intent</text>
+    <text x="185" y="223">generate</text>
+    <text x="185" y="313">draft plan</text>
+  </g>
+
+  <g stroke="black" stroke-width="2.5" fill="none" filter="url(#sketch)">
+    <path d="M185,155 L185,190" marker-end="url(#arrow)"/>
+    <path d="M185,245 L185,280" marker-end="url(#arrow)"/>
+    <path d="M280,307 L385,307" marker-end="url(#arrow)"/>
+  </g>
+
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="15" fill="black" stroke="black" stroke-width="2">
+    <rect x="430" y="100" width="300" height="50" fill="white" filter="url(#sketch)"/>
+    <rect x="430" y="165" width="300" height="50" fill="white" filter="url(#sketch)"/>
+    <rect x="430" y="230" width="300" height="50" fill="white" filter="url(#sketch)"/>
+    <rect x="430" y="295" width="300" height="50" fill="white" filter="url(#sketch)"/>
+    <rect x="430" y="360" width="300" height="50" fill="white" filter="url(#sketch)"/>
+  </g>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="15" fill="black" text-anchor="middle">
+    <text x="580" y="130">scan (Trivy + Checkov)</text>
+    <text x="580" y="195">policy check (OPA)</text>
+    <text x="580" y="260">cost check (Infracost)</text>
+    <text x="580" y="325">human approval</text>
+    <text x="580" y="390">apply</text>
+  </g>
+
+  <g stroke="black" stroke-width="2.5" fill="none" filter="url(#sketch)">
+    <path d="M580,150 L580,165" marker-end="url(#arrow)"/>
+    <path d="M580,215 L580,230" marker-end="url(#arrow)"/>
+    <path d="M580,280 L580,295" marker-end="url(#arrow)"/>
+    <path d="M580,345 L580,360" marker-end="url(#arrow)"/>
+  </g>
+</svg>

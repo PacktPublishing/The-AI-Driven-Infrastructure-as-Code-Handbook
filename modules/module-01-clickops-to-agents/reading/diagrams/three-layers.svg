@@ -1,0 +1,44 @@
+<svg viewBox="0 0 820 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three stacked layers, bottom to top: context, harness, loop, each with the symptom that points to it. Build bottom-up.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="820" height="420">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="9" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+
+  <rect x="0" y="0" width="820" height="420" fill="white"/>
+  <text x="410" y="34" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="22" fill="black">The three layers</text>
+
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" stroke="black" stroke-width="2" fill="white">
+    <rect x="80" y="270" width="330" height="80" filter="url(#sketch)"/>
+    <rect x="80" y="180" width="330" height="80" filter="url(#sketch)"/>
+    <rect x="80" y="90"  width="330" height="80" filter="url(#sketch)"/>
+  </g>
+
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="19" fill="black" text-anchor="middle">
+    <text x="245" y="315">Context</text>
+    <text x="245" y="225">Harness</text>
+    <text x="245" y="135">Loop</text>
+  </g>
+
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="15" fill="black">
+    <text x="440" y="305">symptom: "it can't get one</text>
+    <text x="440" y="325">task right at all"</text>
+
+    <text x="440" y="215">symptom: "it works, but it keeps</text>
+    <text x="440" y="235">ignoring our standards"</text>
+
+    <text x="440" y="125">symptom: "it works, but I</text>
+    <text x="440" y="145">babysit every run"</text>
+  </g>
+
+  <g stroke="black" stroke-width="2.5" fill="none" filter="url(#sketch)">
+    <path d="M245,378 L245,90" marker-end="url(#arrowup)"/>
+  </g>
+  <defs>
+    <marker id="arrowup" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <text x="245" y="395" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="13" fill="black">build bottom-up</text>
+</svg>

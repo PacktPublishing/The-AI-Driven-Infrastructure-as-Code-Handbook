@@ -1,0 +1,45 @@
+<svg viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Four panels: no undo, state, blast radius, silent failure, the four properties that make infrastructure harder than application code for an agent to touch.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="800" height="380">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="41" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  <rect x="0" y="0" width="800" height="380" fill="white"/>
+  <text x="400" y="34" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="21" fill="black">Why infrastructure is not application code</text>
+
+  <g stroke="black" stroke-width="2.5" fill="white">
+    <rect x="40"  y="70" width="170" height="260" filter="url(#sketch)"/>
+    <rect x="220" y="70" width="170" height="260" filter="url(#sketch)"/>
+    <rect x="400" y="70" width="170" height="260" filter="url(#sketch)"/>
+    <rect x="580" y="70" width="170" height="260" filter="url(#sketch)"/>
+  </g>
+
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="16" font-weight="bold" fill="black" text-anchor="middle">
+    <text x="125" y="105">No undo</text>
+    <text x="305" y="105">State</text>
+    <text x="485" y="105">Blast radius</text>
+    <text x="665" y="105">Silent failure</text>
+  </g>
+
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="13" fill="black" text-anchor="middle">
+    <text x="125" y="150">delete a VPC,</text>
+    <text x="125" y="168">no restore</text>
+    <text x="125" y="186">button</text>
+
+    <text x="305" y="150">a stale state</text>
+    <text x="305" y="168">file makes a</text>
+    <text x="305" y="186">wrong plan look</text>
+    <text x="305" y="204">confident</text>
+
+    <text x="485" y="150">one shared-</text>
+    <text x="485" y="168">network bug</text>
+    <text x="485" y="186">takes down</text>
+    <text x="485" y="204">everything</text>
+
+    <text x="665" y="150">task reports</text>
+    <text x="665" y="168">success while</text>
+    <text x="665" y="186">something next</text>
+    <text x="665" y="204">to it breaks</text>
+  </g>
+</svg>

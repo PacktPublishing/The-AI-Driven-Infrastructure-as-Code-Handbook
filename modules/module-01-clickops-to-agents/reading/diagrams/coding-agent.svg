@@ -1,0 +1,24 @@
+<svg viewBox="0 0 700 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A coding agent sits inside a dashed isolation boundary labeled allowed files, worktree, CLI checks, and git diff, captioned a short-lived repository task.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="700" height="380">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="81" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  <rect x="0" y="0" width="700" height="380" fill="white"/>
+  <text x="350" y="32" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="20" fill="#1e1e1e">A coding agent works inside a repository</text>
+
+  <rect x="60" y="70" width="580" height="220" rx="16" fill="none" stroke="#1e1e1e" stroke-width="2" stroke-dasharray="9 7" filter="url(#sketch)"/>
+
+  <rect x="270" y="140" width="160" height="80" rx="10" fill="white" stroke="#1e1e1e" stroke-width="2.4" filter="url(#sketch)"/>
+  <text x="350" y="185" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="15" fill="#1e1e1e">coding agent</text>
+
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="13" fill="#1e1e1e">
+    <text x="90" y="105">allowed files</text>
+    <text x="530" y="105">worktree</text>
+    <text x="90" y="270">CLI checks</text>
+    <text x="530" y="270">git diff</text>
+  </g>
+
+  <text x="350" y="320" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="14" fill="#1e1e1e" font-style="italic">a short-lived repository task, reviewed as a diff</text>
+</svg>

@@ -1,0 +1,52 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A hand-built server box, a crossed-out name tag reading built by, gone, a sticky note reading restart if weird, and a stack of outdated runbook pages.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="700" height="420">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="21" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  <rect x="0" y="0" width="700" height="420" fill="white"/>
+  <text x="350" y="34" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="22" fill="black">The server nobody can rebuild</text>
+
+  <g stroke="black" stroke-width="2" fill="none" filter="url(#sketch)">
+    <line x1="350" y1="60" x2="352" y2="112"/>
+    <line x1="326" y1="72" x2="374" y2="100"/>
+    <line x1="374" y1="72" x2="326" y2="100"/>
+    <line x1="350" y1="68" x2="340" y2="62"/>
+    <line x1="350" y1="68" x2="360" y2="62"/>
+    <line x1="350" y1="104" x2="340" y2="110"/>
+    <line x1="350" y1="104" x2="360" y2="110"/>
+  </g>
+  <text x="350" y="130" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="13" fill="black" font-style="italic">a snowflake server</text>
+
+  <g stroke="black" stroke-width="2.5" fill="white" filter="url(#sketch)">
+    <rect x="260" y="150" width="180" height="150"/>
+    <line x1="260" y1="180" x2="440" y2="182.0"/>
+    <line x1="260" y1="210" x2="440" y2="212.0"/>
+    <line x1="260" y1="240" x2="440" y2="242.0"/>
+    <line x1="260" y1="270" x2="440" y2="272.0"/>
+  </g>
+
+  <g stroke="black" stroke-width="2" fill="#f8f8f8" filter="url(#sketch)">
+    <rect x="70" y="120" width="150" height="50"/>
+  </g>
+  <text x="145" y="140" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="13" fill="black">built by:</text>
+  <text x="145" y="158" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="13" fill="black">[gone]</text>
+  <line x1="72" y1="122" x2="218" y2="168" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+  <line x1="218" y1="122" x2="72" y2="168" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+
+  <g stroke="black" stroke-width="2" fill="#fff9c4" filter="url(#sketch)">
+    <rect x="480" y="130" width="160" height="70"/>
+  </g>
+  <text x="560" y="158" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="13" fill="black">"restart if</text>
+  <text x="560" y="176" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="13" fill="black">weird"</text>
+
+  <g stroke="black" stroke-width="2" fill="white" filter="url(#sketch)">
+    <rect x="500" y="250" width="130" height="20"/>
+    <rect x="495" y="270" width="130" height="20"/>
+    <rect x="490" y="290" width="130" height="20"/>
+  </g>
+  <text x="555" y="330" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="13" fill="black" font-style="italic">outdated runbook</text>
+
+  <text x="350" y="390" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="14" fill="black">everyone's afraid to touch it. everyone touches it anyway.</text>
+</svg>

@@ -1,0 +1,65 @@
+<svg viewBox="0 0 900 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three columns compared: autocomplete has one arrow and no loop, automation has a fixed numbered sequence with no branching, an agent is the closed loop with intent, act, observe, decide, and a stop condition.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="900" height="380">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="51" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1e1e1e"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="900" height="380" fill="white"/>
+  <text x="450" y="32" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="20" fill="#1e1e1e">Three things people call AI</text>
+
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="15" font-weight="bold" fill="#1e1e1e" text-anchor="middle">
+    <text x="150" y="70">Autocomplete</text>
+    <text x="450" y="70">Automation</text>
+    <text x="750" y="70">Agent</text>
+  </g>
+
+  <g stroke="#1e1e1e" stroke-width="2.2" fill="white" filter="url(#sketch)">
+    <rect x="90" y="150" width="120" height="45"/>
+  </g>
+  <text x="150" y="177" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="13" fill="#1e1e1e">prompt</text>
+  <g stroke="#1e1e1e" stroke-width="2" fill="none" filter="url(#sketch)">
+    <path d="M150,195 L150,250" marker-end="url(#arrow)"/>
+  </g>
+  <text x="150" y="280" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="13" fill="#1e1e1e">one guess,</text>
+  <text x="150" y="298" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="13" fill="#1e1e1e">dead end</text>
+
+  <g stroke="#1e1e1e" stroke-width="2.2" fill="white" filter="url(#sketch)">
+    <rect x="390" y="100" width="120" height="34"/>
+    <rect x="390" y="155" width="120" height="34"/>
+    <rect x="390" y="210" width="120" height="34"/>
+  </g>
+  <text x="450" y="122" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="13" fill="#1e1e1e">1</text>
+  <text x="450" y="177" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="13" fill="#1e1e1e">2</text>
+  <text x="450" y="232" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="13" fill="#1e1e1e">3</text>
+  <g stroke="#1e1e1e" stroke-width="2" fill="none" filter="url(#sketch)">
+    <path d="M450,134 L450,153" marker-end="url(#arrow)"/>
+    <path d="M450,189 L450,208" marker-end="url(#arrow)"/>
+  </g>
+  <text x="450" y="280" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="13" fill="#1e1e1e">fixed order,</text>
+  <text x="450" y="298" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="13" fill="#1e1e1e">no branching</text>
+
+  <g stroke="#1e1e1e" stroke-width="2.2" fill="white" filter="url(#sketch)">
+    <circle cx="720" cy="130" r="26"/>
+    <circle cx="790" cy="180" r="26"/>
+    <circle cx="720" cy="230" r="26"/>
+    <circle cx="650" cy="180" r="26"/>
+  </g>
+  <text x="720" y="135" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="11" fill="#1e1e1e">intent</text>
+  <text x="790" y="185" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="11" fill="#1e1e1e">act</text>
+  <text x="720" y="235" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="11" fill="#1e1e1e">decide</text>
+  <text x="650" y="185" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="11" fill="#1e1e1e">observe</text>
+  <g stroke="#1e1e1e" stroke-width="2" fill="none" filter="url(#sketch)">
+    <path d="M742,148 C 765,158 778,165 785,168" marker-end="url(#arrow)"/>
+    <path d="M780,201 C 765,215 745,222 738,224" marker-end="url(#arrow)"/>
+    <path d="M700,220 C 680,205 665,195 660,192" marker-end="url(#arrow)"/>
+    <path d="M660,168 C 675,155 695,145 700,140" marker-end="url(#arrow)"/>
+  </g>
+  <text x="720" y="290" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="13" fill="#1e1e1e">decides, and</text>
+  <text x="720" y="308" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="13" fill="#1e1e1e">knows when to stop</text>
+
+  <text x="450" y="350" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="14" fill="#1e1e1e">only the agent both decides and knows when to stop</text>
+</svg>

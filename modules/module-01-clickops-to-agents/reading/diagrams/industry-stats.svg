@@ -1,0 +1,24 @@
+<svg viewBox="0 0 780 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three bars: 46 percent run AI for infrastructure in production or advanced pilots, 34 percent would trust autonomous production changes, 43 percent name absent guardrails as the top blocker.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="780" height="380">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="31" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  <rect x="0" y="0" width="780" height="380" fill="white"/>
+  <text x="390" y="34" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="21" fill="black">Broad adoption, narrow trust</text>
+
+  <g stroke="black" stroke-width="2.5" fill="white">
+    <rect x="220" y="70"  width="368" height="50" filter="url(#sketch)"/>
+    <rect x="220" y="160" width="272" height="50" filter="url(#sketch)"/>
+    <rect x="220" y="250" width="380" height="50" filter="url(#sketch)"/>
+  </g>
+
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="17" fill="black">
+    <text x="240" y="102">46% run AI for infra in prod or advanced pilots</text>
+    <text x="240" y="192">34% would trust autonomous prod changes</text>
+    <text x="240" y="282">43% name absent guardrails as the #1 blocker</text>
+  </g>
+
+  <text x="390" y="345" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="13" fill="black" font-style="italic">Firefly State of IaC 2026, vendor survey, treat as directional</text>
+</svg>

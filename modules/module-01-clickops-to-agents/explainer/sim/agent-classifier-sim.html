@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Is This an Agent? — M01, Agentic Infrastructure as Code</title>
+<style>
+  :root{
+    --ink:#1e1e1e;
+    --gray:#757575;
+    --paper:#ffffff;
+    --p-green:#d5e8d4;
+    --p-red:#f8cecc;
+    --p-blue:#dae8fc;
+    --p-orange:#ffe6cc;
+    --p-purple:#e1d5e7;
+    --border:#bdbdbd;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--paper); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  .wrap{ max-width:1120px; margin:0 auto; padding:28px 20px 60px; }
+  h1{ font-size:22px; margin:0 0 4px; }
+  .sub{ color:var(--gray); margin:0 0 22px; font-size:14px; }
+
+  .presets{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px; }
+  .preset-btn{ border:1.5px solid var(--border); border-radius:999px; padding:6px 14px;
+    background:#fff; cursor:pointer; font-size:12.5px; }
+  .preset-btn:hover{ border-color:var(--ink); }
+  .preset-btn.active{ background:var(--p-blue); border-color:var(--ink); font-weight:600; }
+
+  .layout{ display:grid; grid-template-columns: 1fr 1fr; gap:28px; align-items:start; }
+  @media (max-width: 820px){ .layout{ grid-template-columns: 1fr; } }
+
+  fieldset{ border:1.5px solid var(--border); border-radius:10px; padding:14px 16px; margin:0 0 16px; }
+  legend{ font-weight:700; font-size:13px; padding:0 6px; }
+  .toggle-row{ display:flex; align-items:flex-start; gap:10px; padding:8px 2px; font-size:13.5px;
+    border-bottom:1px solid #f0f0f0; }
+  .toggle-row:last-child{ border-bottom:none; }
+  .toggle-row input{ margin-top:3px; transform:scale(1.15); }
+  .toggle-row label{ cursor:pointer; }
+  .toggle-row .hint{ color:var(--gray); font-size:11.5px; display:block; margin-top:2px; }
+
+  .radio-group{ display:flex; flex-direction:column; gap:6px; margin-top:6px; }
+  .radio-row{ display:flex; align-items:flex-start; gap:8px; font-size:13px; }
+  .radio-row input{ margin-top:3px; }
+
+  .result{ border:2px solid var(--ink); border-radius:10px; padding:18px; min-height:420px; background:#fff; }
+  .verdict-badge{ display:inline-block; border-radius:8px; padding:6px 14px; font-weight:700;
+    font-size:15px; margin-bottom:10px; }
+  .verdict-badge.autocomplete{ background:var(--p-orange); }
+  .verdict-badge.automation{ background:var(--p-purple); }
+  .verdict-badge.agent{ background:var(--p-green); }
+  .verdict-badge.liability{ background:var(--p-red); }
+
+  .step-pill{ display:inline-block; border:1.5px solid var(--ink); border-radius:999px;
+    padding:3px 10px; font-size:12.5px; margin-left:8px; background:var(--p-blue); }
+
+  .trail{ margin-top:14px; padding-top:12px; border-top:1px dashed var(--border); }
+  .trail-line{ font-size:12.5px; color:var(--gray); margin:4px 0; padding-left:16px; position:relative; }
+  .trail-line::before{ content:"→"; position:absolute; left:0; color:var(--ink); }
+
+  .ladder{ margin-top:16px; display:flex; flex-direction:column-reverse; gap:4px; }
+  .ladder-step{ border:1px solid var(--border); border-radius:6px; padding:6px 10px; font-size:12px;
+    color:var(--gray); }
+  .ladder-step.current{ border-color:var(--ink); background:var(--p-green); color:var(--ink); font-weight:700; }
+
+  footer{ margin-top:34px; font-size:12px; color:var(--gray); border-top:1px solid var(--border); padding-top:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Is This an Agent?</h1>
+  <p class="sub">Module 1 &middot; From ClickOps to Agents &middot; toggle the real properties of a
+    workflow and watch which of the three categories it actually falls into, autocomplete,
+    automation, or an agent, and if it's an agent, roughly where it sits on the six-step autonomy
+    ladder.</p>
+
+  <div class="presets" id="presets"></div>
+
+  <div class="layout">
+    <div>
+      <fieldset>
+        <legend>What the workflow actually does</legend>
+        <div class="toggle-row">
+          <input type="checkbox" id="hasLoop" />
+          <label for="hasLoop">It runs more than once, acting and checking again
+            <span class="hint">not one suggestion and done</span></label>
+        </div>
+        <div class="toggle-row">
+          <input type="checkbox" id="decides" />
+          <label for="decides">It decides what to do next based on what it just observed
+            <span class="hint">not a fixed sequence run in the same order every time</span></label>
+        </div>
+        <div class="toggle-row">
+          <input type="checkbox" id="stops" />
+          <label for="stops">It has a real, testable stopping condition
+            <span class="hint">e.g. "terraform plan shows zero changes and checkov exits clean", not "looks good"</span></label>
+        </div>
+        <div class="toggle-row">
+          <input type="checkbox" id="touches" />
+          <label for="touches">It touches a real file or system when it acts
+            <span class="hint">writes, applies, not just talks back to you</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset id="ladderFieldset" style="display:none">
+        <legend>If it's an agent: how much runs without you watching</legend>
+        <div class="toggle-row">
+          <input type="checkbox" id="planFirst" />
+          <label for="planFirst">It produces a plan, and a human reads the plan before anything runs
+            <span class="hint">not just the raw code</span></label>
+        </div>
+        <div class="toggle-row">
+          <input type="checkbox" id="autoGate" />
+          <label for="autoGate">Automated checks (scan, policy) run before apply, not only a human's eyes
+            <span class="hint">a machine stands between the agent and production too</span></label>
+        </div>
+        <div class="radio-group">
+          <div class="radio-row"><input type="radio" name="review" id="reviewEvery" value="every"><label for="reviewEvery">A human reviews every single step before it happens</label></div>
+          <div class="radio-row"><input type="radio" name="review" id="reviewOutcome" value="outcome"><label for="reviewOutcome">A human reviews the outcome after several loop iterations, not each step</label></div>
+          <div class="radio-row"><input type="radio" name="review" id="reviewException" value="exception"><label for="reviewException">A human only reviews exceptions the system flags, nothing else</label></div>
+        </div>
+      </fieldset>
+    </div>
+
+    <div class="result">
+      <div id="verdictArea"></div>
+      <div class="trail" id="trailArea"></div>
+      <div class="ladder" id="ladderArea"></div>
+    </div>
+  </div>
+
+  <footer>
+    Self-contained, no network calls. Every classification rule here comes straight from M01's own
+    definitions, the loop, the stopping-condition test, and the six-step autonomy ladder, nothing
+    invented for this tool. Part of <strong>Module 1: From ClickOps to Agents</strong>,
+    Agentic Infrastructure as Code.
+  </footer>
+</div>
+
+<script>
+const PRESETS = [
+  { name: 'Ask a question, copy the answer', hasLoop:false, decides:false, stops:false, touches:false, planFirst:false, autoGate:false, review:null },
+  { name: 'CI script: fmt → plan → apply, fixed order', hasLoop:true, decides:false, stops:true, touches:true, planFirst:false, autoGate:false, review:null },
+  { name: 'Agent drafts a module, you read every line', hasLoop:false, decides:false, stops:false, touches:true, planFirst:false, autoGate:false, review:null },
+  { name: 'Agent proposes code + plan, human reads plan', hasLoop:true, decides:true, stops:true, touches:true, planFirst:true, autoGate:false, review:'every' },
+  { name: 'Agent retries checkov fixes up to 3x, you review the diff after', hasLoop:true, decides:true, stops:true, touches:true, planFirst:true, autoGate:true, review:'outcome' },
+  { name: 'Nightly drift-fixer, human reviews exceptions only', hasLoop:true, decides:true, stops:true, touches:true, planFirst:true, autoGate:true, review:'exception' },
+];
+
+function $(id){ return document.getElementById(id); }
+
+function setState(p) {
+  $('hasLoop').checked = p.hasLoop;
+  $('decides').checked = p.decides;
+  $('stops').checked = p.stops;
+  $('touches').checked = p.touches;
+  $('planFirst').checked = p.planFirst;
+  $('autoGate').checked = p.autoGate;
+  ['reviewEvery','reviewOutcome','reviewException'].forEach(id => $(id).checked = false);
+  if (p.review === 'every') $('reviewEvery').checked = true;
+  if (p.review === 'outcome') $('reviewOutcome').checked = true;
+  if (p.review === 'exception') $('reviewException').checked = true;
+  render();
+}
+
+function renderPresets() {
+  const box = $('presets');
+  box.innerHTML = '';
+  PRESETS.forEach((p, i) => {
+    const b = document.createElement('button');
+    b.className = 'preset-btn';
+    b.textContent = p.name;
+    b.onclick = () => setState(p);
+    box.appendChild(b);
+  });
+}
+
+function classify() {
+  const hasLoop = $('hasLoop').checked;
+  const decides = $('decides').checked;
+  const stops = $('stops').checked;
+  const touches = $('touches').checked;
+  const trail = [];
+
+  if (!hasLoop) {
+    trail.push('No loop: it acts once (or just talks) and stops. That\'s autocomplete\'s whole definition.');
+    return { kind: 'autocomplete', trail };
+  }
+  if (!decides) {
+    trail.push('It loops, but it does not decide anything based on what it observes, a fixed sequence run in order.');
+    trail.push('That is automation, a script, not an agent, even if it runs multiple real steps.');
+    return { kind: 'automation', trail };
+  }
+  trail.push('It loops, and it decides its next move from what it just observed. That is the agent loop.');
+  if (!stops) {
+    trail.push('But it has no real, testable stopping condition. M01 calls this out directly: that is the single most common way an agentic run turns into an expensive mess.');
+    return { kind: 'liability', trail };
+  }
+  trail.push('It has a real stopping condition too. All four properties of the loop are present: intent, act, observe, decide, and a real stop.');
+  if (!touches) {
+    trail.push('It never actually touches a file or system when it acts, so there is nothing here yet to place on the autonomy ladder, but the loop itself is a real agent loop.');
+  }
+  return { kind: 'agent', trail, touches };
+}
+
+function ladderStep(planFirst, autoGate, review) {
+  if (!review && !planFirst && !autoGate) return { step: 2, why: 'The agent writes the file directly and a human reads every line before acting on it. No plan step, no automated gate yet, that is step 2, draft.' };
+  if (planFirst && !autoGate && review === 'every') return { step: 3, why: 'The agent produces code and a plan, and a human reads the plan before anything runs. Real, meaningfully lighter review, but still every step, watched.' };
+  if (planFirst && autoGate && review === 'every') return { step: 4, why: 'Automated checks now run before apply too, not only a human\'s eyes. A machine, not only a human, stands between the agent and production.' };
+  if (planFirst && autoGate && review === 'outcome') return { step: 5, why: 'The agent loops on its own across several iterations, generating, checking, fixing. A human reviews the outcome, not each individual step.' };
+  if (planFirst && autoGate && review === 'exception') return { step: 6, why: 'The agent runs all the way to its stopping condition with no human in the loop. A human reviews only the exceptions the system flags. This is the top of the ladder, and the step this course spends the least time recommending.' };
+  return { step: 1, why: 'Without a plan, a gate, or someone even reading outcomes, there is not enough here to call this more than step 1, suggest, even though the loop itself is real.' };
+}
+
+function render() {
+  const c = classify();
+  const verdictArea = $('verdictArea');
+  const trailArea = $('trailArea');
+  const ladderArea = $('ladderArea');
+  const ladderFieldset = $('ladderFieldset');
+
+  let badgeClass = c.kind, badgeText = '';
+  if (c.kind === 'autocomplete') badgeText = 'Autocomplete';
+  if (c.kind === 'automation') badgeText = 'Automation / a script';
+  if (c.kind === 'agent') badgeText = 'A real agent';
+  if (c.kind === 'liability') badgeText = 'A real loop, no safe stopping condition';
+
+  verdictArea.innerHTML = `<span class="verdict-badge ${badgeClass}">${badgeText}</span>`;
+  trailArea.innerHTML = c.trail.map(t => `<div class="trail-line">${t}</div>`).join('');
+
+  if (c.kind === 'agent' && c.touches) {
+    ladderFieldset.style.display = '';
+    const review = document.querySelector('input[name="review"]:checked');
+    const reviewVal = review ? review.value : null;
+    const planFirst = $('planFirst').checked;
+    const autoGate = $('autoGate').checked;
+    const { step, why } = ladderStep(planFirst, autoGate, reviewVal);
+    verdictArea.innerHTML += `<span class="step-pill">step ${step} on the ladder</span>`;
+    trailArea.innerHTML += `<div class="trail-line">${why}</div>`;
+    const labels = ['', 'suggest', 'draft', 'propose with plan', 'gated apply', 'supervised autonomy', 'unattended'];
+    ladderArea.innerHTML = labels.slice(1).map((l, i) => {
+      const n = i + 1;
+      return `<div class="ladder-step ${n === step ? 'current' : ''}">step ${n}, ${l}</div>`;
+    }).join('');
+  } else {
+    ladderFieldset.style.display = 'none';
+    ladderArea.innerHTML = '';
+  }
+}
+
+['hasLoop','decides','stops','touches','planFirst','autoGate'].forEach(id => {
+  $(id).addEventListener('change', render);
+});
+['reviewEvery','reviewOutcome','reviewException'].forEach(id => {
+  $(id).addEventListener('change', render);
+});
+
+renderPresets();
+render();
+</script>
+</body>
+</html>
