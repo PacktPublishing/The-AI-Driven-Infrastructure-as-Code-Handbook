@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pipeline Gate Walkthrough: M09, Agentic Infrastructure as Code</title>
+<style>
+  :root{
+    --ink:#1e1e1e; --gray:#757575; --paper:#ffffff;
+    --p-green:#d5e8d4; --p-red:#f8cecc; --p-blue:#dae8fc; --p-orange:#ffe6cc; --p-purple:#e1d5e7;
+    --border:#bdbdbd;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--paper); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  .wrap{ max-width:1100px; margin:0 auto; padding:28px 20px 60px; }
+  h1{ font-size:22px; margin:0 0 4px; }
+  .sub{ color:var(--gray); margin:0 0 24px; font-size:14px; }
+
+  .stages{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:22px; }
+  .stage{ flex:1; min-width:180px; border:1.5px solid var(--border); border-radius:10px; padding:12px; }
+  .stage h3{ margin:0 0 6px; font-size:14px; }
+  .stage .desc{ font-size:12px; color:var(--gray); margin-bottom:10px; min-height:32px; }
+  .stage label{ display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer; }
+  .stage.reached{ box-shadow:0 0 0 2px var(--ink) inset; }
+  .stage.blocked{ background:var(--p-red); }
+  .stage.passed{ background:var(--p-green); }
+  .stage.skipped-stage{ background:#f2f2f2; }
+  .stage.unreached{ opacity:.4; }
+
+  .arrow{ align-self:center; font-size:20px; color:var(--gray); }
+
+  .runbtn{ border:1.5px solid var(--ink); background:#fff; border-radius:8px; padding:10px 18px;
+    font-size:14px; cursor:pointer; margin-bottom:18px; }
+  .runbtn:hover{ background:#f2f2f2; }
+
+  .verdict{ border-radius:8px; padding:14px 16px; font-size:14px; border:1.5px dashed var(--border); }
+  .verdict.pass{ background:var(--p-green); border-color:#4caf50; }
+  .verdict.fail{ background:var(--p-red); border-color:#e57373; }
+  .verdict .h{ font-weight:700; margin-bottom:4px; }
+
+  .row{ display:flex; align-items:stretch; gap:0; flex-wrap:wrap; }
+
+  footer{ margin-top:30px; font-size:12px; color:var(--gray); border-top:1px solid var(--border); padding-top:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Pipeline Gate Walkthrough</h1>
+  <p class="sub">Module 9 &middot; Verifying AI-Generated Infrastructure &middot; toggle any stage to fail
+    it, then run the pipeline. Cheap checks run first. The first stage that fails stops everything
+    after it, the same contract every gate in this course uses.</p>
+
+  <div class="row" id="stageRow"></div>
+
+  <button class="runbtn" id="runBtn">Run the pipeline</button>
+
+  <div id="verdictBox"></div>
+
+  <footer>
+    Self-contained, no network calls. Part of <strong>Module 9: Verifying AI-Generated
+    Infrastructure</strong>, Agentic Infrastructure as Code.
+  </footer>
+</div>
+
+<script>
+const STAGES = [
+  { key: 'fmt', name: 'fmt + validate', desc: 'syntax and structure', color: 'var(--p-green)' },
+  { key: 'trivy', name: 'trivy', desc: 'HIGH/CRITICAL misconfig scan', color: 'var(--p-blue)' },
+  { key: 'checkov', name: 'checkov', desc: 'broader Terraform rule set', color: 'var(--p-blue)' },
+  { key: 'conftest', name: 'conftest (OPA)', desc: 'this org’s own policy', color: 'var(--p-purple)' },
+  { key: 'infracost', name: 'infracost', desc: 'a real dollar threshold', color: 'var(--p-orange)' },
+  { key: 'approval', name: 'human approval', desc: 'only reached if all upstream passed', color: 'var(--p-red)' },
+];
+
+let fail = {};
+
+function render() {
+  const row = document.getElementById('stageRow');
+  row.innerHTML = '';
+  STAGES.forEach((s, i) => {
+    const el = document.createElement('div');
+    el.className = 'stage';
+    el.style.background = s.color;
+    el.innerHTML = `
+      <h3>${i + 1}. ${s.name}</h3>
+      <div class="desc">${s.desc}</div>
+      <label><input type="checkbox" data-key="${s.key}" ${fail[s.key] ? 'checked' : ''}/> make this stage fail</label>
+    `;
+    row.appendChild(el);
+    if (i < STAGES.length - 1) {
+      const arrow = document.createElement('div');
+      arrow.className = 'arrow';
+      arrow.textContent = '→';
+      row.appendChild(arrow);
+    }
+  });
+  row.querySelectorAll('input[type=checkbox]').forEach(cb => {
+    cb.onchange = (e) => { fail[e.target.dataset.key] = e.target.checked; };
+  });
+  document.getElementById('verdictBox').innerHTML = '';
+  document.querySelectorAll('.stage').forEach(s => s.classList.remove('reached','blocked','passed','unreached'));
+}
+
+function run() {
+  const stageEls = document.querySelectorAll('.stage');
+  let stoppedAt = -1;
+  STAGES.forEach((s, i) => {
+    if (stoppedAt === -1) {
+      stageEls[i].classList.add('reached');
+      if (fail[s.key]) {
+        stageEls[i].classList.add('blocked');
+        stoppedAt = i;
+      } else {
+        stageEls[i].classList.add('passed');
+      }
+    } else {
+      stageEls[i].classList.add('unreached');
+    }
+  });
+
+  const verdictBox = document.getElementById('verdictBox');
+  if (stoppedAt === -1) {
+    verdictBox.className = '';
+    verdictBox.innerHTML = `<div class="verdict pass"><div class="h">Pipeline passed, every stage.</div>
+      Apply is authorized. A human approved a plan that scan, policy, and cost had already cleared,
+      exactly the order module one's thesis calls for.</div>`;
+  } else {
+    const s = STAGES[stoppedAt];
+    const before = STAGES.slice(0, stoppedAt).map(x => x.name).join(', ') || 'nothing';
+    verdictBox.innerHTML = `<div class="verdict fail"><div class="h">Blocked at stage ${stoppedAt + 1}: ${s.name}.</div>
+      Stages before it that already ran and passed: ${before}. Nothing after this stage ran at all,
+      including human approval, that step never got the chance to say yes or no.</div>`;
+  }
+}
+
+document.getElementById('runBtn').onclick = run;
+render();
+</script>
+</body>
+</html>

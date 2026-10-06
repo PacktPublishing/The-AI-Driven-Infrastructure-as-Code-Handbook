@@ -1,0 +1,50 @@
+<svg viewBox="0 0 1050 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Five pipeline stages left to right in order: format and validate, scan, policy, cost, human approval, then apply, cheapest and fastest checks on the left, the expensive human step near the right.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="1050" height="220">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="55" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1050" height="220" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="12">
+    <g>
+      <rect x="20" y="70" width="140" height="60" rx="8" fill="#d5e8d4" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+      <text x="90" y="95" text-anchor="middle">fmt +</text>
+      <text x="90" y="112" text-anchor="middle">validate</text>
+    </g>
+    <path d="M160,100 L200,100" stroke="black" stroke-width="2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <g>
+      <rect x="205" y="70" width="140" height="60" rx="8" fill="#dae8fc" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+      <text x="275" y="95" text-anchor="middle">scan</text>
+      <text x="275" y="112" text-anchor="middle">trivy + checkov</text>
+    </g>
+    <path d="M345,100 L385,100" stroke="black" stroke-width="2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <g>
+      <rect x="390" y="70" width="140" height="60" rx="8" fill="#e1d5e7" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+      <text x="460" y="95" text-anchor="middle">policy</text>
+      <text x="460" y="112" text-anchor="middle">conftest</text>
+    </g>
+    <path d="M530,100 L570,100" stroke="black" stroke-width="2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <g>
+      <rect x="575" y="70" width="140" height="60" rx="8" fill="#ffe6cc" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+      <text x="645" y="95" text-anchor="middle">cost</text>
+      <text x="645" y="112" text-anchor="middle">infracost</text>
+    </g>
+    <path d="M715,100 L755,100" stroke="black" stroke-width="2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <g>
+      <rect x="760" y="60" width="150" height="80" rx="8" fill="#f8cecc" stroke="black" stroke-width="2.6" filter="url(#sketch)"/>
+      <text x="835" y="90" text-anchor="middle">human</text>
+      <text x="835" y="107" text-anchor="middle">approval</text>
+      <text x="835" y="124" text-anchor="middle" font-size="10">most expensive step</text>
+    </g>
+    <path d="M910,100 L950,100" stroke="black" stroke-width="2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <g>
+      <rect x="955" y="70" width="80" height="60" rx="8" fill="white" stroke="black" stroke-width="2" stroke-dasharray="6 5" filter="url(#sketch)"/>
+      <text x="995" y="105" text-anchor="middle">apply</text>
+    </g>
+    <text x="525" y="180" text-anchor="middle" font-size="13">cheap, fast checks first. the expensive step, a person's attention, comes last</text>
+  </g>
+</svg>

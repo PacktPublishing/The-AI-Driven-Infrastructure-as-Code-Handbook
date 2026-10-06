@@ -1,0 +1,23 @@
+<svg viewBox="0 0 820 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two overlapping circles, Trivy's rule set and Checkov's rule set for Terraform AWS resources, Checkov's circle larger, with only a partial overlap between the two.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="820" height="320">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="22" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  <rect x="0" y="0" width="820" height="320" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <circle cx="330" cy="160" r="120" fill="#dae8fc" fill-opacity="0.75" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <circle cx="470" cy="160" r="160" fill="#ffe6cc" fill-opacity="0.6" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
+    <text x="250" y="100" text-anchor="middle" font-size="16" fill="black">Trivy</text>
+    <text x="620" y="80" text-anchor="middle" font-size="16" fill="black">Checkov</text>
+    <text x="400" y="165" text-anchor="middle" font-size="12" fill="black">public access</text>
+    <text x="400" y="182" text-anchor="middle" font-size="12" fill="black">block, versioning</text>
+    <text x="250" y="180" text-anchor="middle" font-size="11" fill="black">granular public</text>
+    <text x="250" y="196" text-anchor="middle" font-size="11" fill="black">ACL checks</text>
+    <text x="600" y="180" text-anchor="middle" font-size="11" fill="black">replication</text>
+    <text x="600" y="196" text-anchor="middle" font-size="11" fill="black">lifecycle</text>
+    <text x="600" y="212" text-anchor="middle" font-size="11" fill="black">event notify</text>
+    <text x="410" y="290" text-anchor="middle" font-size="14" fill="black">one scanner alone is a coverage gap, not a safety margin</text>
+  </g>
+</svg>

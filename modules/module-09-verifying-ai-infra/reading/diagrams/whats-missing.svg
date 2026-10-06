@@ -1,0 +1,21 @@
+<svg viewBox="0 0 820 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A short honest list of what Tier 1 emulation still cannot show: real cloud cost, real IAM enforcement, real drift over time, each marked as a known limit rather than a failure.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="820" height="240">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="77" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  <rect x="0" y="0" width="820" height="240" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <rect x="60" y="30" width="700" height="50" rx="8" fill="#ffe6cc" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+    <text x="410" y="60" text-anchor="middle" font-size="14" fill="black">a real cloud bill, from real usage over time</text>
+
+    <rect x="60" y="95" width="700" height="50" rx="8" fill="#ffe6cc" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+    <text x="410" y="125" text-anchor="middle" font-size="14" fill="black">real IAM enforcement semantics</text>
+
+    <rect x="60" y="160" width="700" height="50" rx="8" fill="#ffe6cc" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+    <text x="410" y="190" text-anchor="middle" font-size="14" fill="black">real infrastructure drift, across months of real traffic</text>
+
+    <text x="410" y="228" text-anchor="middle" font-size="12" fill="black">known limits of Tier 1, not failures. Tier 2 and the capstone's optional Tier 3 close the gap</text>
+  </g>
+</svg>

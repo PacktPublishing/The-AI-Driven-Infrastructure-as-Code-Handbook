@@ -1,0 +1,26 @@
+<svg viewBox="0 0 860 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two ways to use Infracost compared, reading an estimate once as a report changes nothing, failing the pipeline past a real dollar threshold is a gate the same as a scanner.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="860" height="260">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="44" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="860" height="260" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <text x="215" y="35" text-anchor="middle" font-size="15" fill="black">infracost as a report</text>
+    <rect x="70" y="55" width="290" height="55" rx="8" fill="#ffe6cc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="215" y="88" text-anchor="middle" font-size="12" fill="black">estimate printed, plan applies anyway</text>
+    <text x="215" y="140" text-anchor="middle" font-size="13" fill="black">= a number nobody stopped to read</text>
+
+    <text x="645" y="35" text-anchor="middle" font-size="15" fill="black">infracost as a gate</text>
+    <rect x="500" y="55" width="290" height="55" rx="8" fill="#d5e8d4" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
+    <text x="645" y="88" text-anchor="middle" font-size="12" fill="black">over threshold: pipeline exits non-zero</text>
+    <text x="645" y="140" text-anchor="middle" font-size="13" fill="black">= a real check, same as trivy or checkov</text>
+
+    <line x1="430" y1="20" x2="430" y2="170" stroke="black" stroke-width="1.6" stroke-dasharray="4 5" filter="url(#sketch)"/>
+    <text x="430" y="215" text-anchor="middle" font-size="13" fill="black">the plan with three quietly added db.r5.4xlarge instances should stop here too</text>
+  </g>
+</svg>

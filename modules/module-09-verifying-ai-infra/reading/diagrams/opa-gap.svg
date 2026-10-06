@@ -1,0 +1,34 @@
+<svg viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A Terraform plan flows through Trivy and Checkov's generic rule sets, then through a third gate labeled Conftest checking an org-specific rule neither generic scanner encodes.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="900" height="260">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="33" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="900" height="260" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <rect x="20" y="90" width="140" height="60" rx="10" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="90" y="125" text-anchor="middle" font-size="13" fill="black">a plan</text>
+
+    <path d="M160,120 L270,120" stroke="black" stroke-width="2.2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <rect x="280" y="60" width="150" height="50" rx="8" fill="#ffe6cc" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+    <text x="355" y="90" text-anchor="middle" font-size="12" fill="black">Trivy: generic rules</text>
+    <rect x="280" y="130" width="150" height="50" rx="8" fill="#ffe6cc" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+    <text x="355" y="160" text-anchor="middle" font-size="12" fill="black">Checkov: generic rules</text>
+
+    <path d="M430,120 L540,120" stroke="black" stroke-width="2.4" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <rect x="550" y="85" width="180" height="70" rx="10" fill="#e1d5e7" stroke="black" stroke-width="2.6" filter="url(#sketch)"/>
+    <text x="640" y="112" text-anchor="middle" font-size="13" fill="black">Conftest / OPA</text>
+    <text x="640" y="132" text-anchor="middle" font-size="12" fill="black">your org's own rule</text>
+
+    <path d="M730,120 L830,120" stroke="black" stroke-width="2.4" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <text x="860" y="115" text-anchor="middle" font-size="12" fill="black">pass</text>
+    <text x="860" y="132" font-size="12" fill="black">or</text>
+    <text x="860" y="149" text-anchor="middle" font-size="12" fill="black">block</text>
+
+    <text x="450" y="220" text-anchor="middle" font-size="13" fill="black">neither generic scanner knows your naming, tagging, or ownership rules exist</text>
+  </g>
+</svg>
