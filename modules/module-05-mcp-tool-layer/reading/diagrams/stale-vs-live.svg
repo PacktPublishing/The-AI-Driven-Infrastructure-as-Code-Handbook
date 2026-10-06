@@ -1,0 +1,25 @@
+<svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A real captured example: asked from memory alone, the agent guessed the kreuzwerker/docker provider was around version three point six point two, low confidence. Asked again with the terraform MCP server available, it returned the real answer from the registry: version four point five point zero.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="880" height="300">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="14" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  <rect x="0" y="0" width="880" height="300" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <text x="440" y="32" text-anchor="middle" font-size="15" fill="black">same question, same agent: "what's the latest kreuzwerker/docker provider version?"</text>
+
+    <rect x="60" y="55" width="330" height="170" rx="10" fill="#f8cecc" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
+    <text x="225" y="85" text-anchor="middle" font-size="14" fill="black">from memory alone, no MCP</text>
+    <text x="225" y="130" text-anchor="middle" font-size="22" fill="black">~3.6.2</text>
+    <text x="225" y="155" text-anchor="middle" font-size="12" fill="black">"best guess, not certain"</text>
+    <text x="225" y="180" text-anchor="middle" font-size="12" fill="#c62828">confidence: low</text>
+
+    <rect x="490" y="55" width="330" height="170" rx="10" fill="#d5e8d4" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
+    <text x="655" y="85" text-anchor="middle" font-size="14" fill="black">via terraform MCP server</text>
+    <text x="655" y="130" text-anchor="middle" font-size="22" fill="black">4.5.0</text>
+    <text x="655" y="155" text-anchor="middle" font-size="12" fill="black">get_latest_provider_version()</text>
+    <text x="655" y="180" text-anchor="middle" font-size="12" fill="#2e7d32">real, current, from the registry</text>
+  </g>
+  <text x="440" y="265" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="13" fill="black">real run, captured while building this module, not a hypothetical</text>
+</svg>

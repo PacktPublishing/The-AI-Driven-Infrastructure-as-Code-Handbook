@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Stale vs Live Lookup Simulator — M05, Agentic Infrastructure as Code</title>
+<style>
+  :root{
+    --ink:#1e1e1e; --gray:#757575; --paper:#ffffff;
+    --p-green:#d5e8d4; --p-red:#f8cecc; --p-blue:#dae8fc; --p-orange:#ffe6cc; --p-purple:#e1d5e7;
+    --border:#bdbdbd;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--paper); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  .wrap{ max-width:1000px; margin:0 auto; padding:28px 20px 60px; }
+  h1{ font-size:22px; margin:0 0 4px; }
+  .sub{ color:var(--gray); margin:0 0 20px; font-size:14px; }
+
+  .qlist{ display:flex; flex-direction:column; gap:8px; margin-bottom:18px; }
+  .q-btn{ text-align:left; border:1.5px solid var(--border); border-radius:8px; padding:10px 12px;
+    background:#fff; cursor:pointer; font-size:13.5px; }
+  .q-btn.active{ border-color:var(--ink); background:var(--p-orange); }
+
+  .toggle-row{ display:flex; align-items:center; gap:10px; margin:0 0 20px; font-size:14px; }
+  .toggle-row input{ transform:scale(1.2); }
+
+  .answer{ border-radius:8px; padding:14px 16px; font-size:14px; border:1.5px solid var(--border); min-height:60px; }
+  .answer.stale{ background:var(--p-red); }
+  .answer.live{ background:var(--p-green); }
+  .answer .h{ font-weight:700; margin-bottom:6px; }
+  .answer .src{ font-family:ui-monospace,Menlo,monospace; font-size:11.5px; color:var(--gray); margin-top:8px; }
+
+  footer{ margin-top:30px; font-size:12px; color:var(--gray); border-top:1px solid var(--border); padding-top:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Stale vs Live Lookup Simulator</h1>
+  <p class="sub">Module 5 &middot; MCP and the Tool Layer &middot; the first question and answer
+    below are real, captured while this module was being built. Toggle the Terraform MCP server
+    on and off and watch what changes.</p>
+
+  <div class="qlist" id="qlist"></div>
+
+  <div class="toggle-row">
+    <input type="checkbox" id="mcpToggle" checked />
+    <label for="mcpToggle">Terraform MCP server available</label>
+  </div>
+
+  <div id="answerBox" class="answer"></div>
+
+  <footer>
+    Self-contained, no network calls. Question 1's numbers, ~3.6.2 from memory vs 4.5.0 from a
+    real <code>get_latest_provider_version</code> tool call, are the real captured evidence in
+    <code>modules/module-05-mcp-tool-layer/lab/evidence/</code>, not invented. The other two
+    questions are illustrative examples in the same honest spirit, not separately captured runs.
+    Part of <strong>Module 5: MCP and the Tool Layer</strong>, Agentic Infrastructure as Code.
+  </footer>
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    id: 'docker-provider',
+    text: "What's the latest version of the kreuzwerker/docker Terraform provider?",
+    stale: { text: '~3.6.2, best guess, not certain.', src: 'from training data, no citation, no tool call' },
+    live: { text: '4.5.0', src: 'real tool call: get_latest_provider_version → registry.terraform.io' },
+    real: true,
+  },
+  {
+    id: 'aws-arg',
+    text: "Does aws_s3_bucket_lifecycle_configuration require a filter block on every rule?",
+    stale: { text: 'Probably not required, though I recall some provider versions enforcing it. Not fully sure.', src: 'from training data, hedged, no citation' },
+    live: { text: 'Yes, as of provider v4+, a rule needs either filter or prefix, confirmed against the current registry docs.', src: 'real tool call: get_provider_docs → registry.terraform.io' },
+    real: false,
+  },
+  {
+    id: 'crossplane-version',
+    text: "What's the current stable Crossplane Helm chart version?",
+    stale: { text: 'Around 1.14 or 1.15, I think, my training data may be behind the actual release.', src: 'from training data, explicitly hedged' },
+    live: { text: 'The exact current chart version, read straight from the real chart repository index.', src: 'real tool call: a registry/chart-index lookup, not a memory' },
+    real: false,
+  },
+];
+
+let selected = null;
+
+function render(){
+  const mcpOn = document.getElementById('mcpToggle').checked;
+
+  const qlist = document.getElementById('qlist');
+  qlist.innerHTML = '';
+  QUESTIONS.forEach(q => {
+    const btn = document.createElement('button');
+    btn.className = 'q-btn' + (selected && selected.id === q.id ? ' active' : '');
+    btn.textContent = q.text + (q.real ? '  (real captured example)' : '');
+    btn.onclick = () => { selected = q; render(); };
+    qlist.appendChild(btn);
+  });
+
+  const answerBox = document.getElementById('answerBox');
+  if (!selected) {
+    answerBox.className = 'answer';
+    answerBox.innerHTML = 'Pick a question above.';
+    return;
+  }
+
+  const a = mcpOn ? selected.live : selected.stale;
+  answerBox.className = 'answer ' + (mcpOn ? 'live' : 'stale');
+  answerBox.innerHTML = `<div class="h">${mcpOn ? 'With MCP: a real, sourced answer' : 'From memory alone: a guess'}</div>${a.text}<div class="src">${a.src}</div>`;
+}
+
+document.getElementById('mcpToggle').onchange = render;
+render();
+</script>
+</body>
+</html>

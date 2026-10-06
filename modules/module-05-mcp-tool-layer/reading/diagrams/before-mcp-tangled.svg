@@ -1,0 +1,40 @@
+<svg viewBox="0 0 880 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Before MCP: three different agent vendors, each with its own bespoke integration lines running to the same three tools, drawn as a tangle of crossing connectors.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="880" height="320">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="11" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="880" height="320" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <text x="440" y="34" text-anchor="middle" font-size="17" fill="black">before MCP: one bespoke integration per pair</text>
+
+    <rect x="40" y="70" width="140" height="46" rx="8" fill="#e1d5e7" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="110" y="98" text-anchor="middle" font-size="12" fill="black">agent vendor A</text>
+    <rect x="40" y="140" width="140" height="46" rx="8" fill="#e1d5e7" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="110" y="168" text-anchor="middle" font-size="12" fill="black">agent vendor B</text>
+    <rect x="40" y="210" width="140" height="46" rx="8" fill="#e1d5e7" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="110" y="238" text-anchor="middle" font-size="12" fill="black">agent vendor C</text>
+
+    <rect x="660" y="55" width="160" height="46" rx="8" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="740" y="83" text-anchor="middle" font-size="12" fill="black">terraform registry</text>
+    <rect x="660" y="140" width="160" height="46" rx="8" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="740" y="168" text-anchor="middle" font-size="12" fill="black">github</text>
+    <rect x="660" y="225" width="160" height="46" rx="8" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="740" y="253" text-anchor="middle" font-size="12" fill="black">a cloud provider</text>
+
+    <path d="M180,93 L660,78" stroke="black" stroke-width="1.6" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <path d="M180,93 L660,163" stroke="black" stroke-width="1.6" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <path d="M180,93 L660,248" stroke="black" stroke-width="1.6" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <path d="M180,163 L660,78" stroke="black" stroke-width="1.6" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <path d="M180,163 L660,163" stroke="black" stroke-width="1.6" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <path d="M180,163 L660,248" stroke="black" stroke-width="1.6" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <path d="M180,233 L660,78" stroke="black" stroke-width="1.6" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <path d="M180,233 L660,163" stroke="black" stroke-width="1.6" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <path d="M180,233 L660,248" stroke="black" stroke-width="1.6" marker-end="url(#arrow)" filter="url(#sketch)"/>
+  </g>
+  <text x="440" y="300" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="14" fill="black">nine connectors, nine things to maintain, for the same three tools</text>
+</svg>

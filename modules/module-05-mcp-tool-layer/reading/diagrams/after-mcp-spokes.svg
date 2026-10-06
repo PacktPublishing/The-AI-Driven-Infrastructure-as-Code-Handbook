@@ -1,0 +1,42 @@
+<svg viewBox="0 0 880 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="After MCP: three agent vendors each speak one shared protocol to a hub, and the hub, not each vendor, holds the connection to the terraform registry, github, and a cloud provider.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="880" height="320">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="12" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="880" height="320" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <text x="440" y="34" text-anchor="middle" font-size="17" fill="black">after MCP: one protocol, many clients, many servers</text>
+
+    <rect x="40" y="70" width="140" height="46" rx="8" fill="#e1d5e7" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="110" y="98" text-anchor="middle" font-size="12" fill="black">agent vendor A</text>
+    <rect x="40" y="140" width="140" height="46" rx="8" fill="#e1d5e7" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="110" y="168" text-anchor="middle" font-size="12" fill="black">agent vendor B</text>
+    <rect x="40" y="210" width="140" height="46" rx="8" fill="#e1d5e7" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="110" y="238" text-anchor="middle" font-size="12" fill="black">agent vendor C</text>
+
+    <rect x="360" y="130" width="160" height="60" rx="10" fill="#ffe6cc" stroke="black" stroke-width="2.6" filter="url(#sketch)"/>
+    <text x="440" y="155" text-anchor="middle" font-size="12" fill="black">MCP</text>
+    <text x="440" y="173" text-anchor="middle" font-size="12" fill="black">one shared protocol</text>
+
+    <path d="M180,93 L360,150" stroke="black" stroke-width="1.8" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <path d="M180,163 L360,163" stroke="black" stroke-width="1.8" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <path d="M180,233 L360,176" stroke="black" stroke-width="1.8" marker-end="url(#arrow)" filter="url(#sketch)"/>
+
+    <rect x="660" y="55" width="160" height="46" rx="8" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="740" y="83" text-anchor="middle" font-size="12" fill="black">terraform registry</text>
+    <rect x="660" y="140" width="160" height="46" rx="8" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="740" y="168" text-anchor="middle" font-size="12" fill="black">github</text>
+    <rect x="660" y="225" width="160" height="46" rx="8" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="740" y="253" text-anchor="middle" font-size="12" fill="black">a cloud provider</text>
+
+    <path d="M520,150 L660,78" stroke="black" stroke-width="1.8" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <path d="M520,160 L660,163" stroke="black" stroke-width="1.8" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <path d="M520,170 L660,248" stroke="black" stroke-width="1.8" marker-end="url(#arrow)" filter="url(#sketch)"/>
+  </g>
+  <text x="440" y="300" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="14" fill="black">six connectors instead of nine, and a new tool only needs one new spoke</text>
+</svg>

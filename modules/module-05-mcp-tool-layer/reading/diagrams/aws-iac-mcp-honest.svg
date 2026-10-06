@@ -1,0 +1,28 @@
+<svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A real attempt to run aws-iac-mcp-server: it installs, eighty six real packages, then crashes on startup with a real module not found error. Its documented tools are CloudFormation and CDK only, never Terraform.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="880" height="300">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="33" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  <rect x="0" y="0" width="880" height="300" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <text x="440" y="30" text-anchor="middle" font-size="15" fill="black">uvx awslabs.aws-iac-mcp-server@latest --help</text>
+
+    <rect x="60" y="55" width="330" height="170" rx="10" fill="#ffe6cc" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
+    <text x="225" y="85" text-anchor="middle" font-size="14" fill="black">real, official, installs fine</text>
+    <text x="225" y="112" text-anchor="middle" font-size="12" fill="black">86 packages, real deps:</text>
+    <text x="225" y="132" text-anchor="middle" font-size="12" fill="black">cfn-lint, botocore, cdk docs</text>
+    <text x="225" y="160" text-anchor="middle" font-size="12" fill="black">tools: validate/check CFN,</text>
+    <text x="225" y="180" text-anchor="middle" font-size="12" fill="black">search CDK docs, 7 more</text>
+    <text x="225" y="205" text-anchor="middle" font-size="12" fill="#c62828">none of them speak Terraform</text>
+
+    <rect x="490" y="55" width="330" height="170" rx="10" fill="#f8cecc" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
+    <text x="655" y="85" text-anchor="middle" font-size="14" fill="black">but it doesn't start</text>
+    <text x="655" y="120" text-anchor="middle" font-size="13" fill="black">ModuleNotFoundError:</text>
+    <text x="655" y="142" text-anchor="middle" font-size="12" fill="black">fastmcp.server.proxy</text>
+    <text x="655" y="170" text-anchor="middle" font-size="12" fill="black">pinning an older fastmcp:</text>
+    <text x="655" y="190" text-anchor="middle" font-size="12" fill="black">a different real crash</text>
+  </g>
+  <text x="440" y="255" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="15" fill="black">official does not mean stable. AWS-specific does not mean it speaks your IaC tool.</text>
+</svg>

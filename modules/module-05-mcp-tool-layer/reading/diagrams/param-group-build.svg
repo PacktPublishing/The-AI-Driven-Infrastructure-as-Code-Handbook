@@ -1,0 +1,33 @@
+<svg viewBox="0 0 880 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A real RDS instance wired to a real non-default parameter group: the MySQL 8.0 database points at a parameter group carrying slow query log turned on and a two second threshold, applied and verified against Floci, then destroyed.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="880" height="320">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="21" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="ah2" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L9,5 L0,10" fill="none" stroke="black" stroke-width="1.6"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="880" height="320" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <text x="440" y="30" text-anchor="middle" font-size="15" fill="black">aws_db_instance.app, wired to aws_db_parameter_group.app</text>
+
+    <rect x="80" y="60" width="290" height="150" rx="10" fill="#dae8fc" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
+    <text x="225" y="90" text-anchor="middle" font-size="14" fill="black">aws_db_instance.app</text>
+    <text x="225" y="118" text-anchor="middle" font-size="12" fill="black">mysql 8.0, db.t3.micro</text>
+    <text x="225" y="140" text-anchor="middle" font-size="12" fill="black">parameter_group_name =</text>
+    <text x="225" y="158" text-anchor="middle" font-size="13" fill="black">"m05-mysql8-slowlog"</text>
+    <text x="225" y="188" text-anchor="middle" font-size="12" fill="#2e7d32">verified: names match</text>
+
+    <path d="M375,135 L500,135" stroke="black" stroke-width="2.4" marker-end="url(#ah2)"/>
+
+    <rect x="505" y="60" width="290" height="150" rx="10" fill="#d5e8d4" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
+    <text x="650" y="90" text-anchor="middle" font-size="14" fill="black">aws_db_parameter_group.app</text>
+    <text x="650" y="118" text-anchor="middle" font-size="12" fill="black">family = "mysql8.0"</text>
+    <text x="650" y="140" text-anchor="middle" font-size="12" fill="black">slow_query_log = 1</text>
+    <text x="650" y="160" text-anchor="middle" font-size="12" fill="black">long_query_time = 2</text>
+    <text x="650" y="188" text-anchor="middle" font-size="12" fill="#2e7d32">a real, non-default setting</text>
+  </g>
+  <text x="440" y="250" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="15" fill="black">Apply complete! Resources: 7 added, 0 changed, 0 destroyed</text>
+  <text x="440" y="280" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="13" fill="black">real apply against Floci, real verification, real destroy, captured building this module</text>
+</svg>

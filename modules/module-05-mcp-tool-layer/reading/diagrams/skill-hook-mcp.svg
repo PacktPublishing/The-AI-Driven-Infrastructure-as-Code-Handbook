@@ -1,0 +1,35 @@
+<svg viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three harness components compared side by side: a skill is packaged instruction the agent follows itself, a hook is an enforced gate that runs regardless, and MCP is a live call out to an external system that returns real data.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="900" height="300">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="13" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  <rect x="0" y="0" width="900" height="300" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <rect x="30" y="50" width="260" height="180" rx="10" fill="#e1d5e7" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
+    <text x="160" y="80" text-anchor="middle" font-size="15" fill="black">skill (M04)</text>
+    <text x="160" y="110" text-anchor="middle" font-size="12" fill="black">packaged instructions</text>
+    <text x="160" y="128" text-anchor="middle" font-size="12" fill="black">the agent follows itself</text>
+    <text x="160" y="160" text-anchor="middle" font-size="12" fill="black">voluntary: agent decides</text>
+    <text x="160" y="178" text-anchor="middle" font-size="12" fill="black">to reach for it, or not</text>
+    <text x="160" y="205" text-anchor="middle" font-size="12" fill="#555">no live data returned</text>
+
+    <rect x="320" y="50" width="260" height="180" rx="10" fill="#f8cecc" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
+    <text x="450" y="80" text-anchor="middle" font-size="15" fill="black">hook (M06 preview)</text>
+    <text x="450" y="110" text-anchor="middle" font-size="12" fill="black">a check that runs at a</text>
+    <text x="450" y="128" text-anchor="middle" font-size="12" fill="black">fixed point, no matter what</text>
+    <text x="450" y="160" text-anchor="middle" font-size="12" fill="black">enforced: agent cannot</text>
+    <text x="450" y="178" text-anchor="middle" font-size="12" fill="black">opt out or skip it</text>
+    <text x="450" y="205" text-anchor="middle" font-size="12" fill="#555">passes or blocks, no data</text>
+
+    <rect x="610" y="50" width="260" height="180" rx="10" fill="#dae8fc" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
+    <text x="740" y="80" text-anchor="middle" font-size="15" fill="black">MCP (this module)</text>
+    <text x="740" y="110" text-anchor="middle" font-size="12" fill="black">a live call to a real</text>
+    <text x="740" y="128" text-anchor="middle" font-size="12" fill="black">external system</text>
+    <text x="740" y="160" text-anchor="middle" font-size="12" fill="black">voluntary like a skill,</text>
+    <text x="740" y="178" text-anchor="middle" font-size="12" fill="black">but returns real, live data</text>
+    <text x="740" y="205" text-anchor="middle" font-size="12" fill="#2e7d32">real answer comes back</text>
+  </g>
+  <text x="450" y="270" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="14" fill="black">all three sit in the harness layer, none of them replace it</text>
+</svg>
