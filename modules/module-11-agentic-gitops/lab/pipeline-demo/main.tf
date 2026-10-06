@@ -13,3 +13,7 @@ variable "webhook_token" {
   sensitive   = true
 }
 
+resource "local_file" "pipeline_config" {
+  filename = "${path.module}/rendered/pipeline.env"
+  content  = "WEBHOOK_TOKEN=${var.webhook_token}\n"
+}
