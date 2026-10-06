@@ -1,0 +1,29 @@
+<svg viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two files compared: the hand-typed file from step 1's suggestion used a bind mount, the agent-drafted file from step 2 used a local_file resource with embedded HTML, a real, honest divergence from the same intent and the same model.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="900" height="300">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="41" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="900" height="300" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <text x="215" y="35" text-anchor="middle" font-size="16" fill="black">step 1's file, hand-typed from the suggestion</text>
+    <rect x="60" y="55" width="310" height="80" rx="8" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="215" y="90" text-anchor="middle" font-size="12" fill="black">docker_container, bind-mounts</text>
+    <text x="215" y="110" text-anchor="middle" font-size="12" fill="black">a host dir you edit</text>
+
+    <text x="685" y="35" text-anchor="middle" font-size="16" fill="black">step 2's file, agent-drafted</text>
+    <rect x="530" y="55" width="310" height="80" rx="8" fill="#ffe6cc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="685" y="90" text-anchor="middle" font-size="12" fill="black">local_file resource, HTML</text>
+    <text x="685" y="110" text-anchor="middle" font-size="12" fill="black">written by Terraform itself</text>
+
+    <line x1="450" y1="20" x2="450" y2="180" stroke="black" stroke-width="1.6" stroke-dasharray="4 5" filter="url(#sketch)"/>
+
+    <text x="450" y="200" text-anchor="middle" font-size="14" fill="black">same intent, same model, real diff between the two runs</text>
+    <text x="450" y="230" text-anchor="middle" font-size="13" fill="black">the loop has no memory of run 1 when run 2 starts</text>
+    <text x="450" y="265" text-anchor="middle" font-size="13" fill="black">this is exactly why you read every line, every time</text>
+  </g>
+</svg>

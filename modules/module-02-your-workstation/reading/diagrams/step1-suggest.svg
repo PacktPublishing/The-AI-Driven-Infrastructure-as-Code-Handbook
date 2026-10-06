@@ -1,0 +1,26 @@
+<svg viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Step 1, suggest: an agent chat bubble proposes Terraform text, an arrow crosses to a person icon who types it into a file by hand, showing the agent never touches the file directly.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="900" height="300">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="19" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="900" height="300" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <text x="180" y="35" text-anchor="middle" font-size="16" fill="black">step 1: suggest</text>
+    <path d="M60,60 h240 a10,10 0 0 1 10,10 v70 a10,10 0 0 1 -10,10 h-160 l-30,25 v-25 h-50 a10,10 0 0 1 -10,-10 v-70 a10,10 0 0 1 10,-10 z" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="180" y="95" text-anchor="middle" font-size="12" fill="black">"here's Terraform for that"</text>
+    <text x="180" y="115" text-anchor="middle" font-size="12" fill="black">agent proposes, in text only</text>
+
+    <path d="M330,110 L560,110" stroke="black" stroke-width="2.2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+
+    <circle cx="650" cy="90" r="26" fill="#ffe6cc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <rect x="610" y="130" width="80" height="90" rx="8" fill="none" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="650" y="245" text-anchor="middle" font-size="13" fill="black">you type it, by hand</text>
+
+    <text x="450" y="285" text-anchor="middle" font-size="14" fill="black">the agent never touches the file</text>
+  </g>
+</svg>

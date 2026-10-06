@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Permission Mode Simulator — M02, Agentic Infrastructure as Code</title>
+<style>
+  :root{
+    --ink:#1e1e1e;
+    --gray:#757575;
+    --paper:#ffffff;
+    --p-green:#d5e8d4;
+    --p-red:#f8cecc;
+    --p-blue:#dae8fc;
+    --p-orange:#ffe6cc;
+    --p-purple:#e1d5e7;
+    --border:#bdbdbd;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--paper); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  .wrap{ max-width:1120px; margin:0 auto; padding:28px 20px 60px; }
+  h1{ font-size:22px; margin:0 0 4px; }
+  .sub{ color:var(--gray); margin:0 0 22px; font-size:14px; }
+
+  .layout{ display:grid; grid-template-columns: 320px 1fr; gap:28px; align-items:start; }
+  @media (max-width: 820px){ .layout{ grid-template-columns: 1fr; } }
+
+  fieldset{ border:1.5px solid var(--border); border-radius:10px; padding:14px 16px; margin:0 0 16px; }
+  legend{ font-weight:700; font-size:13px; padding:0 6px; }
+
+  .tool-row{ display:flex; align-items:center; gap:8px; padding:6px 2px; font-size:13.5px; }
+  .tool-row input{ transform:scale(1.1); }
+  code.tool{ font-size:12.5px; background:#f2f2f2; padding:1px 6px; border-radius:4px; }
+
+  .mode-btn{ display:block; width:100%; text-align:left; border:1.5px solid var(--border); border-radius:8px;
+    padding:10px 12px; margin-bottom:8px; background:#fff; cursor:pointer; font-size:13px; }
+  .mode-btn .name{ font-weight:700; font-family:ui-monospace,monospace; }
+  .mode-btn .desc{ color:var(--gray); font-size:11.5px; margin-top:2px; }
+  .mode-btn.active{ border-color:var(--ink); background:var(--p-blue); }
+  .mode-btn.danger.active{ background:var(--p-red); }
+
+  table{ width:100%; border-collapse:collapse; font-size:13px; }
+  th, td{ text-align:left; padding:8px 10px; border-bottom:1px solid #eee; vertical-align:top; }
+  th{ color:var(--gray); font-weight:600; font-size:11.5px; text-transform:uppercase; letter-spacing:.02em; }
+  .status{ display:inline-block; border-radius:6px; padding:3px 10px; font-size:12px; font-weight:700; }
+  .status.blocked{ background:var(--p-red); }
+  .status.asks{ background:var(--p-orange); }
+  .status.plans{ background:var(--p-purple); }
+  .status.proceeds{ background:var(--p-green); }
+  .reason{ color:var(--gray); font-size:12px; margin-top:3px; }
+
+  .cli-line{ font-family:ui-monospace,monospace; font-size:12.5px; background:#f7f7f7; border:1px solid var(--border);
+    border-radius:8px; padding:10px 12px; margin-top:16px; word-break:break-all; }
+
+  .warn-banner{ margin-top:14px; padding:10px 12px; border-radius:8px; font-size:12.5px; }
+  .warn-banner.on{ background:var(--p-red); border:1.5px dashed #c62828; }
+
+  footer{ margin-top:34px; font-size:12px; color:var(--gray); border-top:1px solid var(--border); padding-top:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Permission Mode Simulator</h1>
+  <p class="sub">Module 2 &middot; Your Agentic IaC Workstation &middot; pick which tools are allowed
+    and a permission mode, then watch what actually happens when the agent tries four realistic
+    actions. Every mode and every real flag name here comes straight from <code>claude --help</code>,
+    nothing invented.</p>
+
+  <div class="layout">
+    <div>
+      <fieldset>
+        <legend>--allowedTools</legend>
+        <div class="tool-row"><input type="checkbox" id="tool-Read" checked><label for="tool-Read"><code class="tool">Read</code></label></div>
+        <div class="tool-row"><input type="checkbox" id="tool-Write" checked><label for="tool-Write"><code class="tool">Write</code></label></div>
+        <div class="tool-row"><input type="checkbox" id="tool-Edit" checked><label for="tool-Edit"><code class="tool">Edit</code></label></div>
+        <div class="tool-row"><input type="checkbox" id="tool-Bash" checked><label for="tool-Bash"><code class="tool">Bash</code></label></div>
+      </fieldset>
+
+      <fieldset id="modeBox">
+        <legend>--permission-mode</legend>
+      </fieldset>
+    </div>
+
+    <div>
+      <table id="resultTable">
+        <thead>
+          <tr><th>The agent tries to&hellip;</th><th>What actually happens</th></tr>
+        </thead>
+        <tbody id="resultBody"></tbody>
+      </table>
+      <div class="cli-line" id="cliLine"></div>
+      <div class="warn-banner" id="warnBanner"></div>
+    </div>
+  </div>
+
+  <footer>
+    Self-contained, no network calls. Six real <code>--permission-mode</code> values, real
+    <code>--allowedTools</code> semantics, verified against a real <code>claude --help</code> run,
+    not guessed. Part of <strong>Module 2: Your Agentic IaC Workstation</strong>,
+    Agentic Infrastructure as Code.
+  </footer>
+</div>
+
+<script>
+const MODES = [
+  { id: 'manual', name: 'manual / auto', desc: 'Ask before each tool call that needs confirmation (the interactive default)', danger: false },
+  { id: 'acceptEdits', name: 'acceptEdits', desc: 'File edits applied without asking, other tools still confirm', danger: false },
+  { id: 'plan', name: 'plan', desc: 'Writes a plan, touches nothing until you say go', danger: false },
+  { id: 'dontAsk', name: 'dontAsk', desc: 'Skips most confirmation, still respects --allowedTools', danger: false },
+  { id: 'bypassPermissions', name: 'bypassPermissions', desc: '--dangerously-skip-permissions: no confirmation, no --allowedTools boundary either', danger: true },
+];
+
+const ACTIONS = [
+  { name: 'Read main.tf', tool: 'Read', kind: 'read' },
+  { name: 'Write a new main.tf', tool: 'Write', kind: 'write' },
+  { name: 'Run terraform apply', tool: 'Bash', kind: 'apply' },
+  { name: 'Run an arbitrary shell command', tool: 'Bash', kind: 'shell' },
+];
+
+let mode = 'manual';
+
+function $(id){ return document.getElementById(id); }
+
+function renderModes() {
+  const box = $('modeBox');
+  box.innerHTML = '<legend>--permission-mode</legend>';
+  MODES.forEach(m => {
+    const b = document.createElement('button');
+    b.className = 'mode-btn' + (m.danger ? ' danger' : '') + (m.id === mode ? ' active' : '');
+    b.innerHTML = `<div class="name">${m.name}</div><div class="desc">${m.desc}</div>`;
+    b.onclick = () => { mode = m.id; render(); };
+    box.appendChild(b);
+  });
+}
+
+function toolAllowed(toolName) {
+  return $('tool-' + toolName).checked;
+}
+
+function evaluate(action) {
+  const allowed = toolAllowed(action.tool);
+
+  if (mode === 'bypassPermissions') {
+    // real: no --allowedTools boundary either, in bypass mode
+    return { status: 'proceeds', label: 'Proceeds, no questions asked',
+      reason: 'bypassPermissions removes the --allowedTools boundary too, that is the whole point of the mode, and the whole reason its own help text calls it a sandbox-only setting.' };
+  }
+
+  if (!allowed) {
+    return { status: 'blocked', label: 'Blocked before it starts',
+      reason: `${action.tool} is not in --allowedTools. The agent can't even attempt this.` };
+  }
+
+  if (mode === 'plan') {
+    if (action.kind === 'read') {
+      return { status: 'proceeds', label: 'Proceeds (reads never mutate anything)',
+        reason: 'Plan mode still lets the agent look around, it just won\'t write or run anything until you approve.' };
+    }
+    return { status: 'plans', label: 'Writes a plan instead, waits for you to say go',
+      reason: 'Plan mode\'s whole job: propose the change as a document, touch nothing until you approve it.' };
+  }
+
+  if (mode === 'acceptEdits') {
+    if (action.kind === 'write') {
+      return { status: 'proceeds', label: 'Applied without asking',
+        reason: 'acceptEdits auto-applies file edits specifically.' };
+    }
+    return { status: 'asks', label: 'Stops and asks first',
+      reason: 'acceptEdits only covers edits. A shell command or an apply still confirms.' };
+  }
+
+  if (mode === 'dontAsk') {
+    return { status: 'proceeds', label: 'Proceeds without stopping to ask',
+      reason: 'dontAsk skips confirmation for most tools, but the --allowedTools boundary above still applied first.' };
+  }
+
+  // manual / auto, the interactive default
+  if (action.kind === 'read') {
+    return { status: 'proceeds', label: 'Proceeds (reads rarely need confirmation)',
+      reason: 'Reading a file is low-risk enough that the default flow usually doesn\'t stop for it.' };
+  }
+  return { status: 'asks', label: 'Stops and asks first',
+    reason: 'The normal interactive default: confirm before a write, an apply, or a shell command.' };
+}
+
+function render() {
+  renderModes();
+  const body = $('resultBody');
+  body.innerHTML = '';
+  ACTIONS.forEach(a => {
+    const r = evaluate(a);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${a.name}<div class="reason" style="margin-top:0">tool: <code class="tool">${a.tool}</code></div></td>
+      <td><span class="status ${r.status}">${r.label}</span><div class="reason">${r.reason}</div></td>`;
+    body.appendChild(tr);
+  });
+
+  const tools = ['Read','Write','Edit','Bash'].filter(toolAllowed).join(',');
+  $('cliLine').textContent = `claude -p "..." --allowedTools "${tools}" --permission-mode ${mode === 'bypassPermissions' ? '' : mode}`.trim() +
+    (mode === 'bypassPermissions' ? ' \\\n  --dangerously-skip-permissions' : '');
+
+  const warn = $('warnBanner');
+  if (mode === 'bypassPermissions') {
+    warn.className = 'warn-banner on';
+    warn.textContent = 'This is the mode the CLI\'s own help text says is recommended only for sandboxes with no internet access. You reach for it with your eyes open, not by accident.';
+  } else {
+    warn.className = 'warn-banner';
+    warn.textContent = '';
+  }
+}
+
+['tool-Read','tool-Write','tool-Edit','tool-Bash'].forEach(id => {
+  $(id).addEventListener('change', render);
+});
+
+render();
+</script>
+</body>
+</html>

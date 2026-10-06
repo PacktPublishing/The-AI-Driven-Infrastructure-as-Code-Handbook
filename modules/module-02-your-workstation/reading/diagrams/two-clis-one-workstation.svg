@@ -1,0 +1,30 @@
+<svg viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two CLI panels, Claude Code and Codex, both pointed with an arrow at the same shared repository box in the middle, showing one workstation used with either tool.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="900" height="300">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="7" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="900" height="300" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <text x="140" y="40" text-anchor="middle" font-size="16" fill="black">Claude Code</text>
+    <rect x="60" y="55" width="160" height="70" rx="10" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="140" y="95" text-anchor="middle" font-size="12" fill="black">a CLI, a terminal</text>
+
+    <text x="760" y="40" text-anchor="middle" font-size="16" fill="black">Codex CLI</text>
+    <rect x="680" y="55" width="160" height="70" rx="10" fill="#e1d5e7" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="760" y="95" text-anchor="middle" font-size="12" fill="black">also a CLI, a terminal</text>
+
+    <rect x="360" y="180" width="180" height="80" rx="10" fill="#d5e8d4" stroke="black" stroke-width="2.6" filter="url(#sketch)"/>
+    <text x="450" y="215" text-anchor="middle" font-size="14" fill="black">your repo</text>
+    <text x="450" y="235" text-anchor="middle" font-size="12" fill="black">same files, same git history</text>
+
+    <path d="M170,125 L400,190" stroke="black" stroke-width="2.2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <path d="M730,125 L500,190" stroke="black" stroke-width="2.2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+
+    <text x="450" y="290" text-anchor="middle" font-size="14" fill="black">two front doors, one workstation, neither one is the only right choice</text>
+  </g>
+</svg>

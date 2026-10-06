@@ -1,0 +1,28 @@
+<svg viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Step 2, draft: an agent writes a file directly, an arrow crosses to a person icon who reads every line before doing anything else, showing the agent now touches the file but the human still reads first.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="900" height="300">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="23" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="900" height="300" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <text x="180" y="35" text-anchor="middle" font-size="16" fill="black">step 2: draft</text>
+    <rect x="80" y="55" width="200" height="90" rx="8" fill="#d5e8d4" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="180" y="90" text-anchor="middle" font-size="12" fill="black">main.tf</text>
+    <text x="180" y="110" text-anchor="middle" font-size="12" fill="black">agent writes the file</text>
+    <text x="180" y="128" text-anchor="middle" font-size="12" fill="black">directly, on disk</text>
+
+    <path d="M330,100 L560,100" stroke="black" stroke-width="2.2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+
+    <circle cx="650" cy="90" r="26" fill="#ffe6cc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <rect x="600" y="130" width="100" height="90" rx="8" fill="none" stroke="black" stroke-width="2.6" filter="url(#sketch)"/>
+    <path d="M615,150 h70 M615,168 h70 M615,186 h50" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+    <text x="650" y="245" text-anchor="middle" font-size="13" fill="black">you read every line, first</text>
+
+    <text x="450" y="285" text-anchor="middle" font-size="14" fill="black">the agent touches the file, you still decide before you run anything</text>
+  </g>
+</svg>

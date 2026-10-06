@@ -1,0 +1,37 @@
+<svg viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A subagent, isolated in its own dashed box, delegated one bounded read-only task by a parent Claude session, reporting back that its checkov attempt was blocked by its own narrower permissions instead of guessing at a result.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="900" height="320">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="41" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="900" height="320" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <text x="170" y="35" text-anchor="middle" font-size="16" fill="black">parent session</text>
+    <rect x="70" y="55" width="200" height="80" rx="8" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="170" y="90" text-anchor="middle" font-size="12" fill="black">claude, full session</text>
+    <text x="170" y="108" text-anchor="middle" font-size="12" fill="black">permissions</text>
+
+    <path d="M280,95 L420,95" stroke="black" stroke-width="2.2" marker-end="url(#arrow2)" filter="url(#sketch)"/>
+    <text x="350" y="80" text-anchor="middle" font-size="11" fill="black">delegates one bounded task</text>
+
+    <rect x="430" y="45" width="230" height="110" rx="8" fill="#e1d5e7" stroke="black" stroke-width="2.2" stroke-dasharray="6,4" filter="url(#sketch)"/>
+    <text x="545" y="70" text-anchor="middle" font-size="13" fill="black">subagent</text>
+    <text x="545" y="92" text-anchor="middle" font-size="11" fill="black">isolated context,</text>
+    <text x="545" y="108" text-anchor="middle" font-size="11" fill="black">narrower permissions</text>
+    <text x="545" y="124" text-anchor="middle" font-size="11" fill="black">than the parent</text>
+
+    <path d="M545,155 L545,190" stroke="black" stroke-width="2.2" marker-end="url(#arrow2)" filter="url(#sketch)"/>
+    <text x="545" y="175" text-anchor="middle" font-size="11" fill="black">tries checkov</text>
+
+    <rect x="410" y="195" width="270" height="90" rx="8" fill="#f8cecc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="545" y="220" text-anchor="middle" font-size="12" fill="black">Bash(checkov) blocked</text>
+    <text x="545" y="240" text-anchor="middle" font-size="11" fill="black">reports the block honestly,</text>
+    <text x="545" y="256" text-anchor="middle" font-size="11" fill="black">does not invent a result</text>
+
+    <text x="450" y="310" text-anchor="middle" font-size="14" fill="black">a bounded task, a narrower surface, an honest report when blocked</text>
+  </g>
+</svg>
