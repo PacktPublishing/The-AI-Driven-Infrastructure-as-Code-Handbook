@@ -1,0 +1,24 @@
+<svg viewBox="0 0 900 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two labeled gaps, rollback and incident response, drawn as open doors at the end of the loop diagram rather than closed and solved.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="900" height="280">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="17" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  <rect x="0" y="0" width="900" height="280" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <text x="450" y="30" text-anchor="middle" font-size="14" fill="black">what this module doesn't close</text>
+
+    <rect x="180" y="80" width="220" height="120" rx="10" fill="none" stroke="black" stroke-width="2.2" stroke-dasharray="7 6" filter="url(#sketch)"/>
+    <text x="290" y="130" text-anchor="middle" font-size="12" fill="black">rollback</text>
+    <text x="290" y="155" text-anchor="middle" font-size="10" fill="black">getting back to known-good</text>
+    <text x="290" y="172" text-anchor="middle" font-size="10" fill="black">after a bad merge</text>
+
+    <rect x="500" y="80" width="220" height="120" rx="10" fill="none" stroke="black" stroke-width="2.2" stroke-dasharray="7 6" filter="url(#sketch)"/>
+    <text x="610" y="130" text-anchor="middle" font-size="12" fill="black">incident response</text>
+    <text x="610" y="155" text-anchor="middle" font-size="10" fill="black">who gets paged when</text>
+    <text x="610" y="172" text-anchor="middle" font-size="10" fill="black">reconciliation itself fails</text>
+
+    <text x="450" y="245" text-anchor="middle" font-size="12" fill="black">named honestly, not solved here</text>
+  </g>
+</svg>

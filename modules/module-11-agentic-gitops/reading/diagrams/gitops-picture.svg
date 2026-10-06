@@ -1,0 +1,38 @@
+<svg viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A git repository as the single source of truth, with a controller drawn as a constant arrow comparing the cluster's live state against the repo and correcting any difference.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="900" height="300">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="9" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="900" height="300" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <text x="450" y="30" text-anchor="middle" font-size="14" fill="black">GitOps in one picture</text>
+
+    <rect x="100" y="90" width="180" height="90" rx="10" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="190" y="130" text-anchor="middle" font-size="13" fill="black">git repo</text>
+    <text x="190" y="150" text-anchor="middle" font-size="11" fill="black">source of truth</text>
+
+    <ellipse cx="450" cy="135" rx="95" ry="60" fill="#e1d5e7" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="450" y="130" text-anchor="middle" font-size="12" fill="black">controller</text>
+    <text x="450" y="150" text-anchor="middle" font-size="11" fill="black">compares, corrects</text>
+
+    <rect x="620" y="90" width="180" height="90" rx="10" fill="#d5e8d4" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="710" y="130" text-anchor="middle" font-size="13" fill="black">cluster</text>
+    <text x="710" y="150" text-anchor="middle" font-size="11" fill="black">live state</text>
+
+    <path d="M280,120 L360,120" stroke="black" stroke-width="2.2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <text x="320" y="105" text-anchor="middle" font-size="10" fill="black">watches</text>
+
+    <path d="M545,120 L615,120" stroke="black" stroke-width="2.2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <text x="580" y="105" text-anchor="middle" font-size="10" fill="black">applies</text>
+
+    <path d="M615,155 L550,155" stroke="black" stroke-width="2.2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <text x="580" y="175" text-anchor="middle" font-size="10" fill="black">reports back</text>
+
+    <text x="450" y="240" text-anchor="middle" font-size="13" fill="black">nobody runs kubectl apply. a merge is the only lever left.</text>
+  </g>
+</svg>

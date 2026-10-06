@@ -1,0 +1,40 @@
+<svg viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A pipeline script running by hand next to the same stages inside a GitHub Actions workflow, triggered automatically on every pull request.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="900" height="300">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="7" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="900" height="300" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <text x="450" y="30" text-anchor="middle" font-size="14" fill="black">from a hand-run pipeline to a CI-run pipeline</text>
+
+    <rect x="60" y="70" width="230" height="150" rx="10" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="175" y="95" text-anchor="middle" font-size="12" fill="black">you, in a terminal</text>
+    <text x="175" y="125" text-anchor="middle" font-size="11" fill="black">fmt, validate</text>
+    <text x="175" y="145" text-anchor="middle" font-size="11" fill="black">trivy, checkov</text>
+    <text x="175" y="165" text-anchor="middle" font-size="11" fill="black">policy, cost</text>
+    <text x="175" y="195" text-anchor="middle" font-size="11" fill="black">typed by hand</text>
+
+    <path d="M300,145 L370,145" stroke="black" stroke-width="2.4" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <text x="335" y="130" text-anchor="middle" font-size="11" fill="black">same stages</text>
+
+    <rect x="380" y="55" width="460" height="180" rx="10" fill="none" stroke="black" stroke-width="2" stroke-dasharray="6 5" filter="url(#sketch)"/>
+    <text x="610" y="80" text-anchor="middle" font-size="12" fill="black">GitHub Actions, on every pull request</text>
+
+    <rect x="410" y="105" width="120" height="50" rx="8" fill="#d5e8d4" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+    <text x="470" y="134" text-anchor="middle" font-size="11" fill="black">fmt, validate</text>
+    <path d="M530,130 L580,130" stroke="black" stroke-width="2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <rect x="585" y="105" width="120" height="50" rx="8" fill="#d5e8d4" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+    <text x="645" y="134" text-anchor="middle" font-size="11" fill="black">trivy, checkov</text>
+    <path d="M705,130 L750,130" stroke="black" stroke-width="2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <rect x="750" y="105" width="80" height="50" rx="8" fill="#d5e8d4" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+    <text x="790" y="134" text-anchor="middle" font-size="11" fill="black">policy</text>
+
+    <text x="610" y="200" text-anchor="middle" font-size="11" fill="black">nobody typed anything, a pull request triggered it</text>
+    <text x="450" y="270" text-anchor="middle" font-size="13" fill="black">the pipeline didn't change. who runs it did.</text>
+  </g>
+</svg>

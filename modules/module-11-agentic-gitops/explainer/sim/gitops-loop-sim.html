@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Full GitOps Loop — M11, Agentic Infrastructure as Code</title>
+<style>
+  :root{
+    --ink:#1e1e1e; --gray:#757575; --paper:#ffffff;
+    --p-green:#d5e8d4; --p-red:#f8cecc; --p-blue:#dae8fc; --p-orange:#ffe6cc; --p-purple:#e1d5e7;
+    --border:#bdbdbd;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--paper); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  .wrap{ max-width:1050px; margin:0 auto; padding:28px 20px 60px; }
+  h1{ font-size:22px; margin:0 0 4px; }
+  .sub{ color:var(--gray); margin:0 0 22px; font-size:14px; }
+
+  .stages{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:18px; }
+  .stage{ flex:1 1 130px; border:1.5px solid var(--border); border-radius:8px; padding:10px;
+    font-size:12.5px; text-align:center; min-width:110px; }
+  .stage .n{ font-weight:700; font-size:11px; color:var(--gray); margin-bottom:4px; }
+  .stage.pending{ background:#fafafa; }
+  .stage.active{ border-color:var(--ink); background:var(--p-orange); }
+  .stage.done{ border-color:#4caf50; background:var(--p-green); }
+  .stage.failed{ border-color:#c62828; background:var(--p-red); }
+  .stage .human{ font-weight:700; }
+
+  .controls{ display:flex; gap:8px; flex-wrap:wrap; margin:16px 0; }
+  button{ border:1.5px solid var(--ink); background:#fff; border-radius:6px; padding:7px 14px;
+    font-size:13px; cursor:pointer; }
+  button:hover{ background:#f2f2f2; }
+  button:disabled{ opacity:.4; cursor:default; }
+  button.primary{ background:var(--ink); color:#fff; }
+  button.primary:hover{ background:#333; }
+  button.danger{ border-color:#c62828; }
+
+  .log{ font-size:13px; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:#fafafa; border:1px solid var(--border); border-radius:8px; padding:12px;
+    min-height:110px; white-space:pre-wrap; }
+  .log .step5{ margin-top:14px; padding:10px; border-radius:6px; background:var(--p-purple);
+    font-family:-apple-system,BlinkMacSystemFont,sans-serif; font-size:13px; }
+
+  footer{ margin-top:34px; font-size:12px; color:var(--gray); border-top:1px solid var(--border); padding-top:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>The Full GitOps Loop</h1>
+  <p class="sub">Module 11 &middot; Agentic GitOps and Pipelines &middot; propose, gate, merge, reconcile.
+    One click in this whole loop is a human's, the rest runs on its own. Step through it.</p>
+
+  <div class="stages" id="stages"></div>
+
+  <div class="controls">
+    <button id="nextBtn" class="primary">Advance to next stage</button>
+    <button id="tamperBtn" class="danger" disabled>Tamper with the live cluster directly</button>
+    <button id="resetBtn">Reset</button>
+  </div>
+
+  <div class="log" id="logBox">Click "Advance to next stage" to start: an agent proposes a change as a pull request.</div>
+
+  <footer>
+    Self-contained, no network calls. Modeled on the real loop this module's lab runs: a real
+    CI-gated PR, a real merge, a real Argo CD sync, and a real self-heal test.
+    Part of <strong>Module 11: Agentic GitOps and Pipelines</strong>, Agentic Infrastructure as Code.
+  </footer>
+</div>
+
+<script>
+const STAGES = [
+  { key: 'propose', label: 'Agent proposes', detail: 'a pull request', human: false },
+  { key: 'ci', label: 'CI gate', detail: 'runs automatically', human: false },
+  { key: 'merge', label: 'Human merges', detail: 'the one manual click', human: true },
+  { key: 'sync', label: 'GitOps syncs', detail: 'automatically', human: false },
+  { key: 'healthy', label: 'Healthy', detail: 'unattended', human: false },
+];
+
+let idx = -1;
+let tampered = false;
+
+const stagesEl = document.getElementById('stages');
+const logBox = document.getElementById('logBox');
+const nextBtn = document.getElementById('nextBtn');
+const tamperBtn = document.getElementById('tamperBtn');
+const resetBtn = document.getElementById('resetBtn');
+
+function renderStages() {
+  stagesEl.innerHTML = '';
+  STAGES.forEach((s, i) => {
+    const div = document.createElement('div');
+    let cls = 'stage ';
+    if (i < idx || (i === idx && i === STAGES.length - 1 && !tampered)) cls += 'done';
+    else if (i === idx) cls += 'active';
+    else cls += 'pending';
+    div.className = cls;
+    div.innerHTML = `<div class="n">STAGE ${i + 1}</div>${s.human ? '<span class="human">' + s.label + '</span>' : s.label}<div style="color:var(--gray); margin-top:2px;">${s.detail}</div>`;
+    stagesEl.appendChild(div);
+  });
+}
+
+const LOG_TEXT = [
+  'Agent proposes a change as a pull request. Nothing has run yet.',
+  'CI gate runs automatically: fmt/validate, Trivy, Checkov, a policy check, real and unattended. If it fails, the agent gets the finding back, no human paged yet.',
+  'A human reviews the PR and merges it. This is the one click in the whole loop that is not automatic, the review this course insists stays a real gate.',
+  'Argo CD, watching the repo, detects the merge and syncs the cluster to match, unattended, no one runs kubectl apply.',
+  'Sync=Synced, Health=Healthy. That\'s step 5, supervised autonomy, in the exact place it applies: everything up to and after the merge runs on its own, a human reviewed the outcome (the PR), not each step.',
+];
+
+function renderLog() {
+  if (idx < 0) {
+    logBox.textContent = 'Click "Advance to next stage" to start: an agent proposes a change as a pull request.';
+    return;
+  }
+  logBox.textContent = LOG_TEXT[idx];
+  if (idx === STAGES.length - 1 && !tampered) {
+    logBox.innerHTML += '<div class="step5">This is where step 5 actually happens. Not because the tool is fancy, because a human reviewed one outcome, the PR, and everything else, gate and reconcile both, ran without anyone watching each step.</div>';
+  }
+}
+
+nextBtn.onclick = () => {
+  if (idx < STAGES.length - 1) {
+    idx++;
+    renderStages();
+    renderLog();
+  }
+  nextBtn.disabled = idx >= STAGES.length - 1;
+  tamperBtn.disabled = idx < STAGES.length - 1;
+};
+
+tamperBtn.onclick = () => {
+  tampered = true;
+  logBox.textContent = 'Someone edited the ConfigMap directly on the cluster, bypassing git entirely.';
+  renderStages();
+  setTimeout(() => {
+    tampered = false;
+    logBox.textContent = 'Argo CD\'s self-heal noticed the drift and corrected it back to match the repo within seconds, the same reconcile discipline from module 10, now driven by a real merge instead of a manual apply.';
+    renderStages();
+  }, 600);
+};
+
+resetBtn.onclick = () => {
+  idx = -1;
+  tampered = false;
+  nextBtn.disabled = false;
+  tamperBtn.disabled = true;
+  renderStages();
+  renderLog();
+};
+
+renderStages();
+renderLog();
+</script>
+</body>
+</html>
