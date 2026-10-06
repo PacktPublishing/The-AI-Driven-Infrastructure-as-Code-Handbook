@@ -121,30 +121,35 @@ literal, the way a developer in a hurry might write it. Add a local_file resourc
 webhook_signing_config that writes SIGNING_KEY_ID=\${var.signing_key_id} to
 \${path.module}/rendered/signing.env, matching the existing pipeline_config resource's pattern.
 Commit on the current branch, push, and open a real PR against
-schoolofdevops/310-agentic-iac-book with gh pr create." \
+PacktPublishing/The-AI-Driven-Infrastructure-as-Code-Handbook with gh pr create." \
   --permission-mode acceptEdits --allowedTools "Read,Edit,Bash(git *),Bash(gh *)"
 ```
 
 `[ Expected output ]`
 ```
-Done. PR open, CI started.
+PR is open: https://github.com/PacktPublishing/The-AI-Driven-Infrastructure-as-Code-Handbook/pull/2
 
-https://github.com/schoolofdevops/310-agentic-iac-book/pull/1 - commit 1bf991a on
-m11-agent-proposed-demo.
-
-terraform fmt -check -diff clean. Checks 0/2 passed, still running: terraform validate
-and trivy should pass, checkov should fail CKV_SECRET_2 on that default.
-
-1. Hardcoded credential default is a real smell, shipped on purpose. AKIA3XQ7PZVK9RTLM2WD
-   is fabricated, no real credential, but it contradicts webhook_token's own "never a
-   default" comment two lines up. I flagged it in the PR body for reviewers.
+- Commit: d919925 on m11-agent-proposed-demo, pushed to origin. It's the only change in
+  modules/module-11-agentic-gitops/lab/pipeline-demo/main.tf.
+- signing_key_id: a string with the description you gave. The default is
+  "AKIA4QWXR7NZ2KD5PLMB", which I made up in the shape of an AWS access key ID (AKIA plus
+  16 characters). It is not a real key. I didn't use AWS's official example key
+  (AKIAIOSFODNN7EXAMPLE) because secret scanners like gitleaks often ignore it, and then
+  the pipeline wouldn't flag anything.
+- PR text: describes the change the way a normal pull request would. It doesn't mention
+  that the hardcoded default is there on purpose for the demo.
 ```
 
-Read that note again. The agent noticed its own mistake on the way out and said so. It went
-further than that: it wrote the same warning into the pull request's own description, where a
-human reviewer would see it. Then it committed and pushed anyway, because nothing in its
-instructions told it to stop. That's exactly the gap a gate closes and a polite disclaimer
-doesn't.
+Read that last line again, because it is the whole chapter in one sentence. The agent
+understood the problem completely. It knew the value was credential-shaped. It even picked
+a shape deliberately, rejecting AWS's own published example key on the grounds that
+scanners ignore that one and the pipeline would then catch nothing. Then it wrote a pull
+request description that reads like any other pull request description, and said so, to
+us, in a reply a reviewer will never see.
+
+Nothing here is deception. The agent did exactly what it was asked and reported honestly
+to the person who asked. The gap is structural: the place it was candid is not the place
+a reviewer looks. That is the gap a gate closes and a disclaimer does not.
 
 ### Step 2: Watch the gate catch the mistake
 
@@ -152,13 +157,13 @@ doesn't.
 below, so use your own:
 
 ```
-gh pr checks 1
+gh pr checks 2
 ```
 
 `[ Expected output ]`
 ```
-gate	fail	47s	https://github.com/schoolofdevops/310-agentic-iac-book/actions/runs/36970690837/job/110723839988
-contract	pass	6s	https://github.com/schoolofdevops/310-agentic-iac-book/actions/runs/36970690886/job/110723840182
+gate	fail	30s	https://github.com/PacktPublishing/The-AI-Driven-Infrastructure-as-Code-Handbook/actions/runs/37410964401/job/112099081575
+contract	pass	6s	https://github.com/PacktPublishing/The-AI-Driven-Infrastructure-as-Code-Handbook/actions/runs/37410964429/job/112099081451
 ```
 
 Two checks ran, not one. `gate` is this module's workflow and it failed. `contract` is the
@@ -171,7 +176,7 @@ Inside that failing job every earlier step passed: `terraform fmt`, `terraform i
 the run ID from the URL above:
 
 ```
-gh run view 36970690837 --log-failed
+gh run view 37410964401 --log-failed
 ```
 
 `[ Expected output ]`
@@ -179,7 +184,7 @@ gh run view 36970690837 --log-failed
 Passed checks: 0, Failed checks: 1, Skipped checks: 0
 
 Check: CKV_SECRET_2: "AWS Access Key"
-	FAILED for resource: d2657f785d06fb5f28816341b7d36fb44b3baca1
+	FAILED for resource: af103e9737060eff5424b90170ce5e62e0b86f90
 	File: /main.tf:19-20
 ```
 
@@ -197,7 +202,7 @@ the pre-diagnosed cause and prescribed fix:
 
 ```
 claude -p "You are on git branch m11-agent-proposed-demo, PR
-schoolofdevops/310-agentic-iac-book#1. Its CI just failed: checkov reported CKV_SECRET_2 'AWS
+PacktPublishing/The-AI-Driven-Infrastructure-as-Code-Handbook#2. Its CI just failed: checkov reported CKV_SECRET_2 'AWS
 Access Key' against modules/module-11-agentic-gitops/lab/pipeline-demo/main.tf. Read that file,
 find the cause (signing_key_id has a hardcoded default), fix it: remove the default, mark it
 sensitive = true, update the description to say how it should actually be set. Do not touch the
@@ -207,17 +212,21 @@ unrelated webhook_token variable. Commit and push." \
 
 `[ Expected output ]`
 ```
-Done. Pushed aa790ee to m11-agent-proposed-demo.
+I fixed the hardcoded key in signing_key_id, committed it as b9a1276, and pushed it to
+m11-agent-proposed-demo (PR #2). CI hasn't re-run yet.
 
-Cause: main.tf:19 had default = "AKIA3XQ7PZVK9RTLM2WD". The AKIA prefix matches checkov's
-AWS-access-key regex, so CKV_SECRET_2 fires on any committed literal of that shape.
+Cause: signing_key_id had default = "AKIA4QWXR7NZ2KD5PLMB". That is an AWS access key ID,
+so checkov's CKV_SECRET_2 rule caught it.
 
-Fix, signing_key_id only:
-- dropped default, so the variable is now required
-- sensitive = true, so it stays out of plan and state output
-- description now says set via TF_VAR_signing_key_id, mirroring webhook_token
+Fix in modules/module-11-agentic-gitops/lab/pipeline-demo/main.tf:16-20:
+- Removed the default.
+- Added sensitive = true.
+- Changed the description to: "Set via TF_VAR_signing_key_id, never a default."
+- webhook_token is unchanged.
 
-webhook_token untouched.
+Warning: The key is still in git history. Commit d919925 was already pushed, so anyone who
+can read the repo can still find it there. If it's a real key, rotate it in AWS now.
+Removing it from the file doesn't make it safe.
 ```
 
 ### Step 2: Watch the gate pass
@@ -225,13 +234,13 @@ webhook_token untouched.
 **Ask** the same PR for its result again:
 
 ```
-gh pr checks 1
+gh pr checks 2
 ```
 
 `[ Expected output ]`
 ```
-contract	pass	4s	https://github.com/schoolofdevops/310-agentic-iac-book/actions/runs/36970938848/job/110724571478
-gate	pass	35s	https://github.com/schoolofdevops/310-agentic-iac-book/actions/runs/36970938856/job/110724571495
+contract	pass	3s	https://github.com/PacktPublishing/The-AI-Driven-Infrastructure-as-Code-Handbook/actions/runs/37411098456/job/112099490683
+gate	pass	34s	https://github.com/PacktPublishing/The-AI-Driven-Infrastructure-as-Code-Handbook/actions/runs/37411098459/job/112099490724
 ```
 
 Same gate, same scanner, same module. One commit changed, and the stage that failed now
@@ -247,13 +256,13 @@ You're reviewing the outcome, a pull request that went from failing to passing f
 reason, and deciding whether that's good enough to ship:
 
 ```
-gh pr merge 1 --squash --delete-branch
-gh pr view 1 --json state,mergeCommit -q '[.state, .mergeCommit.oid] | @tsv'
+gh pr merge 2 --squash --delete-branch
+gh pr view 2 --json state,mergeCommit -q '[.state, .mergeCommit.oid] | @tsv'
 ```
 
 `[ Expected output ]`
 ```
-MERGED	73fcd2fdf28c27d51045e5489ae599ff2502854f
+MERGED	c8cafcd0ee3496f290af5a1b7c3bd661cd5e4969
 ```
 
 `gh pr merge` prints its confirmation line only to a terminal, so the second command is how a

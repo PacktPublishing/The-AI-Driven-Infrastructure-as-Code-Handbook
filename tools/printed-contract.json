@@ -240,12 +240,12 @@
  "11": {
   "cmds": [
    "claude -p \"Add a new Terraform variable named signing_key_id to",
-   "gh pr checks 1",
-   "gh run view 36970690837 --log-failed",
+   "gh pr checks 2",
+   "gh run view 37410964401 --log-failed",
    "claude -p \"You are on git branch m11-agent-proposed-demo, PR",
-   "gh pr checks 1",
-   "gh pr merge 1 --squash --delete-branch",
-   "gh pr view 1 --json state,mergeCommit -q '[.state, .mergeCommit.oid] | @tsv'",
+   "gh pr checks 2",
+   "gh pr merge 2 --squash --delete-branch",
+   "gh pr view 2 --json state,mergeCommit -q '[.state, .mergeCommit.oid] | @tsv'",
    "kind create cluster --name m11-lab --config lab/starter/kind-config.yaml",
    "kubectl --context kind-m11-lab create namespace argocd",
    "kubectl --context kind-m11-lab apply -n argocd --server-side --force-conflicts \\",
@@ -260,7 +260,7 @@
   "paths": [
    "lab/solution/argocd-app.yaml",
    "lab/starter/kind-config.yaml",
-   "book/pull/1",
+   "book/pull/2",
    "modules/module-11-agentic-gitops/lab/pipeline-demo/**",
    "modules/module-11-agentic-gitops/lab/pipeline-demo/main.tf."
   ],
