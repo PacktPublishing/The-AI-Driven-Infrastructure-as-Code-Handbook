@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Blast Radius Gate Visualizer: M06, Agentic Infrastructure as Code</title>
+<style>
+  :root{
+    --ink:#1e1e1e;
+    --gray:#757575;
+    --paper:#ffffff;
+    --p-green:#d5e8d4;
+    --p-red:#f8cecc;
+    --p-blue:#dae8fc;
+    --p-orange:#ffe6cc;
+    --p-purple:#e1d5e7;
+    --border:#bdbdbd;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--paper); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  .wrap{ max-width:1100px; margin:0 auto; padding:28px 20px 60px; }
+  h1{ font-size:22px; margin:0 0 4px; }
+  .sub{ color:var(--gray); margin:0 0 24px; font-size:14px; }
+  .layout{ display:grid; grid-template-columns: 300px 1fr; gap:28px; align-items:start; }
+  @media (max-width: 800px){ .layout{ grid-template-columns: 1fr; } }
+
+  .scenarios{ display:flex; flex-direction:column; gap:8px; margin-bottom:20px; }
+  .scenario-btn{ text-align:left; border:1.5px solid var(--border); border-radius:8px; padding:10px 12px;
+    background:#fff; cursor:pointer; font-size:13px; line-height:1.35; }
+  .scenario-btn.active{ border-color:var(--ink); border-width:2px; }
+  .scenario-btn:hover{ border-color:var(--ink); }
+  .scenario-btn .name{ font-weight:600; }
+  .scenario-btn .desc{ color:var(--gray); font-size:11.5px; margin-top:2px; }
+
+  fieldset{ border:1.5px solid var(--border); border-radius:8px; padding:12px 14px; margin:0 0 16px; }
+  legend{ font-size:12px; font-weight:600; padding:0 6px; }
+  .policy-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin:8px 0; font-size:13px; }
+  .policy-row input[type=number]{ width:56px; padding:3px 6px; border:1px solid var(--border); border-radius:4px; }
+  .policy-row input[type=checkbox]{ transform:scale(1.1); }
+  .policy-row textarea{ width:100%; font-family:monospace; font-size:12px; padding:6px; border:1px solid var(--border); border-radius:4px; margin-top:4px; }
+
+  .plan-panel{ border:2px solid var(--ink); border-radius:10px; padding:16px; min-height:420px; background:#fff; }
+  .plan-title{ font-weight:700; margin-bottom:10px; font-size:14px; }
+  table.rc{ width:100%; border-collapse:collapse; font-size:12.5px; margin-bottom:16px; }
+  table.rc th, table.rc td{ text-align:left; padding:5px 8px; border-bottom:1px solid #eee; }
+  table.rc th{ color:var(--gray); font-weight:600; font-size:11px; text-transform:uppercase; }
+  .action-badge{ display:inline-block; padding:1px 7px; border-radius:10px; font-size:11px; font-weight:600; }
+  .action-create{ background:var(--p-green); }
+  .action-delete{ background:var(--p-red); }
+  .action-update{ background:var(--p-orange); }
+  .action-noop{ background:#eee; color:var(--gray); }
+
+  .verdict{ margin-top:6px; border-radius:8px; padding:12px 14px; font-size:13.5px; border:1.5px dashed var(--border); }
+  .verdict.pass{ background:var(--p-green); border-color:#4caf50; }
+  .verdict.fail{ background:var(--p-red); border-color:#c62828; }
+  .verdict .h{ font-weight:700; margin-bottom:2px; }
+  .verdict .checks{ margin-top:8px; font-size:12px; }
+  .verdict .checks div{ margin:2px 0; }
+  .ok{ color:#2e7d32; } .bad{ color:#c62828; }
+
+  footer{ margin-top:34px; font-size:12px; color:var(--gray); border-top:1px solid var(--border); padding-top:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Blast Radius Gate Visualizer</h1>
+  <p class="sub">Module 6 &middot; Guardrails: Permissions, Hooks, Blast Radius &middot; a hook never
+    has to understand your infrastructure. It reads a real <code>terraform plan -json</code>
+    and checks three things: a delete present, the resource count, a high-radius resource type.
+    Pick a scenario, tune the policy, see whether the gate would pass or block it, and why.</p>
+
+  <div class="layout">
+    <div>
+      <div class="scenarios" id="scenarioList"></div>
+
+      <fieldset>
+        <legend>Gate policy</legend>
+        <div class="policy-row">
+          <label for="maxResources">max resources</label>
+          <input type="number" id="maxResources" value="5" min="0" />
+        </div>
+        <div class="policy-row">
+          <label for="blockOnDelete">block on any delete</label>
+          <input type="checkbox" id="blockOnDelete" checked />
+        </div>
+        <div class="policy-row" style="flex-direction:column; align-items:stretch;">
+          <label for="highRadiusTypes">high-radius types (comma-separated)</label>
+          <textarea id="highRadiusTypes" rows="2">aws_vpc, aws_iam_policy, aws_iam_role</textarea>
+        </div>
+      </fieldset>
+    </div>
+
+    <div class="plan-panel">
+      <div class="plan-title" id="planTitle">terraform plan -json</div>
+      <table class="rc">
+        <thead><tr><th>type</th><th>name</th><th>action</th></tr></thead>
+        <tbody id="planBody"></tbody>
+      </table>
+      <div id="verdictBox"></div>
+    </div>
+  </div>
+
+  <footer>
+    Self-contained, no network calls. These are real `terraform show -json` resource_changes,
+    condensed to type/name/action for readability. Part of
+    <strong>Module 6: Guardrails: Permissions, Hooks, Blast Radius</strong>,
+    Agentic Infrastructure as Code.
+  </footer>
+</div>
+
+<script>
+const SCENARIOS = [
+  {
+    id: 'safe-add',
+    name: 'A safe additive change',
+    desc: '1 new S3 bucket, no deletes',
+    changes: [ { type:'aws_s3_bucket', name:'docs', action:'create' } ],
+  },
+  {
+    id: 'single-delete',
+    name: 'A single delete',
+    desc: 'This module’s lab: delete the logs bucket',
+    changes: [ { type:'aws_s3_bucket', name:'logs', action:'delete' } ],
+  },
+  {
+    id: 'bulk-delete',
+    name: 'A bulk delete',
+    desc: '12 resources removed in one plan',
+    changes: Array.from({length:12}, (_,i) => ({ type:'aws_s3_bucket', name:'obj-'+i, action:'delete' })),
+  },
+  {
+    id: 'shared-vpc',
+    name: 'A shared VPC subnet change',
+    desc: 'Small diff, high-radius type',
+    changes: [
+      { type:'aws_subnet', name:'private-a', action:'update' },
+      { type:'aws_vpc', name:'shared', action:'update' },
+    ],
+  },
+  {
+    id: 'iam-role',
+    name: 'A new IAM role',
+    desc: 'This module’s lab: high-radius type, 1 resource',
+    changes: [ { type:'aws_iam_role', name:'ci_deployer', action:'create' } ],
+  },
+  {
+    id: 'medium-batch',
+    name: 'A medium batch, no deletes',
+    desc: '6 new resources, under default max but over a tight one',
+    changes: Array.from({length:6}, (_,i) => ({ type:'aws_s3_bucket', name:'batch-'+i, action:'create' })),
+  },
+];
+
+let current = SCENARIOS[0];
+
+function renderScenarios(){
+  const list = document.getElementById('scenarioList');
+  list.innerHTML = '';
+  SCENARIOS.forEach(s => {
+    const btn = document.createElement('button');
+    btn.className = 'scenario-btn' + (s.id === current.id ? ' active' : '');
+    btn.innerHTML = `<div class="name">${s.name}</div><div class="desc">${s.desc}</div>`;
+    btn.onclick = () => { current = s; render(); };
+    list.appendChild(btn);
+  });
+}
+
+function evaluate(){
+  const maxResources = parseInt(document.getElementById('maxResources').value, 10) || 0;
+  const blockOnDelete = document.getElementById('blockOnDelete').checked;
+  const highRadiusTypes = document.getElementById('highRadiusTypes').value
+    .split(',').map(s => s.trim()).filter(Boolean);
+
+  const changes = current.changes.filter(c => c.action !== 'no-op');
+  const total = changes.length;
+  const deletes = changes.filter(c => c.action === 'delete').length;
+  const hitType = changes.find(c => highRadiusTypes.includes(c.type));
+
+  let blocked = false, reason = '';
+  if (blockOnDelete && deletes > 0) {
+    blocked = true; reason = `${deletes} delete action(s) in this plan, block-on-delete is on`;
+  } else if (total > maxResources) {
+    blocked = true; reason = `${total} resource changes exceeds max-resources (${maxResources})`;
+  } else if (hitType) {
+    blocked = true; reason = `touches high-radius type '${hitType.type}'`;
+  }
+
+  return { total, deletes, hitType, blocked, reason, maxResources, blockOnDelete, highRadiusTypes };
+}
+
+function render(){
+  renderScenarios();
+  document.getElementById('planTitle').textContent = `terraform plan -json: ${current.name}`;
+
+  const body = document.getElementById('planBody');
+  body.innerHTML = '';
+  current.changes.forEach(c => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${c.type}</td><td>${c.name}</td><td><span class="action-badge action-${c.action}">${c.action}</span></td>`;
+    body.appendChild(tr);
+  });
+
+  const r = evaluate();
+  const box = document.getElementById('verdictBox');
+  box.className = 'verdict ' + (r.blocked ? 'fail' : 'pass');
+  const checks = `
+    <div class="checks">
+      <div>${r.blockOnDelete ? (r.deletes > 0 ? '<span class="bad">&#10007;</span>' : '<span class="ok">&#10003;</span>') : '<span class="ok">&#8212;</span>'} deletes: ${r.deletes} ${r.blockOnDelete ? '(blocking on delete)' : '(delete-block off)'}</div>
+      <div>${r.total > r.maxResources ? '<span class="bad">&#10007;</span>' : '<span class="ok">&#10003;</span>'} resource count: ${r.total} / max ${r.maxResources}</div>
+      <div>${r.hitType ? '<span class="bad">&#10007;</span>' : '<span class="ok">&#10003;</span>'} high-radius type: ${r.hitType ? r.hitType.type : 'none touched'}</div>
+    </div>`;
+  box.innerHTML = r.blocked
+    ? `<div class="h">BLOCKED</div>exit 1, apply refused. ${r.reason}.${checks}`
+    : `<div class="h">PASS</div>exit 0, safe to apply.${checks}`;
+}
+
+['maxResources','blockOnDelete','highRadiusTypes'].forEach(id => {
+  document.getElementById(id).addEventListener('input', render);
+});
+
+render();
+</script>
+</body>
+</html>

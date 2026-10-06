@@ -1,0 +1,43 @@
+<svg viewBox="0 0 820 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The authority boundary redrawn: agent proposes and drafts a plan, then a hook checkpoint intercepts before apply, and only a pass lets apply run, a block stops it there.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="820" height="300">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="14" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="820" height="300" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="14" fill="black" text-anchor="middle">
+    <rect x="20"  y="110" width="120" height="50" fill="white" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+    <text x="80" y="140">agent proposes</text>
+
+    <rect x="180" y="110" width="120" height="50" fill="white" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+    <text x="240" y="140">draft plan</text>
+
+    <rect x="340" y="90" width="150" height="90" fill="#f8cecc" stroke="black" stroke-width="2.8" filter="url(#sketch)"/>
+    <text x="415" y="120">hook</text>
+    <text x="415" y="140">checkpoint</text>
+    <text x="415" y="160" font-size="12">runs every time</text>
+  </g>
+  <g stroke="black" stroke-width="2.4" fill="none" filter="url(#sketch)">
+    <path d="M140,135 L180,135" marker-end="url(#arrow)"/>
+    <path d="M300,135 L340,135" marker-end="url(#arrow)"/>
+  </g>
+
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="13" fill="black" text-anchor="middle">
+    <rect x="590" y="30" width="150" height="50" fill="#d5e8d4" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="665" y="60">apply</text>
+    <text x="665" y="15">pass</text>
+
+    <rect x="590" y="200" width="150" height="50" fill="#f8cecc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="665" y="230">blocked, stop</text>
+    <text x="665" y="275">block</text>
+  </g>
+  <g stroke="black" stroke-width="2.4" fill="none" filter="url(#sketch)">
+    <path d="M490,110 L590,60" marker-end="url(#arrow)"/>
+    <path d="M490,160 L590,220" marker-end="url(#arrow)"/>
+  </g>
+  <text x="410" y="285" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="14" fill="black">the checkpoint sits between the plan and apply, not before or after</text>
+</svg>

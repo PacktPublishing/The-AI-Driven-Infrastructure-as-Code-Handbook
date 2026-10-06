@@ -1,0 +1,40 @@
+<svg viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three guardrails against the same dangerous apply: a mechanical gate reading the plan's shape, a structural guardrail that never gives the agent apply access, and a procedural harness requiring an explicit human approval marker between two separate agent runs.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="900" height="320">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="19" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  <rect x="0" y="0" width="900" height="320" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <text x="450" y="30" text-anchor="middle" font-size="17" fill="black">same dangerous apply, three independent guardrails</text>
+
+    <rect x="30" y="55" width="260" height="220" rx="10" fill="#f8cecc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="160" y="85" text-anchor="middle" font-size="15" fill="black">1. mechanical</text>
+    <text x="160" y="110" text-anchor="middle" font-size="12" fill="black">reads terraform plan -json</text>
+    <text x="160" y="130" text-anchor="middle" font-size="12" fill="black">delete? count? high-radius type?</text>
+    <text x="160" y="160" text-anchor="middle" font-size="12" fill="black">exit 0 pass / exit 1 block</text>
+    <text x="160" y="200" text-anchor="middle" font-size="12" fill="black">this lab's blast_radius_gate.sh</text>
+    <text x="160" y="245" text-anchor="middle" font-size="12" fill="black">fast, consistent, only as good</text>
+    <text x="160" y="262" text-anchor="middle" font-size="12" fill="black">as the checks someone wrote</text>
+
+    <rect x="320" y="55" width="260" height="220" rx="10" fill="#d5e8d4" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="450" y="85" text-anchor="middle" font-size="15" fill="black">2. structural</text>
+    <text x="450" y="110" text-anchor="middle" font-size="12" fill="black">agent never gets apply access</text>
+    <text x="450" y="130" text-anchor="middle" font-size="12" fill="black">PR, review, merge, GitOps applies</text>
+    <text x="450" y="160" text-anchor="middle" font-size="12" fill="black">"can it apply" is never asked</text>
+    <text x="450" y="200" text-anchor="middle" font-size="12" fill="black">previewed here, built for real in M11</text>
+    <text x="450" y="245" text-anchor="middle" font-size="12" fill="black">strong, but changes the whole</text>
+    <text x="450" y="262" text-anchor="middle" font-size="12" fill="black">delivery shape, real cost</text>
+
+    <rect x="610" y="55" width="260" height="220" rx="10" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="740" y="85" text-anchor="middle" font-size="15" fill="black">3. procedural</text>
+    <text x="740" y="110" text-anchor="middle" font-size="12" fill="black">propose (plan mode) -&gt; save</text>
+    <text x="740" y="130" text-anchor="middle" font-size="12" fill="black">-&gt; explicit human approve</text>
+    <text x="740" y="160" text-anchor="middle" font-size="12" fill="black">-&gt; separate session applies</text>
+    <text x="740" y="200" text-anchor="middle" font-size="12" fill="black">no marker file, apply refuses</text>
+    <text x="740" y="245" text-anchor="middle" font-size="12" fill="black">needs a human who actually</text>
+    <text x="740" y="262" text-anchor="middle" font-size="12" fill="black">reads the plan, not just clicks yes</text>
+  </g>
+  <text x="450" y="305" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="14" fill="black">none of the three alone, the same way a building has a lock, a guard, and a badge system</text>
+</svg>

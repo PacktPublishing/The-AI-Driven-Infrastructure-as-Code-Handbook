@@ -1,0 +1,36 @@
+<svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two paths compared: a skill, invoked only if the agent decides the task matches, versus a hook, which intercepts every attempt and runs the same check every time regardless of what the agent decided.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="880" height="300">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="21" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="880" height="300" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <text x="220" y="40" text-anchor="middle" font-size="17" fill="black">skill (voluntary, M04)</text>
+    <rect x="50" y="55" width="150" height="55" rx="8" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="125" y="88" text-anchor="middle" font-size="12" fill="black">task arrives</text>
+    <path d="M200,82 L280,82" stroke="black" stroke-width="2.2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <rect x="290" y="55" width="150" height="55" rx="8" fill="#e1d5e7" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="365" y="80" text-anchor="middle" font-size="12" fill="black">agent decides:</text>
+    <text x="365" y="98" text-anchor="middle" font-size="12" fill="black">use skill, or not</text>
+    <path d="M125,113 L125,150" stroke="black" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <text x="125" y="175" text-anchor="middle" font-size="12" fill="#999">runs</text>
+    <path d="M365,113 L365,150" stroke="black" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <text x="365" y="175" text-anchor="middle" font-size="12" fill="#999">or skipped, nothing stops that</text>
+
+    <text x="670" y="40" text-anchor="middle" font-size="17" fill="black">hook (enforced, this module)</text>
+    <rect x="510" y="55" width="150" height="55" rx="8" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="585" y="88" text-anchor="middle" font-size="12" fill="black">apply attempted</text>
+    <path d="M660,82 L740,82" stroke="black" stroke-width="2.2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <rect x="750" y="55" width="120" height="55" rx="8" fill="#f8cecc" stroke="black" stroke-width="2.8" filter="url(#sketch)"/>
+    <text x="810" y="88" text-anchor="middle" font-size="12" fill="black">gate runs</text>
+    <path d="M810,113 L810,150" stroke="black" stroke-width="2.4" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <text x="810" y="175" text-anchor="middle" font-size="12" fill="black">every time, no way around it</text>
+  </g>
+  <line x1="450" y1="30" x2="450" y2="260" stroke="black" stroke-width="1.6" stroke-dasharray="4 5" filter="url(#sketch)"/>
+  <text x="440" y="260" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="14" fill="black">a skill can only ever suggest, a hook can actually stop the action</text>
+</svg>

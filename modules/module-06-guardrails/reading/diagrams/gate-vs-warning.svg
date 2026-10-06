@@ -1,0 +1,31 @@
+<svg viewBox="0 0 860 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two hooks compared: one prints a warning and lets the pipeline continue anyway, the other exits non-zero and the apply never runs. Only the second one is a real gate.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="860" height="280">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="31" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="860" height="280" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <text x="215" y="35" text-anchor="middle" font-size="16" fill="black">check finds a problem, prints a warning</text>
+    <rect x="60" y="55" width="150" height="50" rx="8" fill="#ffe6cc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="135" y="85" text-anchor="middle" font-size="12" fill="black">exit 0 anyway</text>
+    <path d="M210,80 L280,80" stroke="black" stroke-width="2.2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <rect x="290" y="55" width="150" height="50" rx="8" fill="#f8cecc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="365" y="85" text-anchor="middle" font-size="12" fill="black">apply runs anyway</text>
+    <text x="215" y="140" text-anchor="middle" font-size="14" fill="black">= a suggestion with better formatting</text>
+
+    <text x="650" y="35" text-anchor="middle" font-size="16" fill="black">check finds a problem, exits non-zero</text>
+    <rect x="510" y="55" width="150" height="50" rx="8" fill="#f8cecc" stroke="black" stroke-width="2.6" filter="url(#sketch)"/>
+    <text x="585" y="85" text-anchor="middle" font-size="12" fill="black">exit 1</text>
+    <path d="M660,80 L730,80" stroke="black" stroke-width="2.6" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <rect x="740" y="55" width="100" height="50" rx="8" fill="#f8cecc" stroke="black" stroke-width="2.6" filter="url(#sketch)"/>
+    <text x="790" y="85" text-anchor="middle" font-size="12" fill="black">stopped</text>
+    <text x="650" y="140" text-anchor="middle" font-size="14" fill="black">= a real gate, only if the caller checks that exit code</text>
+  </g>
+  <line x1="450" y1="20" x2="450" y2="180" stroke="black" stroke-width="1.6" stroke-dasharray="4 5" filter="url(#sketch)"/>
+  <text x="430" y="230" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="14" fill="black">a gate with the right logic and a caller that ignores its exit code is not a gate either</text>
+</svg>
