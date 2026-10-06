@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pipeline Tracer — Capstone, Agentic Infrastructure as Code</title>
+<style>
+  :root{
+    --ink:#1e1e1e; --gray:#757575; --paper:#ffffff;
+    --p-green:#d5e8d4; --p-red:#f8cecc; --p-blue:#dae8fc; --p-orange:#ffe6cc; --p-purple:#e1d5e7;
+    --border:#bdbdbd;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--paper); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  .wrap{ max-width:1100px; margin:0 auto; padding:28px 20px 60px; }
+  h1{ font-size:23px; margin:0 0 4px; }
+  .sub{ color:var(--gray); margin:0 0 22px; font-size:14px; }
+
+  .layout{ display:grid; grid-template-columns: 300px 1fr; gap:24px; align-items:start; }
+  @media (max-width: 820px){ .layout{ grid-template-columns: 1fr; } }
+
+  .stagelist{ display:flex; flex-direction:column; gap:4px; }
+  .stagebtn{ text-align:left; border:1.5px solid var(--border); border-radius:8px; padding:9px 12px;
+    background:#fff; cursor:pointer; font-size:12.5px; display:flex; justify-content:space-between; gap:6px; }
+  .stagebtn .n{ color:var(--gray); font-weight:700; margin-right:6px; }
+  .stagebtn.current{ border-color:var(--ink); background:var(--p-orange); font-weight:600; }
+  .stagebtn.visited{ border-color:#4caf50; background:var(--p-green); }
+  .stagebtn.blocked{ border-color:#c62828; background:var(--p-red); }
+
+  .detail{ border:2px solid var(--ink); border-radius:10px; padding:18px; min-height:280px; }
+  .detail h2{ font-size:17px; margin:0 0 6px; }
+  .detail .module-tag{ display:inline-block; background:var(--p-purple); border-radius:5px;
+    padding:3px 9px; font-size:12px; margin-bottom:10px; border:1px solid rgba(0,0,0,.15); }
+  .detail .built-as{ font-size:13px; color:var(--gray); margin-bottom:10px; }
+  .detail p{ font-size:13.5px; line-height:1.5; }
+  code{ background:#f2f2f2; padding:1px 5px; border-radius:4px; font-size:12.5px; }
+
+  .navbtns{ display:flex; gap:8px; margin-top:16px; }
+  button{ border:1.5px solid var(--ink); background:#fff; border-radius:6px; padding:7px 14px;
+    font-size:13px; cursor:pointer; }
+  button:hover{ background:#f2f2f2; }
+  button:disabled{ opacity:.4; cursor:default; }
+  button.primary{ background:var(--ink); color:#fff; }
+  button.primary:hover{ background:#333; }
+
+  .loopback{ margin-top:14px; padding:10px; border-radius:6px; background:var(--p-blue); font-size:13px; }
+
+  footer{ margin-top:34px; font-size:12px; color:var(--gray); border-top:1px solid var(--border); padding-top:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Pipeline Tracer</h1>
+  <p class="sub">Capstone &middot; every stage of the course thesis pipeline, and which module actually
+    built it. Click a stage, or step through in order.</p>
+
+  <div class="layout">
+    <div class="stagelist" id="stagelist"></div>
+    <div class="detail" id="detail"></div>
+  </div>
+
+  <footer>
+    Self-contained, no network calls. Every "built as" line here matches a real, verified artifact
+    in this repo, see <code>capstone/rubric.md</code> for the full table with commit-level evidence.
+    The Agent Proposes. The Pipeline Decides.
+  </footer>
+</div>
+
+<script>
+const STAGES = [
+  { key: 'spec', label: 'Spec + context', module: 'M07, M03', builtAs: '`spec.md` (requirements, constraints, acceptance criteria) + `AGENTS.md`',
+    detail: 'Before generation starts, the intent is written down properly: what it must do, what it must never do, and how you\'ll know it worked. That\'s M07\'s spec. `AGENTS.md`, from M03, gives the agent the repo\'s standing conventions so it doesn\'t have to guess them fresh every run.' },
+  { key: 'skill', label: 'Skill', module: 'M04', builtAs: '`.claude/skills/capstone-conventions/SKILL.md`',
+    detail: 'A packaged, on-demand capability the agent reaches for when the task matches, not standing context and not a one-off ask. It encodes house convention: naming, tagging, provider pins.' },
+  { key: 'generate', label: 'Agent generates', module: 'M01, M02', builtAs: '`lab/tier1-floci/starter/main.tf` and `solution/main.tf`',
+    detail: 'Rung 1 through 2 on the ladder: a suggestion, then a draft an agent writes directly, read line by line before anything else happens to it.' },
+  { key: 'validate', label: 'validate (fmt/plan)', module: 'M01', builtAs: 'Stage 1 of `pipeline.sh`',
+    detail: 'The cheapest check there is. Says nothing about whether the code is good, only whether Terraform can parse it at all.' },
+  { key: 'scan', label: 'Trivy + Checkov', module: 'M09', builtAs: 'Stages 2-3 of `pipeline.sh`',
+    detail: 'Two scanners, run both, on purpose. They check different things and disagree on real code, the M09 opening demo (Trivy 7, Checkov 25 on the same module) is the reason this course insists on both.' },
+  { key: 'policy', label: 'OPA / Sentinel', module: 'M09', builtAs: '`policy/tags.rego`',
+    detail: 'The rule neither generic scanner encodes: this org\'s own tagging convention. Real deny on the starter module, real pass once fixed.' },
+  { key: 'blast', label: 'Blast radius / plan-diff', module: 'M06', builtAs: '`blast_radius_gate.sh`',
+    detail: 'A hook that actually blocks, not a check that only warns. Parses the plan, blocks on delete actions, high-radius resource types, or oversized batches.' },
+  { key: 'cost', label: 'Infracost', module: 'M09', builtAs: 'Named in `pipeline.sh`, not exercised for real here',
+    detail: 'Cost as a gate, not a report, is the M09 argument. This capstone names where it sits in the pipeline honestly, without a working non-interactive Infracost auth path in this sandbox, same gap M07 and M08 reported.' },
+  { key: 'approval', label: 'HUMAN APPROVAL', module: 'M06, M11, M12', builtAs: '`CAPSTONE_HUMAN_APPROVED=1`',
+    detail: 'The only place `apply` is authorised. Every stage before this one can recommend. None of them can approve. This is the one line in the whole pipeline a human, not a scanner, has to set.' },
+  { key: 'apply', label: 'apply', module: 'all Tier 1/2 modules', builtAs: 'Real Floci apply + real merged-PR-driven Kubernetes apply',
+    detail: 'Two real substrates: a one-shot `terraform apply` against Floci, and a real CI-gated, merged pull request that Argo CD reconciles onto a real cluster, unattended, after the merge.' },
+  { key: 'observe', label: 'observe + drift', module: 'M10, M11, M12', builtAs: 'Real drift demo + Argo CD self-heal',
+    detail: 'A resource changed directly, outside the pipeline. Terraform catches it on the next `plan`. Argo CD catches it within seconds, on its own, the same reconcile discipline from M10, now driven by a real merge instead of a manual apply.' },
+  { key: 'reopen', label: 'reopens the spec', module: 'the whole course', builtAs: 'The closing exercise',
+    detail: 'Drift found is a new fact about the world, and a new fact means the spec that was true yesterday might not be true today. The loop closes here, back to stage one, the same loop M12 named and this capstone actually ran.' },
+];
+
+let current = 0;
+
+const stagelist = document.getElementById('stagelist');
+const detail = document.getElementById('detail');
+
+function renderList() {
+  stagelist.innerHTML = '';
+  STAGES.forEach((s, i) => {
+    const btn = document.createElement('div');
+    let cls = 'stagebtn';
+    if (i === current) cls += ' current';
+    else if (i < current) cls += ' visited';
+    btn.className = cls;
+    btn.innerHTML = `<span><span class="n">${i + 1}.</span>${s.label}</span>`;
+    btn.onclick = () => { current = i; render(); };
+    stagelist.appendChild(btn);
+  });
+}
+
+function renderDetail() {
+  const s = STAGES[current];
+  let html = `<h2>${s.label}</h2><div class="module-tag">taught in ${s.module}</div>
+    <div class="built-as">Built here as: ${s.builtAs}</div><p>${s.detail}</p>`;
+  if (s.key === 'reopen') {
+    html += `<div class="loopback">This stage points back to stage 1. The pipeline isn't a line, it's a loop: drift reopens the spec, and the whole trace runs again.</div>`;
+  }
+  html += `<div class="navbtns">
+    <button id="prevBtn" ${current === 0 ? 'disabled' : ''}>Previous stage</button>
+    <button id="nextBtn" class="primary" ${current === STAGES.length - 1 ? 'disabled' : ''}>Next stage</button>
+  </div>`;
+  detail.innerHTML = html;
+  document.getElementById('prevBtn').onclick = () => { if (current > 0) { current--; render(); } };
+  document.getElementById('nextBtn').onclick = () => { if (current < STAGES.length - 1) { current++; render(); } };
+}
+
+function render() {
+  renderList();
+  renderDetail();
+}
+
+render();
+</script>
+</body>
+</html>
