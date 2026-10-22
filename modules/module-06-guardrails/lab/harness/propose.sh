@@ -9,8 +9,11 @@ ASK="${1:?usage: propose.sh \"<intent>\"}"
 cd "$(dirname "$0")/.."
 
 BEFORE=$(date +%s)
-claude -p "${ASK} Propose the exact HCL to add to module/main.tf. Do not write any files, this is a proposal only." \
-  --permission-mode plan
+if ! claude -p "${ASK} Propose the exact HCL to add to module/main.tf. Do not write any files, this is a proposal only." \
+  --permission-mode plan; then
+  echo "REFUSED: the proposal step exited non-zero. There is no plan to review." >&2
+  exit 1
+fi
 
 LATEST=""
 for f in $(ls -t "$HOME/.claude/plans/"*.md 2>/dev/null); do

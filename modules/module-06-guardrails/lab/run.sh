@@ -151,6 +151,21 @@ CODE=$?
 grep -q "exceeds the max-resources policy" /tmp/m06-count-block.log || fail "expected a max-resources block: $(cat /tmp/m06-count-block.log)"
 echo "    ok, oversized batch blocked on resource count"
 
+echo "==> fail-closed: a plan the gate cannot parse must BLOCK, never fall through as a pass"
+FC_TMP=$(mktemp -d)
+printf '%s' '{ not valid json'                      > "$FC_TMP/malformed.json"
+printf '%s' '{"resource_changes": "not-an-array"}'  > "$FC_TMP/wrong-shape.json"
+printf '%s' '{}'                                    > "$FC_TMP/no-changes-key.json"
+for bad in malformed wrong-shape no-changes-key; do
+  ./hooks/blast_radius_gate.sh "$FC_TMP/$bad.json" >/dev/null 2>&1
+  [ $? -ne 0 ] || fail "gate passed an unreadable plan ($bad.json). A gate that cannot parse must not pass."
+done
+printf '%s' '{"format_version":"1.2","resource_changes":[]}' > "$FC_TMP/empty-plan.json"
+./hooks/blast_radius_gate.sh "$FC_TMP/empty-plan.json" >/dev/null 2>&1 \
+  || fail "gate blocked a valid no-change plan; fail-closed must not mean fail-always"
+rm -rf "$FC_TMP"
+echo "    ok, unreadable plans block, a valid empty plan still passes"
+
 echo "==> mechanism 3: plan-review-approve-apply harness, real claude -p calls"
 if command -v claude >/dev/null 2>&1; then
   rm -f plans/*.md plans/*.approved 2>/dev/null

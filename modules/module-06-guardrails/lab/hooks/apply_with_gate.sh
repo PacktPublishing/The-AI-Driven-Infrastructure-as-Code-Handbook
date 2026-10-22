@@ -5,7 +5,11 @@ set -uo pipefail
 cd "$(dirname "$0")/../module"
 
 terraform plan -no-color -input=false -out=tfplan.bin >/tmp/m06-plan.log 2>&1 || { cat /tmp/m06-plan.log; exit 1; }
-terraform show -json tfplan.bin > tfplan.json
+if ! terraform show -json tfplan.bin > tfplan.json; then
+  echo "apply refused: terraform show -json failed, so there is no plan to gate." >&2
+  rm -f tfplan.bin tfplan.json
+  exit 1
+fi
 
 if ! ../hooks/blast_radius_gate.sh tfplan.json; then
   echo "apply refused: gate blocked this plan." >&2
