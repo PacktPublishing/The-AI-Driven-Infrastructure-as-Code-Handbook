@@ -81,6 +81,7 @@ resource "aws_autoscaling_group" "checkout_web" {
   termination_policies = [
     "OldestLaunchTemplate", "OldestInstance", "Default"
   ]                                  # FR-002 / SC-002
+  default_instance_warmup = 90      # FR-004 / SC-004
   default_cooldown = 90             # FR-004 / SC-004
 }
 resource "aws_autoscaling_policy" "checkout_web_cpu" {
@@ -102,7 +103,7 @@ resource "aws_autoscaling_group" "checkout_web" {
 resource "aws_autoscaling_policy" "checkout_web_cpu" {
   target_tracking_configuration {
     target_value = 60
-    # default_cooldown left unset, 300s default applies
+    # no instance warmup decided, and cooldown left at the 300s default
   }
 }`;
 
@@ -110,7 +111,7 @@ const CRITERIA = [
   { key: 'grace', label: 'health_check_grace_period = 180, survives a cold boot (SC-001)', specMet: true, vibeMet: false },
   { key: 'term', label: 'termination_policies protects newest launch template (SC-002)', specMet: true, vibeMet: false },
   { key: 'cap', label: 'max_size = 4, traced to a measured peak, not a guess (SC-003)', specMet: true, vibeMet: false },
-  { key: 'cooldown', label: 'default_cooldown = 90, reacts to a real spike (SC-004)', specMet: true, vibeMet: false },
+  { key: 'cooldown', label: 'default_instance_warmup = 90, what target tracking waits on (SC-004)', specMet: true, vibeMet: false },
   { key: 'imds', label: 'IMDSv2 required, CKV_AWS_79 (SC-005 / SC-006)', specMet: true, vibeMet: false },
   { key: 'tags', label: 'Launch template tags present, CKV_AWS_153 (not in this spec)', specMet: false, vibeMet: true },
 ];

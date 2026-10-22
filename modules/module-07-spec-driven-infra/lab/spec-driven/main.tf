@@ -42,16 +42,25 @@ resource "aws_autoscaling_group" "checkout_web" {
   max_size = 4
 
   # SC-001 / FR-001: long enough to survive a cold-boot dnf install + httpd start on a
-  # slow mirror, short enough that a genuinely broken instance doesn't linger for minutes.
+  # slow mirror, and bounded at three minutes, the window this tier accepts a broken
+  # instance surviving in exchange for not killing a slow but healthy one.
   health_check_grace_period = 180
   health_check_type         = "EC2"
 
-  # SC-002 / FR-002: kill the oldest launch template version first so a mid-rollout
-  # instance running the newest code is never the one picked during routine scale-in.
+  # SC-002 / FR-002: prefer the oldest launch template version during scale-in, so a
+  # mid-rollout instance running the newest code is the last one considered. AWS balances
+  # Availability Zones before applying termination policies, so this is a preference, not
+  # a guarantee.
   termination_policies = ["OldestLaunchTemplate", "OldestInstance", "Default"]
 
-  # SC-004 / FR-004: cooldown shortened from the provider's 5-minute default so the ASG
-  # can react to a real flash-sale spike.
+  # SC-004 / FR-004: instance warmup is the knob the target-tracking policy below actually
+  # waits on. AWS documents that target-tracking and step-scaling policies can start a
+  # scale-out immediately, without waiting for the cooldown to end, so warmup is what makes
+  # this tier react to a flash sale.
+  default_instance_warmup = 90
+
+  # Set explicitly rather than left at the provider's 5-minute default. It governs simple
+  # scaling policies and can still delay scale-in. It does not gate the scale-out above.
   default_cooldown = 90
 
   availability_zones = ["us-east-1a"]

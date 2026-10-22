@@ -66,7 +66,7 @@ complaint (B) or a tooling complaint (D).
 ---
 
 **4. A spec's success criteria pin down five things: grace period, scale-in policy, capacity
-bounds, cooldown, and IMDSv2. Checkov still finds a real failure on the generated module: missing
+bounds, scaling responsiveness, and IMDSv2. Checkov still finds a real failure on the generated module: missing
 tags on the launch configuration, something the spec never mentioned. What does this mean?**
 
 - A. The spec was written badly and should be rejected

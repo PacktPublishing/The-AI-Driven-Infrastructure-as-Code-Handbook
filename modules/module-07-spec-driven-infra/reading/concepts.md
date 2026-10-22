@@ -56,8 +56,8 @@ You get a competent-looking one: a load balancer, security groups, a launch temp
 boot logic, an autoscaling group, a scaling policy. Nobody would flag it in a five-second glance
 at a PR. It just quietly picked a plausible-looking number for every real decision the ticket left
 open, a health check grace period too short for a real cold boot, a scale-in policy that can kill
-the newest code first, a capacity ceiling nobody measured against, a five-minute default cooldown
-built for a slower-moving workload than a flash sale.
+the newest code first, a capacity ceiling nobody measured against, and no instance warmup
+decided at all, which is the setting a target-tracking policy actually waits on.
 
 `terraform apply` doesn't know the difference between that and a careful, spec-driven module.
 Both are valid HCL. Both apply cleanly. The gap only shows up later, when the tier thrashes
@@ -106,12 +106,12 @@ what gets generated. It was never supposed to replace what checks it afterward.
 ### Try it: spec-driven vs vibe-coded
 
 Pick a path for the same autoscaling-tier ask and watch the real checkov numbers from this
-module's own lab play out: [Spec-Driven vs Vibe-Coded Simulator](../explainer/sim/spec-vs-vibe-sim.html).
+module's own lab play out: [Spec-Driven vs Vibe-Coded Simulator](./sim/spec-vs-vibe-sim.html).
 
 **Seeded failure:** the same one-line ticket, give me an autoscaling web tier for our checkout
 service, answered without a spec, diverges from the same ticket answered with one on five real
 judgment calls: health check grace period, scale-in termination policy, capacity ceiling, scaling
-cooldown, and IMDSv2. **Caught by:** real `terraform plan` values compared line by line between
+responsiveness, and IMDSv2. **Caught by:** real `terraform plan` values compared line by line between
 the two modules, plus checkov, which passes `CKV_AWS_79` on the spec-driven module and fails it,
 plus nine more findings on an unrequested ALB, on the vibe-coded one. **Fixed by:** the
 spec-driven module, whose live state checks out against SC-001 through SC-004, with SC-005 and

@@ -7,6 +7,7 @@ termination_policies      (unset, AWS default) OldestLaunchTemplate, OldestInsta
                                                                     FR-002 / SC-002
 min_size / max_size       2 / 6               2 / 4               FR-003 / SC-003
 target_value (CPU %)      60                  55                  FR-004 / SC-004
+default_instance_warmup   (unset)             90                  FR-004 / SC-004
 default_cooldown          (unset, 300s default) 90                FR-004 / SC-004
 metadata_options.http_tokens (unset, IMDSv1 allowed) required     FR-005 / SC-005
 
