@@ -11,8 +11,10 @@ spec:
     path: modules/module-11-agentic-gitops/lab/gitops-demo
   destination:
     server: https://kubernetes.default.svc
-    namespace: default
+    namespace: m11-gitops-demo
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

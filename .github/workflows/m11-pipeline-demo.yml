@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'modules/module-11-agentic-gitops/lab/pipeline-demo/**'
+      - 'modules/module-11-agentic-gitops/lab/gitops-demo/**'
 
 jobs:
   gate:
@@ -26,12 +27,19 @@ jobs:
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: config
-          scan-ref: modules/module-11-agentic-gitops/lab/pipeline-demo
+          scan-ref: modules/module-11-agentic-gitops/lab
           severity: HIGH,CRITICAL
           exit-code: 1
-      - name: checkov
+      - name: checkov (terraform)
         uses: bridgecrewio/checkov-action@v12
         with:
           directory: modules/module-11-agentic-gitops/lab/pipeline-demo
+          quiet: true
+          compact: true
+      - name: checkov (manifests)
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: modules/module-11-agentic-gitops/lab/gitops-demo
+          framework: kubernetes,secrets
           quiet: true
           compact: true
