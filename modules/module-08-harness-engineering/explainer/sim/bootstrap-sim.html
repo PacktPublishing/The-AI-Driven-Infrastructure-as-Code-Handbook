@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bootstrap Simulator — M08, Agentic Infrastructure as Code</title>
+<style>
+  :root{
+    --ink:#1e1e1e; --gray:#757575; --paper:#ffffff;
+    --p-green:#d5e8d4; --p-red:#f8cecc; --p-blue:#dae8fc; --p-orange:#ffe6cc; --p-purple:#e1d5e7;
+    --border:#bdbdbd;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--paper); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:clamp(13px, 1.1vw, 16px); }
+  .wrap{ max-width:1050px; margin:0 auto; padding:28px 20px 60px; }
+  h1{ font-size:1.55em; margin:0 0 4px; }
+  .sub{ color:var(--gray); margin:0 0 20px; font-size:.92em; }
+  code{ font-family:ui-monospace,Menlo,monospace; font-size:.92em; }
+
+  .controls{ display:grid; grid-template-columns:1fr 2fr auto auto; gap:12px; align-items:end; margin-bottom:18px; }
+  .controls label{ display:block; font-size:.85em; color:var(--gray); margin-bottom:4px; }
+  .toggle{ display:flex; align-items:center; gap:10px; border:1.5px solid var(--border); border-radius:8px;
+    padding:10px 12px; background:#fff; cursor:pointer; user-select:none; }
+  .toggle input{ transform:scale(1.25); cursor:pointer; }
+  .toggle .state{ font-weight:700; }
+  .toggle.on{ background:var(--p-purple); border-color:var(--ink); }
+  select{ width:100%; border:1.5px solid var(--border); border-radius:8px; padding:10px 12px; font-size:1em; background:#fff; }
+  button{ border:1.5px solid var(--ink); border-radius:8px; padding:10px 18px; font-size:1em; cursor:pointer; background:#fff; }
+  button.primary{ background:var(--p-blue); font-weight:700; }
+  button:disabled{ opacity:.5; cursor:default; }
+
+  .session{ border:1.5px dashed var(--border); border-radius:8px; padding:10px 14px; margin-bottom:14px;
+    font-family:ui-monospace,Menlo,monospace; font-size:.85em; color:var(--gray); background:#fafafa; white-space:pre-wrap; }
+  .session.live{ color:var(--ink); background:var(--p-purple); border-style:solid; }
+
+  .actions{ list-style:none; margin:0 0 14px; padding:0; display:flex; flex-direction:column; gap:8px; min-height:140px; }
+  .actions li{ display:grid; grid-template-columns:34px 1fr; gap:10px; align-items:start;
+    border:1.5px solid var(--border); border-radius:8px; padding:10px 12px; background:#fff;
+    opacity:0; transform:translateY(6px); transition:opacity .35s ease, transform .35s ease; }
+  .actions li.show{ opacity:1; transform:none; }
+  .actions li .n{ font-weight:700; color:var(--gray); }
+  .actions li .call{ font-family:ui-monospace,Menlo,monospace; font-weight:700; }
+  .actions li .why{ color:var(--gray); font-size:.9em; margin-top:3px; }
+  .actions li.skill{ background:var(--p-purple); }
+  .actions li.write{ background:var(--p-red); }
+  .actions li.evidence{ background:var(--p-green); }
+  .actions li.ask{ background:var(--p-orange); }
+  .actions .empty{ color:var(--gray); font-style:italic; border:none; opacity:1; transform:none; display:block; padding:10px 0; }
+
+  .verdict{ border-radius:8px; padding:12px 14px; font-size:.95em; border:1.5px solid var(--border); min-height:48px; }
+  .verdict.good{ background:var(--p-green); border-color:#2e7d32; }
+  .verdict.bad{ background:var(--p-red); border-color:#c62828; }
+  .verdict .h{ font-weight:700; margin-bottom:3px; }
+
+  .two{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:22px; }
+  .panel{ border:1.5px solid var(--border); border-radius:8px; padding:12px 14px; }
+  .panel h2{ font-size:1em; margin:0 0 8px; }
+  .try ol{ margin:0; padding-left:20px; }
+  .try li{ margin:4px 0; }
+  .try li.done{ color:#2e7d32; text-decoration:line-through; }
+  .try .win{ margin-top:8px; font-weight:700; color:#2e7d32; display:none; }
+  .try .win.show{ display:block; }
+  .log{ font-family:ui-monospace,Menlo,monospace; font-size:.8em; color:var(--gray); max-height:180px; overflow:auto;
+    white-space:pre-wrap; margin:0; }
+
+  footer{ margin-top:30px; font-size:.85em; color:var(--gray); border-top:1px solid var(--border); padding-top:14px; }
+  @media (max-width:760px){ .controls{ grid-template-columns:1fr; } .two{ grid-template-columns:1fr; } }
+  @media (prefers-reduced-motion: reduce){
+    .actions li{ transition:none; transform:none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Bootstrap Simulator: the First Three Tool Calls</h1>
+  <p class="sub">Module 8 &middot; Harness Engineering &middot; the same request, with and without the
+    Superpowers plugin. Watch what the agent does <em>first</em>. That is the whole module in one
+    observation.</p>
+
+  <div class="controls">
+    <div>
+      <label for="pluginToggle">Superpowers plugin</label>
+      <div class="toggle" id="toggleWrap">
+        <input type="checkbox" id="pluginToggle" />
+        <span class="state" id="toggleState">off</span>
+      </div>
+    </div>
+    <div>
+      <label for="requestList">Your request</label>
+      <select id="requestList">
+        <option value="build">Let's make the orders table production-ready</option>
+        <option value="bug">Fix the validate error in main.tf</option>
+        <option value="small">Add a tag to the bucket and tell me when it's clean</option>
+      </select>
+    </div>
+    <button class="primary" id="runButton">Run</button>
+    <button id="resetButton">Reset</button>
+  </div>
+
+  <div class="session" id="sessionBox">session start: no plugin, nothing injected. The agent starts from your message alone.</div>
+
+  <ul class="actions" id="firstActions"><li class="empty">Pick a request and press Run.</li></ul>
+  <div class="verdict" id="verdictBox"></div>
+
+  <div class="two">
+    <div class="panel try">
+      <h2>TRY THIS</h2>
+      <ol id="tryList">
+        <li id="try1">Run the production-ready request with the plugin <b>off</b>. Note the first call.</li>
+        <li id="try2">Turn the plugin <b>on</b> and run the same request. The first call changes before any file is touched.</li>
+        <li id="try3">With the plugin on, run the small "add a tag" request. Find the call that happens <b>before</b> the agent says "clean".</li>
+      </ol>
+      <div class="win" id="tryWin">Done. You have seen the bootstrap do its one job: make the first action the right one, every time.</div>
+    </div>
+    <div class="panel">
+      <h2>Event log</h2>
+      <pre class="log" id="eventLog"></pre>
+    </div>
+  </div>
+
+  <footer>
+    <strong>Honest-model note.</strong> This sim is deterministic on purpose. When we ran the
+    build request without the harness while making this module, a current frontier model still
+    wrote a test first and ran the scanner before it claimed anything. The harness did not add a
+    discipline the model lacked that day. What it added was uniformity: with the plugin on, the
+    first call was <code>Skill superpowers:brainstorming</code> every time, on every runtime, before
+    a file was touched. Treat the plugin-off column as "what nothing guarantees", not "what always
+    happens". Self-contained, no network calls. Part of
+    <strong>Module 8: Harness Engineering</strong>, Agentic Infrastructure as Code.
+  </footer>
+</div>
+
+<script>
+const SESSION_ON = [
+  'SessionStart (startup | clear | compact)',
+  '  -> hooks/session-start',
+  '  -> skills/using-superpowers/SKILL.md',
+  '  -> <EXTREMELY_IMPORTANT> ... "check for a relevant skill before ANY action" ... </EXTREMELY_IMPORTANT>',
+  'injected into context before your first message. Codex: same text, loaded by native skill discovery.'
+].join('\n');
+const SESSION_OFF = 'session start: no plugin, nothing injected. The agent starts from your message alone.';
+
+// The model. Each entry: the first three tool calls and the verdict.
+const MODEL = {
+  off: {
+    build: {
+      calls: [
+        ['Write main.tf', 'write', 'adds PITR, encryption, a billing mode, whatever "production-ready" means to it today'],
+        ['Bash terraform validate', 'bash', 'syntax check on the file it just wrote'],
+        ['Bash terraform plan', 'bash', 'then a confident summary of what it built'],
+      ],
+      verdict: ['bad', 'It built before it asked.',
+        'Nobody agreed what production-ready means for this table. No design, no plan, no failing test, and the first file was touched on call one.'],
+    },
+    bug: {
+      calls: [
+        ['Edit main.tf', 'write', 'patches the line the error message named'],
+        ['Bash terraform validate', 'bash', 'if it passes, the agent says "fixed"'],
+        ['Edit main.tf', 'write', 'if it did not pass, a second guess at the same line'],
+      ],
+      verdict: ['bad', 'It patched before it investigated.',
+        'The fix is a guess at the symptom. If the cause is elsewhere, you find out on the next run, and the run after that.'],
+    },
+    small: {
+      calls: [
+        ['Edit main.tf', 'write', 'adds the tag'],
+        ['Bash terraform validate', 'bash', 'syntax check'],
+        ['(reply) "Done, tag added, it is clean."', 'claim', 'no scan was run; "clean" is a word, not a count'],
+      ],
+      verdict: ['bad', 'A claim with no evidence next to it.',
+        'The tag may well be fine. "It is clean" with no checkov output beside it is a guess dressed as a report.'],
+    },
+  },
+  on: {
+    build: {
+      calls: [
+        ['Skill superpowers:brainstorming', 'skill', 'the bootstrap said check for a skill; this one fires before building anything'],
+        ['AskUserQuestion', 'ask', '"What does production-ready mean for orders? Point-in-time recovery? Encryption with your key? Deletion protection?"'],
+        ['Skill superpowers:writing-plans', 'skill', 'after you approve the design: tasks, each with its failing terraform test named'],
+      ],
+      verdict: ['good', 'It asked before it built. No file touched.',
+        'Design first, then a plan whose tasks each start RED. main.tf is not opened until the test for it exists.'],
+    },
+    bug: {
+      calls: [
+        ['Skill superpowers:systematic-debugging', 'skill', 'no fix without a root-cause investigation first'],
+        ['Bash terraform validate', 'bash', 'reproduce it and read the whole error, not the first line'],
+        ['Read main.tf', 'read', 'trace the error back to where the value is set, not where it is reported'],
+      ],
+      verdict: ['good', 'Root cause before the fix.',
+        'The edit comes after the trace, and after three failed fixes the skill says to question the design, not try a fourth.'],
+    },
+    small: {
+      calls: [
+        ['Edit main.tf', 'write', 'brainstorming sizes this as a small change agreed in chat; the edit is fine'],
+        ['Bash checkov -d . --quiet --compact', 'bash', 'the scan that "clean" has to mean'],
+        ['Skill superpowers:verification-before-completion', 'evidence', 'before claiming: the checkov count, fresh, in the same message as the word "clean"'],
+      ],
+      verdict: ['good', 'The claim arrives with its evidence.',
+        '"Passed checks: 7, Failed checks: 0" sits next to "clean". That is what the verification-before-completion skill requires, and the only form the course accepts.'],
+    },
+  },
+};
+
+const REQUEST_LABELS = {
+  build: "Let's make the orders table production-ready",
+  bug: 'Fix the validate error in main.tf',
+  small: "Add a tag to the bucket and tell me when it's clean",
+};
+
+const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const progress = { t1: false, t2: false, t3: false };
+let timers = [];
+
+const $ = id => document.getElementById(id);
+
+function log(line){
+  const el = $('eventLog');
+  el.textContent += (el.textContent ? '\n' : '') + line;
+  el.scrollTop = el.scrollHeight;
+}
+
+function renderToggle(){
+  const on = $('pluginToggle').checked;
+  $('toggleState').textContent = on ? 'on' : 'off';
+  $('toggleWrap').classList.toggle('on', on);
+  const s = $('sessionBox');
+  s.textContent = on ? SESSION_ON : SESSION_OFF;
+  s.classList.toggle('live', on);
+}
+
+function clearTimers(){ timers.forEach(clearTimeout); timers = []; }
+
+function run(){
+  clearTimers();
+  const on = $('pluginToggle').checked;
+  const req = $('requestList').value;
+  const entry = MODEL[on ? 'on' : 'off'][req];
+
+  const list = $('firstActions');
+  list.innerHTML = '';
+  entry.calls.forEach((c, i) => {
+    const li = document.createElement('li');
+    li.className = c[1];
+    li.innerHTML = '<span class="n">' + (i + 1) + '</span><div><div class="call"></div><div class="why"></div></div>';
+    li.querySelector('.call').textContent = c[0];
+    li.querySelector('.why').textContent = c[2];
+    list.appendChild(li);
+    if (reducedMotion) { li.classList.add('show'); }
+    else { timers.push(setTimeout(() => li.classList.add('show'), 120 + i * 420)); }
+  });
+
+  const v = $('verdictBox');
+  const show = () => {
+    v.className = 'verdict ' + entry.verdict[0];
+    v.innerHTML = '<div class="h"></div><div class="b"></div>';
+    v.querySelector('.h').textContent = entry.verdict[1];
+    v.querySelector('.b').textContent = entry.verdict[2];
+  };
+  if (reducedMotion) show(); else timers.push(setTimeout(show, 120 + entry.calls.length * 420));
+
+  log('run: plugin=' + (on ? 'on ' : 'off') + ' request="' + REQUEST_LABELS[req] + '" -> first call: ' + entry.calls[0][0]);
+
+  if (!on && req === 'build') progress.t1 = true;
+  if (on && req === 'build' && progress.t1) progress.t2 = true;
+  if (on && req === 'small' && progress.t2) progress.t3 = true;
+  renderTry();
+}
+
+function renderTry(){
+  $('try1').classList.toggle('done', progress.t1);
+  $('try2').classList.toggle('done', progress.t2);
+  $('try3').classList.toggle('done', progress.t3);
+  const all = progress.t1 && progress.t2 && progress.t3;
+  if (all && !$('tryWin').classList.contains('show')) log('TRY THIS: all three steps done');
+  $('tryWin').classList.toggle('show', all);
+}
+
+function reset(){
+  clearTimers();
+  $('pluginToggle').checked = false;
+  $('requestList').value = 'build';
+  $('firstActions').innerHTML = '<li class="empty">Pick a request and press Run.</li>';
+  $('verdictBox').className = 'verdict';
+  $('verdictBox').innerHTML = '';
+  progress.t1 = progress.t2 = progress.t3 = false;
+  $('eventLog').textContent = '';
+  renderToggle();
+  renderTry();
+  log('reset');
+}
+
+$('pluginToggle').addEventListener('change', () => {
+  renderToggle();
+  log('plugin ' + ($('pluginToggle').checked ? 'on: using-superpowers injected at SessionStart' : 'off: nothing injected'));
+});
+$('toggleWrap').addEventListener('click', e => {
+  if (e.target.id === 'pluginToggle') return;
+  $('pluginToggle').checked = !$('pluginToggle').checked;
+  $('pluginToggle').dispatchEvent(new Event('change'));
+});
+$('runButton').addEventListener('click', run);
+$('resetButton').addEventListener('click', reset);
+renderToggle();
+log('ready' + (reducedMotion ? ' (reduced motion: no staggered reveal)' : ''));
+</script>
+</body>
+</html>

@@ -4,167 +4,168 @@
 
 ---
 
-**1. What is a "harness," as this course uses the word?**
+**1. The Superpowers documentation says "installation differs by harness." Which sense of the
+word is that?**
 
-- A. Any single skill file written for an agent
-- B. A skill, an MCP server, and a hook assembled around one real discipline
-- C. A synonym for the agent itself
-- D. A cloud account used only for testing
+- A. The runtime harness: Claude Code, Codex, Cursor
+- B. The course's HARNESS layer: skills, hooks, gates
+- C. A workflow harness: a skills library plus a bootstrap
+- D. A test harness
 
 <details>
 <summary>Answer</summary>
 
-**B.** A harness is what you get when the pieces taught separately in M04 through M06 (a skill, an
-MCP server, a hook) are assembled around one discipline, not three unrelated tools sitting next to
-each other in a repo.
+**A.** The runtime harness is the program that runs the model and provides its tools. Superpowers
+installs into each one separately. The course's HARNESS layer is the middle layer of the
+three-layer model, and Superpowers itself is a workflow harness, the third sense.
 
 </details>
 
 ---
 
-**2. A team says: "Our agent understands the task fine, it just keeps ignoring our tagging
-convention." Which layer does this symptom point to?**
+**2. Which single file, injected at session start, makes the other Superpowers skills
+usable at all?**
 
-- A. Context
-- B. Harness
-- C. Loop
+- A. `hooks/hooks.json`
+- B. `skills/using-superpowers/SKILL.md`
+- C. `skills/test-driven-development/SKILL.md`
+- D. `README.md`
 
 <details>
 <summary>Answer</summary>
 
-**B, harness.** "Can't get one task right at all" would be context. "Ignores our standards" is the
-harness symptom from M01's diagnostic, this module's whole subject.
+**B.** `hooks/hooks.json` registers the hook and `hooks/session-start` runs it, but the text that
+lands in the agent's context is `using-superpowers/SKILL.md`. It tells the agent that skills
+exist and that it must check for one before any action. Without that injection the other skill
+files are inert.
 
 </details>
 
 ---
 
-**3. A hook script checks a response for the phrase "tests pass" and, if found, requires a real
-pass/fail count nearby before letting the claim stand. What discipline does this hook enforce?**
+**3. A skill body says "dispatch a subagent" rather than naming a tool. Why?**
 
-- A. Test-first
-- B. Verification-before-claiming
-- C. Root-cause debugging
-- D. Blast radius
+- A. To keep the skill short
+- B. So one skill body runs unchanged on every runtime, with the real tool names kept in a per-runtime mapping file
+- C. Because subagents are not supported anywhere
+- D. To hide implementation details from the user
 
 <details>
 <summary>Answer</summary>
 
-**B.** The hook doesn't care whether a test was written first, it checks whether a completion
-claim has real evidence attached before it's accepted. That's verification-before-claiming.
+**B.** Skills name actions, not tools. The translation to Claude Code's, Codex's or Cursor's real
+tool names lives in `skills/using-superpowers/references/<runtime>-tools.md`. That is what lets
+the same content ship to a dozen runtimes from one repository.
 
 </details>
 
 ---
 
-**4. Which of these is NOT one of the three superpowers disciplines this module covers?**
+**4. You type "Let's make the orders table production-ready" into a harnessed Claude Code
+session. What is the first thing the Superpowers workflow does?**
 
-- A. Test-first
-- B. Verification-before-claiming
-- C. Root-cause debugging
-- D. Cost estimation before apply
+- A. Writes the hardened resource
+- B. Runs Checkov
+- C. Fires `brainstorming` and asks what you actually want before building anything
+- D. Creates a git worktree
 
 <details>
 <summary>Answer</summary>
 
-**D.** Cost estimation is M09's subject (Infracost as a gate). The three disciplines here are
-test-first, verification-before-claiming, and root-cause debugging.
+**C.** Brainstorming activates before building anything. It draws out what you want and why, plays
+it back, and sizes the work: a small change gets agreed in chat, a project gets a written design
+document. The worktree, plan and code all come after.
 
 </details>
 
 ---
 
-**5. Two runs of the same agent both say "checkov passes." Run 1 gets blocked by a hook, run 2
-doesn't. What's the most likely difference between the two runs?**
+**5. The code is HCL. What counts as RED in the test-driven-development skill's sense?**
 
-- A. Run 2 used a more expensive model
-- B. Run 2's response had real command output backing the claim, run 1's didn't
-- C. Run 1 ran on a Monday
-- D. Run 2 was reviewed by a human first
+- A. `terraform test` reporting "Reference to undeclared resource"
+- B. A `terraform test` assertion that fails because the table lacks point-in-time recovery
+- C. `terraform validate` passing
+- D. A plan with no changes
 
 <details>
 <summary>Answer</summary>
 
-**B.** The hook checks for evidence next to the claim, not the confidence of the wording or which
-model produced it. Same claim, same words, the only real difference is whether the evidence was
-actually there.
+**B.** RED is a test that fails for the reason you expect. An undeclared resource is an error, and
+the skill says to fix the error and rerun until the test fails correctly. A failing assertion
+against a bare table is RED for the right reason.
 
 </details>
 
 ---
 
-**6. Why does the course's own rule say "never add a loop on top of a broken harness"?**
+**6. Which of these makes a dangerous `terraform apply` impossible, rather than unlikely?**
 
-- A. Loops are always slower than manual work
-- B. A loop just repeats a broken harness's mistakes faster, with less human attention each time
+- A. The `verification-before-completion` skill
+- B. The `using-superpowers` bootstrap
+- C. Module 6's blast-radius hook, which exits non-zero before apply
+- D. A well-written `brainstorming` session
+
+<details>
+<summary>Answer</summary>
+
+**C.** A workflow harness makes the right process very hard to skip. A gate runs whether or not
+the agent read anything and can block. This course keeps both: the harness is how the agent
+arrives at the pipeline with a plan, a test and evidence; the gate is what decides.
+
+</details>
+
+---
+
+**7. Your team's tagging standard is written in a wiki. The agent has Superpowers loaded and
+still ignores it. Which layer, and what is the fix?**
+
+- A. Context; write a longer wiki page
+- B. Harness; the standard is not in a skill the bootstrap can find, so add one with `writing-skills` and pressure-test it
+- C. Loop; add a retry
+- D. Model; switch to a bigger one
+
+<details>
+<summary>Answer</summary>
+
+**B.** "Ignores our standards" is the harness symptom from Module 1. With a workflow harness
+loaded it gets specific: the standard is not in a skill. `writing-skills` is the harness's own
+way to add one, and it insists on testing with pressure scenarios on a subagent, not a quiz.
+
+</details>
+
+---
+
+**8. A twelve-phase platform build will run across forty sessions over two months. Which tool
+carries the milestone loop, and where does Superpowers sit?**
+
+- A. Superpowers alone; it tracks milestones in a worktree
+- B. GSD on top for Discuss, Plan, Execute, Verify, Ship per milestone; Superpowers underneath for the craft in each task
+- C. GSD alone; it replaces Superpowers
+- D. Neither; use a spreadsheet
+
+<details>
+<summary>Answer</summary>
+
+**B.** Superpowers runs one piece of work well and keeps no state across sessions. GSD keeps
+`STATE.md`, roadmaps and phase plans, and runs each step in fresh-context subagents. They stack:
+GSD carries the workflow, Superpowers carries the craft.
+
+</details>
+
+---
+
+**9. Why does the course's own rule say "never add a loop on top of a broken harness"?**
+
+- A. Loops are slower than manual work
+- B. A loop repeats whatever sits underneath it, faster and with less attention each time; an agent that builds before it asks and claims before it checks just does more of that
 - C. Loops are not supported by most agent tools
-- D. Harnesses and loops solve the same problem, so only one is needed
+- D. Harnesses and loops solve the same problem
 
 <details>
 <summary>Answer</summary>
 
-**B.** Module 12's step 5, supervised autonomy, means a human reviews outcomes rather than every
-step. That only works if the harness underneath is actually catching mistakes, otherwise the loop
-just makes the same unbacked claims faster and harder to notice.
-
-</details>
-
----
-
-**7. A skill states "never claim a check passed without pasting real output." No hook exists to
-check this. What's true about this rule?**
-
-- A. It's a complete harness on its own
-- B. It's words the agent reads, useful but not enforced, exactly the kind of thing that gets skipped under time pressure
-- C. It's equivalent to a gate from M06
-- D. It automatically becomes a hook once written down
-
-<details>
-<summary>Answer</summary>
-
-**B.** A skill can only ever suggest. Without a hook enforcing it mechanically, the rule survives
-only as long as the agent happens to follow it carefully, which is precisely the failure mode this
-module exists to fix.
-
-</details>
-
----
-
-**8. In this module's lab, a test for `CKV_AWS_145` (S3 default encryption) is written and run
-BEFORE the fix exists. What is the correct next step, per the test-first discipline?**
-
-- A. Immediately write the fix, the test doesn't need to actually fail first
-- B. Confirm the test fails, and fails for the right reason (the check is genuinely missing), before writing any fix
-- C. Skip running it, since it's obvious the bucket isn't encrypted yet
-- D. Write the test and the fix in the same commit, order doesn't matter
-
-<details>
-<summary>Answer</summary>
-
-**B.** "Verify RED" is not optional. A test that fails for the wrong reason, a typo, a missing
-file, proves nothing about the real behavior you're about to build. This lab's RED run showed the
-actual `CKV_AWS_145` finding, confirming the failure was real before a single line of fix was
-written.
-
-</details>
-
----
-
-**9. This module's debugging exercise runs three real, plausible fix attempts against a broken
-`endpoint_url` provider argument, all three fail with the same error. What does the 3-Fix Rule say
-to do next?**
-
-- A. Try a fourth, more creative guess
-- B. Stop guessing and question the architecture, compare against a known-working example instead
-- C. Revert all three attempts and give up on the task
-- D. Ship it with the error still present, it's probably cosmetic
-
-<details>
-<summary>Answer</summary>
-
-**B.** Three failed attempts on the same symptom is evidence, not bad luck, it means the fixes are
-aimed at the wrong layer. This lab's real root cause only surfaced by comparing the broken config
-against the course's own known-working provider stub: `endpoint_url` was never valid AWS-provider
-syntax, no version pin or cache wipe could have touched it.
+**B.** Module 12's step 5 means a human reviews outcomes, not steps. That only works once the
+harness under the loop catches what the human would have caught. This module is still step 4,
+and it is what step 5 has to stand on.
 
 </details>

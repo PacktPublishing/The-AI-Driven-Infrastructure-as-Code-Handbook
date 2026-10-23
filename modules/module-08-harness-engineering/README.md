@@ -1,15 +1,30 @@
 # M08: Harness Engineering
 
-**Type:** hands-on · **Build order:** lab first · **Duration:** ~55 min ·
+**Type:** hands-on · **Build order:** lab first · **Duration:** ~60 min ·
 **Lab tier:** 1 · **Book chapter:** 8 · **Autonomy step introduced:** none new, still step 4, the
 precondition for step 5 (supervised autonomy, M12)
 
-Three pieces, taught separately, become one assembled system. M04 gave the agent a skill, M05 a
-live MCP connection, M06 a hook. This module assembles them around one real discipline, the
-superpowers pattern: test-first, verify before claiming, root-cause debugging. The course's own
-bottom-up rule applies directly: never add a loop on top of a broken harness.
+Three things get called a harness: the runtime (Claude Code, Codex), the course's HARNESS layer
+(M04 to M06), and a workflow harness, a skills library plus a bootstrap that makes the agent
+follow an engineering process in every session. This module installs the real one,
+[obra/superpowers](https://github.com/obra/superpowers), in both runtimes, shows how its bootstrap
+works, runs one infrastructure change through its whole workflow, and positions OpenGSD for
+bigger builds. The course's bottom-up rule still applies: never add a loop on top of a broken
+harness.
 
 Spec: [`specs/M08-spec.md`](../../specs/M08-spec.md). Read it before changing anything here.
+Why this module was rewritten on 2026-10-22: [`decisions/0007-teach-real-superpowers.md`](../../decisions/0007-teach-real-superpowers.md).
+
+## Versions shown on screen
+
+| Tool | Version | Where it is pinned |
+|---|---|---|
+| Superpowers plugin | **7.0.0** in both runtimes (`superpowers@claude-plugins-official`). 7.0.1 shipped on 21 Oct 2026 and retunes brainstorming; the lab's behaviour is the same | `LAB.md` Stage 1, Appendix A |
+| Claude Code | 2.1.304 | `claude --version` |
+| Codex CLI | 0.162.1 | `codex --version` |
+| Terraform | 1.14.8 (`terraform test` needs 1.6 or later) | Appendix A |
+| Checkov | 3.3.30 | Appendix A |
+| Floci | 1.7.0, pinned in `labs/shared/docker-compose.floci.yml` | Appendix A |
 
 ## What's in this module
 
@@ -17,46 +32,49 @@ Spec: [`specs/M08-spec.md`](../../specs/M08-spec.md). Read it before changing an
 modules/module-08-harness-engineering/
   README.md               this file, delivery guide
   explainer/
-    EXPLAINER.md           7 diagram beats, narrator notes, timing
+    EXPLAINER.md           9 diagram beats, narrator notes, timing
     deck/
-      build_deck.py         generator, mirrors M06/M07's own generator
-      m08-harness-engineering.html   14-slide self-contained deck
-      m08-sequence.md        slide table, fragment map, coverage check
-    diagrams/               6 hand-drawn SVGs (title slide has its own inline SVG)
-  LAB.md                   Project 08: Build a Verification-Before-Claiming Harness Using a Skill and a Hook (Tier 1, ~20 min)
+      build_deck.py         generator, same lineage as M06/M07
+      m08-harness-engineering.html   16-slide self-contained deck
+      m08-sequence.md        slide table, diagram-to-figure map, coverage check
+    diagrams/               8 hand-drawn SVGs
+    sim/
+      bootstrap-sim.html     plugin off or on, three requests, which skill fires first
+      bootstrap-sim.test.mjs
+  LAB.md                   Project 08: Run an IaC Change Through the Superpowers Workflow Harness (Tier 1, ~35 min)
   lab/
-    starter/                 the baseline module: 1 S3 bucket, 7 real checkov findings
-    solution/                versioning + public access block fixed, 5 unrelated findings left honest
-    hooks/
-      verify_claim.sh         the hook: claim-vs-evidence regex check
-    .claude/
-      skills/verify-before-claiming/SKILL.md   the skill: states the rule
-      settings.local.example.json               real Claude Code hook wiring, project-scoped
-    evidence/
-      unbacked-claim.txt      real transcript, no evidence, hook blocks it
-      backed-claim.txt        real transcript, real checkov output, hook passes it
+    orders/                  the starter: a bare DynamoDB table and a dynamodb:* policy, Floci provider stub
+    solution/                the hardened module, its tests, and the design doc and plan the workflow produced
+    skills/
+      iac-verification/SKILL.md   the project skill Stage 4 adds to the harness
+    evidence/                every capture in LAB.md, as produced during the build
+    first-actions.py         prints the tool calls from a `claude -p --output-format stream-json` run, in order
     run.sh                   validates the full real sequence, including a real Floci apply/destroy
     .gitignore
   reading/
-    concepts.md              ~15 min standalone read, also book/chapters/08-harness-engineering.md
-    reference.md              one-page A4 cheat sheet
-  QUIZ.md                  7 questions, collapsible answers
+    concepts.md              ~15 min standalone read, the seed of book/chapters/08-harness-engineering.md
+    reference.md             one-page A4 cheat sheet
+    diagrams/                the same 8 SVGs, for the reading
+  QUIZ.md                  9 questions, collapsible answers
   PROJECTS.md              5 stretch project seeds
 ```
 
 ## Delivery guide: live workshop
 
-Run in this order, roughly 55 minutes with a break:
+Run in this order, roughly 60 minutes with a break:
 
-1. Walk `explainer/EXPLAINER.md` beats 1-2 (three pieces, one system), ~4 min.
-2. Walk beat 3 (the superpowers pattern), ~3 min.
-3. Walk beats 4-5 (a claim without evidence, a claim with evidence), demo the real hook live
-   against both transcripts, ~6 min.
-4. Walk beat 6 (harness vs context, revisited), ~3 min.
-5. Walk beat 7 (harness before loop), ~2 min.
-6. Break, then run `LAB.md` live, ~20 min. No harness first, then a real skill and a real hook,
-   a real blocked claim, a real passed claim, real apply and destroy against Floci.
-7. Close on the lab's exercise: write a harness for a discipline the learner's own team skips.
+1. Walk `explainer/EXPLAINER.md` beat 2 (three things called a harness), ~3 min. Do not skip
+   it; every later confusion in this module traces back to the word.
+2. Walk beats 3 and 4 (a skills library plus a bootstrap, the bootstrap path), ~7 min. Open the
+   three real files on screen from the installed plugin directory.
+3. Walk beat 5 (the basic workflow), ~3 min.
+4. Walk beats 6 and 7 (the IaC loop, skill versus gate), ~6 min. Say the honest finding out
+   loud: without the harness a strong model still tested; the harness made it uniform.
+5. Walk beat 8 (Superpowers and GSD, stacked), ~3 min.
+6. Walk beat 9 (harness before loop), ~2 min.
+7. Break, then run `LAB.md` live, ~35 min. Stage 3 is interactive and is the part people
+   remember: brainstorming asks, you answer, the plan appears, the test fails first.
+8. Close on PROJECTS.md seed 1: port one of their own checklists into a skill.
 
 `QUIZ.md` and `PROJECTS.md` are take-home, not workshop time, unless running a longer format.
 
@@ -70,19 +88,20 @@ cd modules/module-08-harness-engineering/lab
 ```
 
 Requires `terraform`, `checkov`, and Docker reachable at `/var/run/docker.sock`. It confirms the
-starter fails 7 real checkov checks, the solution fixes exactly the 2 targeted ones and honestly
-leaves 5 unrelated findings, the verification hook blocks a real unbacked claim and passes a real
-backed one, then pulls and runs `floci/floci:1.7.0`, applies the solution for real, and destroys
-it.
+starter's tests fail as assertions (not as errors), the solution's tests pass, Checkov reports no
+finding for the two hardening checks the tests cover, then pulls and runs `floci/floci:1.7.0`,
+applies the solution for real, and destroys it. With `M08_LIVE_AGENT=1` it also runs the Claude
+Code probe and asserts the Superpowers bootstrap answered.
 
-## Harness mechanism: what's real here
+## Where the captures came from
 
-The lab's hook is a standalone shell script (`lab/hooks/verify_claim.sh`), tested directly by
-`run.sh` against two real captured transcripts. `lab/.claude/settings.local.example.json` shows
-the real Claude Code `Stop` hook wiring a learner would use to run this same check automatically
-at the end of every turn, matching the mechanism documented in Claude Code's own hooks system.
-This module did not modify any live global Claude Code configuration to build or verify itself,
-same caution as M06's permission-boundary example.
+Every agent transcript in `LAB.md` was produced during the build from a learner-like
+environment: a fresh Claude Code config directory and a fresh Codex home with nothing in them
+but credentials, inside the companion repository checkout, which carries no `CLAUDE.md`. The
+authoring repository's own `CLAUDE.md` and plugins were not loaded. Stage 2's two runs were
+captured as `claude -p --output-format stream-json` event logs, kept verbatim under
+`lab/evidence/`. Stage 3 was driven in a real interactive `claude` session and the pane captured.
+Nothing was edited to look better.
 
 ## Autonomy ladder
 
@@ -96,31 +115,31 @@ taught in M12) safe to attempt: a loop on top of a broken harness just repeats i
       `QUIZ.md`, `PROJECTS.md`, `README.md`)
 - [x] `EXPLAINER.md` has narrator notes and timing for every diagram beat
 - [x] `LAB.md` steps are copy-pasteable, solo-completable, Tier 1, real captured output only
-- [x] `reading/concepts.md` is standalone-readable (~15 min) and doubles as
+- [x] `reading/concepts.md` is standalone-readable (~15 min) and seeds
       `book/chapters/08-harness-engineering.md`
 - [x] `reading/reference.md` is a one-side-of-A4 cheat sheet
-- [x] `QUIZ.md`: 7 questions, collapsible answers, scenario-heavy
+- [x] `QUIZ.md`: 9 questions, collapsible answers, scenario-heavy
 - [x] `PROJECTS.md`: 5 stretch projects, hints not solutions
 - [x] `README.md` (this file), live + Udemy delivery guide
 - [x] No retired tools presented as current
-- [x] The lab's hook is real: it actually blocks an unbacked claim and passes a backed one, real
-      captured output both times, not simulated
-- [x] All three superpowers disciplines (test-first, verify-before-claiming, root-cause debugging)
-      named and explained, not just verification alone
-- [x] Harness vs context distinction explicitly ties back to M01's three-layer diagnostic
-- [x] No new autonomy step introduced; step 5 previewed as "what this makes possible," not taught
-- [x] Diagram beats: 6 hand-drawn SVGs in `explainer/diagrams/`, same visual contract as
-      M01/M03/M04/M06/M07
-- [x] Deck: 14 self-contained slides, zero external refs, real Playwright render check, zero
-      invisible-line regressions, every diagram's real text verified present in the rendered deck
+- [x] Every skill name, file path, hook event and command exists in Superpowers 7.0.0, checked
+      against the installed plugin directory
+- [x] The three senses of harness named on slide 3 and in the first concept section
+- [x] Stage 3's RED is an assertion failure, not an undeclared-resource error
+- [x] OpenGSD positioned in one section with a decision table, not taught hands-on
+- [x] No "superpowers pattern", no invented origin story, no regex Stop hook
+- [x] No new autonomy step introduced; step 5 previewed as "what this makes possible"
 - [x] Course slide voiceover script: `planning/voiceover/m08-slide-voiceover.md`
-- [x] Lab validation script: `lab/run.sh`, checks the full real sequence end to end including a
-      real Floci apply/destroy
+- [x] Lab validation script: `lab/run.sh`
 - [x] Zero "rung" anywhere in learner-facing content, "step" used throughout
 
 ## Delivery guide: Udemy
 
-This module's lecture cut mirrors the established pattern: one concept per lecture, 3-6 minutes
-each, following the deck's 6 sections. `LAB.md` ships as a standalone hands-on lecture after the
-concept lectures. `QUIZ.md` publishes as the module's Udemy quiz. `PROJECTS.md` publishes as
-downloadable resources.
+One concept per lecture, 3 to 6 minutes each, following the deck's 6 sections: three things
+called a harness (slide 3), Superpowers and its bootstrap (slides 5 to 7), adapting it to
+infrastructure (slides 9 to 10), bigger builds (slide 12), harness before loop (slide 14), and
+the closing. `LAB.md` ships as four hands-on lectures, one per stage; Stage 3 is screen-recorded
+from an interactive session. `QUIZ.md` publishes as the module's Udemy quiz. `PROJECTS.md`,
+`reading/reference.md` and `lab/skills/iac-verification/SKILL.md` publish as downloadable
+resources. The Module 8 lectures recorded before 2026-10-22 are retired; re-record from
+`planning/voiceover/m08-slide-voiceover.md`.

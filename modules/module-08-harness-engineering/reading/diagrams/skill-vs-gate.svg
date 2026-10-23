@@ -1,0 +1,35 @@
+<svg viewBox="0 0 960 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two lanes side by side. The workflow harness lane: the bootstrap says check for a skill, the agent follows the process, hard to skip. The gate lane: a hook or scanner runs regardless, exits non-zero, impossible to pass. Footer: keep both.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="960" height="320">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="36" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="960" height="320" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <text x="240" y="40" text-anchor="middle" font-size="15" fill="black">workflow harness (M08)</text>
+    <rect x="90" y="60" width="300" height="48" rx="8" fill="#e1d5e7" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="240" y="89" text-anchor="middle" font-size="12" fill="black">bootstrap says: check for a skill</text>
+    <path d="M240,108 L240,138" stroke="black" stroke-width="2" marker-end="url(#arrow)" filter="url(#sketch)" fill="none"/>
+    <rect x="90" y="140" width="300" height="48" rx="8" fill="#e1d5e7" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="240" y="169" text-anchor="middle" font-size="12" fill="black">agent follows the process</text>
+    <text x="240" y="224" text-anchor="middle" font-size="15" fill="black">hard to skip</text>
+    <text x="240" y="246" text-anchor="middle" font-size="11" fill="#666">a probability, in practice high</text>
+
+    <path d="M480,24 L481,272" stroke="black" stroke-width="1.6" stroke-dasharray="6 6" filter="url(#sketch)" fill="none"/>
+
+    <text x="720" y="40" text-anchor="middle" font-size="15" fill="black">gate (M06, M09)</text>
+    <rect x="570" y="60" width="300" height="48" rx="8" fill="#f8cecc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="720" y="89" text-anchor="middle" font-size="12" fill="black">hook / scanner runs regardless</text>
+    <path d="M720,108 L720,138" stroke="black" stroke-width="2" marker-end="url(#arrow)" filter="url(#sketch)" fill="none"/>
+    <rect x="570" y="140" width="300" height="48" rx="8" fill="#f8cecc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="720" y="169" text-anchor="middle" font-size="12" fill="black">exit non-zero, apply blocked</text>
+    <text x="720" y="224" text-anchor="middle" font-size="15" fill="black">impossible to pass</text>
+    <text x="720" y="246" text-anchor="middle" font-size="11" fill="#666">a certainty, whether or not the agent read anything</text>
+
+    <text x="480" y="300" text-anchor="middle" font-size="13" fill="black">keep both: each closes a gap the other cannot see</text>
+  </g>
+</svg>

@@ -1,0 +1,79 @@
+<svg viewBox="0 0 1100 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Seven skills in a row in the order the README states them, brainstorming through finishing a development branch, with three craft skills underneath: systematic debugging, verification before completion, and writing skills.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="1100" height="330">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="34" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1100" height="330" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <text x="94" y="40" text-anchor="middle" font-size="11" fill="#666">1</text>
+    <rect x="27" y="50" width="134" height="72" rx="8" fill="#e1d5e7" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="94" y="82" text-anchor="middle" font-size="12" fill="black">brainstorming</text>
+    <text x="94" y="104" text-anchor="middle" font-size="11" fill="#666">ask first</text>
+
+    <path d="M161,86 L179,86" stroke="black" stroke-width="2" marker-end="url(#arrow)" filter="url(#sketch)" fill="none"/>
+
+    <text x="246" y="40" text-anchor="middle" font-size="11" fill="#666">2</text>
+    <rect x="179" y="50" width="134" height="72" rx="8" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="246" y="82" text-anchor="middle" font-size="12" fill="black">using-git-worktrees</text>
+    <text x="246" y="104" text-anchor="middle" font-size="11" fill="#666">isolate</text>
+
+    <path d="M313,86 L331,86" stroke="black" stroke-width="2" marker-end="url(#arrow)" filter="url(#sketch)" fill="none"/>
+
+    <text x="398" y="40" text-anchor="middle" font-size="11" fill="#666">3</text>
+    <rect x="331" y="50" width="134" height="72" rx="8" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="398" y="82" text-anchor="middle" font-size="12" fill="black">writing-plans</text>
+    <text x="398" y="104" text-anchor="middle" font-size="11" fill="#666">tasks + tests</text>
+
+    <path d="M465,86 L483,86" stroke="black" stroke-width="2" marker-end="url(#arrow)" filter="url(#sketch)" fill="none"/>
+
+    <text x="550" y="40" text-anchor="middle" font-size="11" fill="#666">4</text>
+    <rect x="483" y="50" width="134" height="72" rx="8" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="550" y="72" text-anchor="middle" font-size="12" fill="black">executing-plans</text>
+    <text x="550" y="90" text-anchor="middle" font-size="11" fill="#666">or subagent-driven-</text>
+    <text x="550" y="106" text-anchor="middle" font-size="11" fill="#666">development</text>
+
+    <path d="M617,86 L635,86" stroke="black" stroke-width="2" marker-end="url(#arrow)" filter="url(#sketch)" fill="none"/>
+
+    <text x="702" y="40" text-anchor="middle" font-size="11" fill="#666">5</text>
+    <rect x="635" y="50" width="134" height="72" rx="8" fill="#d5e8d4" stroke="black" stroke-width="2.8" filter="url(#sketch)"/>
+    <text x="702" y="76" text-anchor="middle" font-size="12" fill="black">test-driven-</text>
+    <text x="702" y="92" text-anchor="middle" font-size="12" fill="black">development</text>
+    <text x="702" y="110" text-anchor="middle" font-size="11" fill="#666">test first</text>
+
+    <path d="M769,86 L787,86" stroke="black" stroke-width="2" marker-end="url(#arrow)" filter="url(#sketch)" fill="none"/>
+
+    <text x="854" y="40" text-anchor="middle" font-size="11" fill="#666">6</text>
+    <rect x="787" y="50" width="134" height="72" rx="8" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="854" y="76" text-anchor="middle" font-size="12" fill="black">requesting-</text>
+    <text x="854" y="92" text-anchor="middle" font-size="12" fill="black">code-review</text>
+    <text x="854" y="110" text-anchor="middle" font-size="11" fill="#666">against the plan</text>
+
+    <path d="M921,86 L939,86" stroke="black" stroke-width="2" marker-end="url(#arrow)" filter="url(#sketch)" fill="none"/>
+
+    <text x="1006" y="40" text-anchor="middle" font-size="11" fill="#666">7</text>
+    <rect x="939" y="50" width="134" height="72" rx="8" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="1006" y="76" text-anchor="middle" font-size="12" fill="black">finishing-a-</text>
+    <text x="1006" y="92" text-anchor="middle" font-size="12" fill="black">development-branch</text>
+    <text x="1006" y="110" text-anchor="middle" font-size="11" fill="#666">verify, then merge</text>
+
+    <path d="M550,122 L550,184" stroke="#666" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arrow)" filter="url(#sketch)" fill="none"/>
+    <text x="562" y="158" text-anchor="start" font-size="11" fill="#666">used inside every step</text>
+
+    <rect x="200" y="186" width="700" height="100" rx="12" fill="none" stroke="black" stroke-width="2" stroke-dasharray="7 5" filter="url(#sketch)"/>
+    <text x="550" y="208" text-anchor="middle" font-size="12" fill="#666">craft skills underneath</text>
+
+    <rect x="230" y="222" width="200" height="46" rx="8" fill="#ffe6cc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="330" y="250" text-anchor="middle" font-size="12" fill="black">systematic-debugging</text>
+    <rect x="450" y="222" width="200" height="46" rx="8" fill="#ffe6cc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="550" y="250" text-anchor="middle" font-size="11" fill="black">verification-before-completion</text>
+    <rect x="670" y="222" width="200" height="46" rx="8" fill="#ffe6cc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="770" y="250" text-anchor="middle" font-size="12" fill="black">writing-skills</text>
+
+    <text x="550" y="314" text-anchor="middle" font-size="13" fill="black">ask, plan, test first, verify, review, finish</text>
+  </g>
+</svg>
