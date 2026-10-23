@@ -5,4 +5,5 @@ metadata:
   namespace: m11-gitops-demo
 data:
   message: "reconciled by GitOps, not kubectl apply"
-  version: "v1"
+  version: "v2"
+  release_note: "shipped through the gate, applied by the controller"
