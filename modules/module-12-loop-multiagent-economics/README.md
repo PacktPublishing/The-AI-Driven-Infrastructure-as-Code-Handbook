@@ -28,7 +28,8 @@ reading/diagrams/         synced copies of the 7 diagrams
 explainer/diagrams/       7 hand-drawn SVGs
 explainer/deck/           build_deck.py + generated 16-slide deck + sequence doc
 explainer/EXPLAINER.md    narrator notes per beat
-LAB.md                    Project 12: real stopping-condition loop + real trigger config
+LAB.md                    Project 12: stopping-condition loop, tool-failure runs, trigger
+                          workflow (design example), FinOps gate with tests
 QUIZ.md                   7 MCQ, collapsible answers
 PROJECTS.md               5 stretch projects
 ```
@@ -62,7 +63,12 @@ their gates, in the closing content.
 - [x] The rtk/Caveman economics finding states both the advertised (60-90%) and measured
       (~8.5%, and a cost increase for rtk) figures, matching the fact-discipline table in the
       course `CLAUDE.md` exactly
-- [x] Lab validation script: `lab/run.sh`, real 3-run stopping-condition test, real pass
+- [x] Lab validation script: `lab/run.sh`, real 3-run stopping-condition test, three
+      tool-failure runs asserting `main.tf` byte-identical and exit 2, workflow lint, FinOps
+      gate fixtures plus `finops/test_gate.py`, real pass
+- [x] `lab/solution/trigger-workflow.example.yml` is a design example: `actionlint` clean,
+      runs on `workflow_dispatch`, not installed under `.github/workflows/` in the companion
+      repository, so its `schedule:` is not enabled there
 - [x] Course slide voiceover script: `planning/voiceover/m12-slide-voiceover.md`
 - [x] No diagram excalidraw render pass, hand-drawn SVGs are the deliverable, matching the
       decision already made and recorded in M01's README

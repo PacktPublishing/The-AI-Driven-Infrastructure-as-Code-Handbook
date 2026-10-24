@@ -13,15 +13,15 @@ variable "webhook_token" {
   sensitive   = true
 }
 
+resource "local_file" "pipeline_config" {
+  filename = "${path.module}/rendered/pipeline.env"
+  content  = "WEBHOOK_TOKEN=${var.webhook_token}\n"
+}
+
 variable "signing_key_id" {
   description = "Key ID used to sign outbound webhook payloads. Set via TF_VAR_signing_key_id, never a default."
   type        = string
   sensitive   = true
-}
-
-resource "local_file" "pipeline_config" {
-  filename = "${path.module}/rendered/pipeline.env"
-  content  = "WEBHOOK_TOKEN=${var.webhook_token}\n"
 }
 
 resource "local_file" "webhook_signing_config" {

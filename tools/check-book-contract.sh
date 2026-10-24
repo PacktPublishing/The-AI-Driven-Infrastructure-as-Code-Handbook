@@ -67,6 +67,8 @@ BY_DESIGN = {
         "created by loop.sh at runtime; the printed command before it is rm -rf on this path",
     ("11", "book/pull/2"):
         "the tail of this repository's pull-request URL, not a path in the tree",
+    ("11", "book/pull/4"):
+        "the tail of this repository's pull-request URL, not a path in the tree",
 }
 
 def resolves(ch, p):

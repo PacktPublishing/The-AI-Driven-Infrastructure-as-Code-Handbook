@@ -26,5 +26,7 @@ split it, don't push past the gate's threshold.
 ## Pipeline order
 
 `fmt`/`validate` → `trivy` → `checkov` → OPA/Conftest → blast-radius hook → human
-approval → `apply`. Never skip a stage to save time; the pipeline decides, not the
-agent.
+approval → `apply`. Seven enforced gates; Infracost is named, not enforced. Never skip a
+stage to save time; the pipeline decides, not the agent. `apply` runs only through
+`pipeline.sh apply`, which checks that a human approved the exact plan on disk. Who may
+run that command at all is an organisational control outside this repo.

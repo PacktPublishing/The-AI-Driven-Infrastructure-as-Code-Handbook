@@ -40,8 +40,9 @@ modules/module-10-agentic-kubernetes/
       db-xrd.yaml, db-composition.yaml, db-xr.yaml  layer 3: namespaced XDatabase
       db-composer-rbac.yaml   the real RBAC grant a native-kind Composition needs
     requests/                 where the agent-proposed XR lands, gitignored, generated live
-    run.sh                   real cluster up -> crossplane v2 -> warm-up XR -> layer 1/2/3 ->
-                             teardown, all nine steps real, no fixed sleeps
+    run.sh                   tool check -> real cluster up -> crossplane v2 -> warm-up XR ->
+                             layer 1/2/3 -> 3 seeded failures -> teardown, no fixed sleeps;
+                             M10_LIVE_AGENT=1 adds the Claude Code step and gates its proposal
     .gitignore
   reading/
     concepts.md              ~18 min standalone read, also book/chapters/10-agentic-kubernetes.md
@@ -75,7 +76,10 @@ cd modules/module-10-agentic-kubernetes/lab
 ./run.sh
 ```
 
-Requires `kind`, `kubectl`, `helm`, and Docker reachable. It creates a real `kind` cluster
+Requires `kind`, `kubectl`, a Helm 4 binary, and Docker reachable, all found on `PATH`, no
+machine-specific paths inside the script. The default run calls no agent. Add
+`M10_LIVE_AGENT=1` to also run the Stage 2, Step 4 Claude Code command and have the script
+diff, apply and verify the proposal it writes. It creates a real `kind` cluster
 pinned by digest, installs Crossplane v2.4.0 via its real Helm chart, runs the warm-up
 `XAppConfig` XR, then builds the same Postgres database three ways: raw manifests applied
 directly, the same Postgres packaged as a Helm chart and installed as a second instance, and a

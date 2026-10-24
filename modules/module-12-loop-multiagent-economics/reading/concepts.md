@@ -126,7 +126,17 @@ applies.
 The lab's own module is Tier 0, `local_file` resources only, so the tag and instance-type checks
 run there against illustrative fixtures instead of the module itself. Resource count is the one
 dimension that applies to any resource type, and that one runs for real against the module's own
-plan.
+plan. Three rules keep the gate honest, and the lab tests each one: a file that is not a
+`terraform show -json` plan is an error, never a pass; resources inside child modules count and
+are checked under their full address; and an `aws_` resource with no `tags` field at all is
+missing every required tag.
+
+The same "no verdict" rule applies to the loop itself. `loop.sh` confirms its tools are present
+and runs `terraform init` and `terraform validate` before it asks `checkov` anything. If any of
+those fail it exits 2, prints no verdict, and leaves `main.tf` byte-identical. The trigger
+workflow that would run the loop nightly is kept as a design example: linted, pinned, carrying
+its working copy between runs, runnable by hand with `workflow_dispatch`, and not enabled on a
+schedule in the companion repository.
 
 **Seeded failure:** the `plan-over-budget.json` fixture's `aws_instance.worker[0]`, an
 `m5.24xlarge` instance type outside the allowed list and missing its `Owner`/`ManagedBy` tags.

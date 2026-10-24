@@ -38,12 +38,14 @@ A report is a number a human might read. A gate is a check wired to fail the pip
 Infracost estimate printed to a Slack channel is a report. The same check with a real
 threshold and a non-zero exit code is a gate.
 
-## Checkov suppressions: what actually works
+## Checkov suppressions: scope them to the resource
 
-`#checkov:skip=CKV_XXX:reason` inline comments are not guaranteed to work for every check,
-confirmed by direct test against checkov 3.3.16 in this course's own environment. The CLI
-flag `--skip-check CKV_XXX,CKV_YYY` did work, reliably. Verify a suppression actually
-suppressed the finding, don't assume the syntax alone did it.
+Put each waiver inline, inside the one resource it covers, with its reason beside it:
+`#checkov:skip=CKV_XXX:reason`. Checkov then reports it under `Skipped checks` for that
+resource only. A `--skip-check CKV_XXX` flag on the CLI silences the check for every resource
+in the directory, including ones nobody reviewed, so keep it for a check you reject
+everywhere, and say why in the pipeline script. Either way, verify the suppression worked:
+read the `Skipped checks` count in checkov's summary line, don't assume the syntax did it.
 
 ## Cost check, no fabrication
 

@@ -95,20 +95,21 @@ pipeline a learner would run at work.
 
 ---
 
-**6. In `main.tf`, a `#checkov:skip=CKV_AWS_144:...` comment is added above a resource, but Checkov still reports that finding as failed. What is the most likely explanation, based on what this module found?**
+**6. The pipeline carries three reviewed Checkov waivers for the lab's two buckets. Which way of expressing them is the one this module teaches, and why?**
 
-- A. The comment syntax always works, this must be a different bug
-- B. Inline skip comments are not guaranteed to work for every check, and were confirmed not to work for this one, `--skip-check` on the CLI is the reliable path
-- C. Checkov ignores all comments in Terraform files
-- D. The resource needs to be deleted, not skipped
+- A. `--skip-check CKV2_AWS_62,CKV2_AWS_61,CKV_AWS_144` on the CLI, because it is shorter
+- B. An inline `#checkov:skip=CKV_...:reason` comment inside each bucket resource, because it waives the check for that resource only and keeps the reason next to the code
+- C. Lowering `--soft-fail` so Checkov never blocks
+- D. Deleting the checks from Checkov's rule bundle
 
 <details>
 <summary>Answer</summary>
 
-**B.** This module tested it directly: an isolated, minimal reproduction confirmed the
-inline comment did not suppress the finding on checkov 3.3.16, while `--skip-check` on the
-CLI did. The lesson generalizes: verify a suppression actually worked, don't assume it did
-because the syntax looks right.
+**B.** A CLI-wide `--skip-check` silences the check for every resource in the target,
+including resources nobody reviewed, and the reason lives in a script far from the code. The
+inline comment is scoped to one resource, and Checkov reports it under `Skipped checks`, so
+the solution scan shows `Failed checks: 0, Skipped checks: 6` for two buckets times three
+waivers. Verify the count moved instead of assuming the syntax worked.
 
 </details>
 

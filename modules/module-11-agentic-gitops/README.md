@@ -37,9 +37,12 @@ modules/module-11-agentic-gitops/
       configmap.yaml           what Argo CD actually reconciles
     solution/
       argocd-app.yaml          the real Application pointed at this repo
-    run.sh                   real cluster up -> argo cd install -> app sync/healthy ->
-                             self-heal check -> numbered teardown
-    .gitignore
+    ci/
+      m11-pipeline-demo.yml    byte-identical copy of the companion repo's .github/workflows file
+      main-ruleset.json        the GitHub ruleset that makes the gate a requirement, not advice
+    run.sh                   tool checks -> merged-PR evidence -> real cluster up -> argo cd
+                             (pinned) -> app sync/healthy at v2 -> self-heal -> numbered teardown
+    .gitignore               .terraform/, state, plan files, rendered/ (token values)
   reading/
     concepts.md              ~15 min standalone read, also book/chapters/11-agentic-gitops.md
     reference.md              one-page A4 cheat sheet
@@ -51,18 +54,25 @@ modules/module-11-agentic-gitops/
 
 - **A real agent opened the PR, not the course author.** `claude -p ... --permission-mode
   acceptEdits --allowedTools "Read,Edit,Bash(git *),Bash(gh *)"` added a variable with a
-  hardcoded AWS-style key, committed, pushed, and ran `gh pr create` itself: real PR #1 on the book's own
-  companion repository. Its own output flagged the mistake in passing without stopping
+  hardcoded AWS-style key, committed, pushed, and ran `gh pr create` itself: real PR 2 on the book's
+  companion repository, https://github.com/PacktPublishing/The-AI-Driven-Infrastructure-as-Code-Handbook/pull/2. Its own output flagged the mistake in passing without stopping
   itself, real evidence that a disclaimer isn't a gate.
 - **A real pipeline caught it.** Trivy (added this pass, matching M09's real pipeline,
   0 findings on this toy module, honestly reported as such) and Checkov ran in a
   real GitHub Actions run and failed for a real reason, `CKV_SECRET_2`.
 - **A second, separate agent fixed the real cause**, prompted with the real CI failure text
   plus the pre-diagnosed cause and prescribed fix.
-- **A real human merge**, `gh pr merge 4 --squash --delete-branch`, the one manual step.
-- A real Argo CD install (`argoproj/argo-cd` stable manifests, server-side apply) on a real
-  `kind` cluster, pointed at the real, now-merged `lab/gitops-demo/` path in this same repo.
-- Real `Synced`/`Healthy` state, real composed `ConfigMap` data.
+- **A real human merge**, `gh pr merge 2 --squash --delete-branch`, the one manual step.
+- **The gate extended to what the controller watches**, PR 3. Pointing Checkov at
+  `lab/gitops-demo/` for the first time failed `CKV_K8S_21` (ConfigMap in `default`), so the
+  ConfigMap moved to its own namespace, created by the Application on sync.
+- **A second agent-opened PR connected end to end**, PR 4: `claude -p` bumped the ConfigMap the
+  controller watches to `v2`, the gate ran and passed on the manifest change, a human merged,
+  and Argo CD reconciled the merge commit into the cluster 92 seconds later with no `kubectl
+  apply`. Captured before and after in `LAB.md` stage 4.
+- A real Argo CD install (pinned release, see the version table below, server-side apply) on a
+  real `kind` cluster, pointed at the real, merged `lab/gitops-demo/` path in the companion repo.
+- Real `Synced`/`Healthy` state, real composed `ConfigMap` data, revision equal to the merge commit.
 - A real self-heal test: the `ConfigMap` was patched directly, and the controller corrected
   it back on its own within seconds, no command run to trigger the correction.
 - A real numbered teardown, confirmed via `docker ps -a` that no orphan container remained.
@@ -76,7 +86,33 @@ modules/module-11-agentic-gitops/
 
 `lab/run.sh` re-verifies the repeatable parts of this sequence (cluster up through teardown)
 on every run; the PR/merge sequence happened once, for real, and its result is what
-`lab/pipeline-demo/main.tf` and `lab/gitops-demo/configmap.yaml` now show.
+`lab/pipeline-demo/main.tf`, `lab/ci/m11-pipeline-demo.yml` and `lab/gitops-demo/configmap.yaml`
+now show.
+
+## Branch protection, stated honestly
+
+As of 2026-10-23 the companion repository's `main` has **no branch protection and no
+rulesets** (`gh api repos/PacktPublishing/The-AI-Driven-Infrastructure-as-Code-Handbook/rules/branches/main`
+returns `[]`). The `gate` check runs on every PR but GitHub does not require it to merge, and
+the author holds `maintain`, not `admin`, so cannot add a ruleset. Until Packt applies
+`lab/ci/main-ruleset.json` (or equivalent), the lab and chapter call the gate a **recommended
+design** on the companion repo and show learners how to require it on their own fork. The agent
+sessions in the lab are confined to `Read,Edit,Bash(git *),Bash(gh *)`: no `kubectl`, no
+`terraform`, no cluster credential.
+
+## Versions this module was tested with
+
+| Tool | Version | Where it is pinned |
+|---|---|---|
+| Argo CD | `v3.5.6` (released 2026-10-20) | `LAB.md`, `lab/run.sh`, Appendix A |
+| kind node image | `kindest/node:v1.31.0` by digest | `lab/starter/kind-config.yaml` |
+| kind | `v0.33.0` | tested with, not pinned |
+| Terraform in CI | `1.9.8` | `lab/ci/m11-pipeline-demo.yml` |
+| Trivy action | `aquasecurity/trivy-action@v0.36.0` | `lab/ci/m11-pipeline-demo.yml` |
+| Checkov action | `bridgecrewio/checkov-action@v12` | `lab/ci/m11-pipeline-demo.yml` |
+
+Bumping Argo CD: change `ARGOCD_VERSION` in `lab/run.sh` and the manifest URL in `LAB.md`
+together (`run.sh` fails if they differ), then re-run `run.sh`.
 
 ## Delivery guide: live workshop
 
@@ -101,13 +137,14 @@ cd modules/module-11-agentic-gitops/lab
 ./run.sh
 ```
 
-Requires `kind`, `kubectl`, `helm`, `docker`, and `gh` reachable. It creates a real `kind`
-cluster pinned by digest, installs Argo CD from its real upstream manifest, points it at
-this repo's own merged `gitops-demo/` directory, waits for `Synced`/`Healthy`, tampers with
-the composed `ConfigMap` directly and confirms the controller self-heals it, then removes
-the Application and deletes the cluster, confirming no orphan container remains. The
-one-time PR/CI/merge sequence already happened for real and isn't re-run by this script;
-it verifies the file evidence that sequence left behind instead.
+Requires `kind`, `kubectl`, and `docker` on `PATH` (checked with `command -v`, no machine
+paths). It creates a real `kind` cluster pinned by digest, installs Argo CD from its pinned
+upstream manifest, points it at the companion repo's merged `gitops-demo/` directory, waits
+for `Synced`/`Healthy` at `v2`, tampers with the composed `ConfigMap` directly and confirms
+the controller self-heals it, then removes the Application and deletes the cluster,
+confirming no orphan container remains. The one-time PR/CI/merge sequence already happened
+for real and isn't re-run by this script; it verifies the file evidence that sequence left
+behind instead.
 
 ## Autonomy ladder
 
@@ -133,8 +170,10 @@ does not build it.
 - [x] `README.md` (this file), live + Udemy delivery guide
 - [x] No retired tools presented as current
 - [x] The lab's CI workflow is real and caught a real flaw an agent introduced on its own,
-      automatically: PR #1 on the book's companion repo, opened by `claude -p` itself,
+      automatically: PR 2 on the book's companion repo, opened by `claude -p` itself,
       `CKV_SECRET_2`, fixed by a second real agent session, then merged for real
+- [x] The same gate covers the directory the controller watches (PR 3), and a second
+      agent-opened PR (PR 4) was gated, merged and reconciled by the controller end to end
 - [x] GitOps reconciliation demonstrated for real against a real `kind` cluster, including a
       real self-heal test, not described only in prose
 - [x] Step 5 named precisely, with exactly what remains manual (the merge) stated clearly

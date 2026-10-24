@@ -878,7 +878,8 @@ cd modules/module-08-harness-engineering/lab
 - The starter module, with the Stage 3 tests copied in, fails `terraform test` as assertion
   failures (not as undeclared-resource errors), for the hardening reasons the tests name
 - The solution module passes the same tests
-- Checkov no longer reports `CKV_AWS_28` (point-in-time recovery) on the solution
+- Checkov's JSON report shows the scan ran, examined `aws_dynamodb_table.orders`, and passed
+  `CKV_AWS_28` (point-in-time recovery); the one accepted finding, `CKV_AWS_119`, stays listed
 - The solution applies and destroys for real against Floci, two resources each way
 - With `M08_LIVE_AGENT=1`: the Claude Code probe answers "yes" and lists the skills
 

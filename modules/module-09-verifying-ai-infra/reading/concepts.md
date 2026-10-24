@@ -34,6 +34,13 @@ more granular ones, for example separate findings for blocking public ACLs, bloc
 public policies, and ignoring public ACLs, where Checkov collapses that into one public
 access block check.
 
+The gap is in the rule sets, not in what each engine can see. Both tools follow references
+between resources. Point Trivy at a bare `aws_s3_bucket` and it reports that the data is not
+versioned and that no public access block exists. Add a separate `aws_s3_bucket_versioning`
+and `aws_s3_bucket_public_access_block` that reference the bucket, and those findings clear.
+Checkov does the same. Checkov's bundle simply ships checks, cross region replication among
+them, that Trivy's bundle does not include for this resource type.
+
 ![Two overlapping circles representing Trivy's rule set and Checkov's rule set for Terraform AWS resources, with Checkov's circle larger and only partial overlap between them.](./diagrams/rule-set-overlap.svg)
 
 That is the whole lesson in one sentence: **running one scanner is a coverage gap, not a

@@ -20,7 +20,7 @@ helm repo add crossplane-stable https://charts.crossplane.io/stable
 helm install crossplane crossplane-stable/crossplane \
   --namespace crossplane-system --version 2.4.0 --wait
 ```
-Confirm it's v2: `helm list -n crossplane-system`, `APP VERSION` starts with `2.`.
+Confirm it's v2: `helm list --kube-context kind-m10-lab -n crossplane-system`, `APP VERSION` starts with `2.`.
 
 ## XRD / Composition / XR checklist
 

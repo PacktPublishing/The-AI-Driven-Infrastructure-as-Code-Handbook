@@ -174,7 +174,9 @@
    "conftest test --policy policy /tmp/plan.json",
    "./pipeline.sh module",
    "./pipeline.sh solution",
+   "python3 -m unittest discover -s eval -p 'test_*.py'",
    "python3 eval/rubric.py eval/fixture-bad.tf",
+   "python3 eval/rubric.py eval/fixture-comment-only.tf",
    "python3 eval/rubric.py eval/fixture-good.tf",
    "claude -p \"Write a Terraform aws_s3_bucket resource named 'reports', bucket name m09-eval-reports-live. Tag it Environment=lab, Owner=m09-lab, ManagedBy=terraform-module-conventions-skill. Write only the resource block to eval/fixture-live.tf, nothing else.\" \\",
    "python3 eval/rubric.py eval/fixture-live.tf"
@@ -182,7 +184,9 @@
   "paths": [
    "labs/shared/floci-spike",
    "labs/shared/floci-spike/provider.tf",
-   "modules/module-09-verifying-ai-infra/lab"
+   "modules/module-09-verifying-ai-infra/lab",
+   "lab/eval/test_rubric.py",
+   "lab/eval/fixture-comment-only.tf"
   ],
   "files": [
    "main.tf",
@@ -198,7 +202,7 @@
    "helm repo update",
    "kubectl --context kind-m10-lab create namespace crossplane-system",
    "helm install crossplane crossplane-stable/crossplane \\",
-   "helm list -n crossplane-system",
+   "helm list --kube-context kind-m10-lab -n crossplane-system",
    "kubectl --context kind-m10-lab apply -f - <<'EOF'",
    "kubectl --context kind-m10-lab get functions.pkg.crossplane.io",
    "kubectl --context kind-m10-lab apply -f lab/solution/xrd.yaml",
@@ -210,7 +214,7 @@
    "kubectl --context kind-m10-lab apply -f lab/manifests/postgres-secret.yaml \\",
    "kubectl --context kind-m10-lab -n dbaas-manual rollout status statefulset/postgres --timeout=120s",
    "kubectl --context kind-m10-lab -n dbaas-manual exec postgres-0 -- \\",
-   "helm install billing-db ./lab/charts/postgres-db -n dbaas-helm --create-namespace \\",
+   "helm install billing-db ./lab/charts/postgres-db --kube-context kind-m10-lab \\",
    "kubectl --context kind-m10-lab -n dbaas-helm exec billing-db-postgres-0 -- \\",
    "kubectl --context kind-m10-lab apply -f lab/solution/db-xrd.yaml",
    "kubectl --context kind-m10-lab apply -f lab/solution/db-composer-rbac.yaml",
@@ -242,6 +246,9 @@
  },
  "11": {
   "cmds": [
+   "gh api -X POST \"repos/$(gh repo view --json nameWithOwner -q .nameWithOwner)/rulesets\" --input lab/ci/main-ruleset.json",
+   "gh api \"repos/$(gh repo view --json nameWithOwner -q .nameWithOwner)/rules/branches/main\" --jq '.[].type'",
+   "gh api repos/PacktPublishing/The-AI-Driven-Infrastructure-as-Code-Handbook/rules/branches/main",
    "claude -p \"Add a new Terraform variable named signing_key_id to",
    "gh pr checks 2",
    "gh run view 37410964401 --log-failed",
@@ -252,20 +259,35 @@
    "kind create cluster --name m11-lab --config lab/starter/kind-config.yaml",
    "kubectl --context kind-m11-lab create namespace argocd",
    "kubectl --context kind-m11-lab apply -n argocd --server-side --force-conflicts \\",
-   "kubectl --context kind-m11-lab -n argocd wait --for=condition=available --timeout=240s \\",
+   "kubectl --context kind-m11-lab -n argocd wait --for=condition=available --timeout=300s \\",
    "kubectl --context kind-m11-lab apply -f lab/solution/argocd-app.yaml",
    "kubectl --context kind-m11-lab get application m11-gitops-demo -n argocd",
-   "kubectl --context kind-m11-lab get configmap m11-gitops-demo -n default -o jsonpath='{.data.message}'",
-   "kubectl --context kind-m11-lab patch configmap m11-gitops-demo -n default --type merge \\",
-   "kubectl --context kind-m11-lab get configmap m11-gitops-demo -n default -o jsonpath='{.data.message}'",
-   "kubectl --context kind-m11-lab get configmap m11-gitops-demo -n default -o jsonpath='{.data.message}'"
+   "kubectl --context kind-m11-lab get application m11-gitops-demo -n argocd -o jsonpath='{.status.sync.status} {.status.sync.revision}{\"\\n\"}'",
+   "kubectl --context kind-m11-lab get configmap m11-gitops-demo -n m11-gitops-demo -o jsonpath='{.data.version}{\"\\n\"}'",
+   "claude -p \"In modules/module-11-agentic-gitops/lab/gitops-demo/configmap.yaml, bump data.version from v1 to v2 and add a data key named release_note with the value 'shipped through the gate, applied by the controller'. Change nothing else in the repository. Create a branch named m11-gitops-release-v2, commit, push, and open a real PR against PacktPublishing/The-AI-Driven-Infrastructure-as-Code-Handbook with gh pr create.\" \\",
+   "gh pr checks 4",
+   "gh pr merge 4 --squash --delete-branch",
+   "gh pr view 4 --json state,mergeCommit -q '[.state, .mergeCommit.oid] | @tsv'",
+   "kubectl --context kind-m11-lab get application m11-gitops-demo -n argocd -o jsonpath='{.status.sync.status} {.status.sync.revision}{\"\\n\"}'",
+   "kubectl --context kind-m11-lab get configmap m11-gitops-demo -n m11-gitops-demo -o jsonpath='{.data.version}{\"\\n\"}'",
+   "kubectl --context kind-m11-lab get application m11-gitops-demo -n argocd -o jsonpath='{.status.sync.status} {.status.sync.revision}{\"\\n\"}'",
+   "kubectl --context kind-m11-lab get configmap m11-gitops-demo -n m11-gitops-demo -o jsonpath='{.data.version}{\"\\n\"}'",
+   "kubectl --context kind-m11-lab get configmap m11-gitops-demo -n m11-gitops-demo -o jsonpath='{.data.release_note}{\"\\n\"}'",
+   "kubectl --context kind-m11-lab patch configmap m11-gitops-demo -n m11-gitops-demo --type merge \\",
+   "kubectl --context kind-m11-lab get configmap m11-gitops-demo -n m11-gitops-demo -o jsonpath='{.data.message}{\"\\n\"}'",
+   "kubectl --context kind-m11-lab get configmap m11-gitops-demo -n m11-gitops-demo -o jsonpath='{.data.message}{\"\\n\"}'"
   ],
   "paths": [
    "lab/solution/argocd-app.yaml",
    "lab/starter/kind-config.yaml",
    "book/pull/2",
    "modules/module-11-agentic-gitops/lab/pipeline-demo/**",
-   "modules/module-11-agentic-gitops/lab/pipeline-demo/main.tf."
+   "modules/module-11-agentic-gitops/lab/pipeline-demo/main.tf.",
+   "lab/ci/main-ruleset.json",
+   "lab/ci/m11-pipeline-demo.yml",
+   ".github/workflows/m11-pipeline-demo.yml",
+   "modules/module-11-agentic-gitops/lab/gitops-demo/**",
+   "book/pull/4"
   ],
   "files": []
  },
@@ -276,9 +298,14 @@
    "bash lab/solution/loop.sh lab/solution/work",
    "bash lab/solution/loop.sh lab/solution/work",
    "bash lab/solution/loop.sh lab/solution/work",
+   "cp -r lab/starter /tmp/m12-broken",
+   "sed -i.bak 's#hashicorp/local#hashicorp/no-such-provider-m12#' /tmp/m12-broken/main.tf",
+   "bash lab/solution/loop.sh /tmp/m12-broken; echo \"exit $?\"",
    "cd modules/module-12-loop-multiagent-economics/lab",
    "python3 finops/gate.py finops/plan-over-budget.json",
    "python3 finops/gate.py finops/plan-in-budget.json",
+   "python3 finops/gate.py finops/plan-empty.json; echo \"exit $?\"",
+   "python3 finops/gate.py finops/plan-nested.json; echo \"exit $?\"",
    "cd starter",
    "terraform init -backend=false -input=false",
    "terraform plan -out=tfplan.bin",
@@ -289,7 +316,10 @@
   "paths": [
    "lab/solution/loop.sh",
    "lab/solution/work",
-   "modules/module-12-loop-multiagent-economics/lab"
+   "modules/module-12-loop-multiagent-economics/lab",
+   "lab/finops/plan-empty.json",
+   "lab/finops/plan-nested.json",
+   "lab/finops/test_gate.py"
   ],
   "files": []
  },
@@ -300,19 +330,24 @@
    "bash pipeline.sh solution",
    "export CAPSTONE_HUMAN_APPROVED=1",
    "bash pipeline.sh solution",
-   "terraform -chdir=solution apply -auto-approve -no-color",
+   "bash pipeline.sh apply solution",
    "aws --endpoint-url=http://localhost:4566 s3api put-bucket-versioning --bucket capstone-app-uploads --versioning-configuration Status=Suspended --region us-east-1",
    "terraform -chdir=solution plan -no-color -input=false",
    "terraform -chdir=solution destroy -auto-approve -no-color",
    "cd lab/tier2-kubernetes",
    "./run.sh",
    "kind delete cluster --name \"$CLUSTER_NAME\"",
-   "terraform destroy"
+   "bash pipeline.sh ../tier3-aws-optional",
+   "export CAPSTONE_HUMAN_APPROVED=1",
+   "bash pipeline.sh ../tier3-aws-optional",
+   "bash pipeline.sh apply ../tier3-aws-optional",
+   "terraform -chdir=../tier3-aws-optional destroy"
   ],
   "paths": [
    "capstone/rubric.md",
    "lab/tier1-floci",
-   "lab/tier2-kubernetes"
+   "lab/tier2-kubernetes",
+   "lab/tier1-floci/evidence/tier1-run-2026-10-23.log"
   ],
   "files": [
    "AGENTS.md"
