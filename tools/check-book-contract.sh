@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # check-book-contract.sh — the gate that keeps this repository's promise to the book.
 #
-# The book prints 176 commands and names a set of paths. Every one of them has to be real
+# The book prints 190 commands and names a set of paths. Every one of them has to be real
 # here, on main, which is what the chapters cite. This is the public half of check 9 in the
 # private authoring repo: that one asserts the manuscript matches the labs, this one
 # asserts the labs still match the manuscript.

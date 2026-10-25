@@ -3,148 +3,285 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Stopping Condition + Economics Check — M12, Agentic Infrastructure as Code</title>
+<title>Who Decides Done: M12, Agentic Infrastructure as Code</title>
 <style>
   :root{
-    --ink:#1e1e1e; --gray:#757575; --paper:#ffffff;
-    --p-green:#d5e8d4; --p-red:#f8cecc; --p-blue:#dae8fc; --p-orange:#ffe6cc; --p-purple:#e1d5e7;
+    --ink:#1e1e1e; --gray:#616161; --paper:#ffffff; --soft:#fafafa;
+    --p-green:#d5e8d4; --p-red:#f8cecc; --p-blue:#dae8fc; --p-orange:#ffe6cc; --p-purple:#e1d5e7; --p-yellow:#fff2cc;
     --border:#bdbdbd;
   }
   *{ box-sizing:border-box; }
   html,body{ margin:0; padding:0; background:var(--paper); color:var(--ink);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
-  .wrap{ max-width:1050px; margin:0 auto; padding:28px 20px 60px; }
-  h1{ font-size:22px; margin:0 0 4px; }
-  h2.section{ font-size:16px; margin:32px 0 10px; border-top:1px solid var(--border); padding-top:20px; }
-  .sub{ color:var(--gray); margin:0 0 22px; font-size:14px; }
-
-  .picker{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
-  .opt{ border:1.5px solid var(--border); border-radius:8px; padding:10px 14px; cursor:pointer; font-size:13px; }
-  .opt.selected{ border-color:var(--ink); background:var(--p-blue); font-weight:600; }
-
-  .runbox{ border:2px solid var(--ink); border-radius:10px; padding:16px; min-height:150px; }
-  .tick-row{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
-  .tick{ min-width:110px; border-radius:6px; padding:6px 10px; font-size:12px; border:1.5px solid var(--border); background:#fafafa; }
-  .tick.continue{ background:var(--p-orange); border-color:var(--ink); }
-  .tick.stopped{ background:var(--p-green); border-color:#4caf50; }
-  .tick.escalate{ background:var(--p-red); border-color:#c62828; }
-
-  button{ border:1.5px solid var(--ink); background:#fff; border-radius:6px; padding:7px 14px;
-    font-size:13px; cursor:pointer; margin-right:8px; }
-  button:hover{ background:#f2f2f2; }
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:clamp(13px, 1.1vw + 8px, 16px); }
+  .wrap{ max-width:1100px; margin:0 auto; padding:24px 16px 60px; }
+  h1{ font-size:1.45em; margin:0 0 4px; }
+  h2{ font-size:1.02em; margin:20px 0 8px; }
+  .sub{ color:var(--gray); margin:0 0 14px; }
+  .grid{ display:grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap:18px; }
+  @media (max-width: 760px){ .grid{ grid-template-columns:1fr; } }
+  .card{ border:2px solid var(--ink); border-radius:10px; padding:14px; background:var(--paper); }
+  .picker{ display:flex; flex-direction:column; gap:8px; }
+  .opt{ border:1.5px solid var(--border); border-radius:8px; padding:9px 12px; cursor:pointer; text-align:left;
+    background:var(--soft); font:inherit; color:inherit; }
+  .opt:hover{ border-color:var(--ink); }
+  .opt[aria-pressed="true"]{ border-color:var(--ink); background:var(--p-blue); font-weight:600; }
+  .opt small{ display:block; font-weight:400; color:var(--gray); margin-top:2px; }
+  .row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:12px; }
+  button.act{ border:1.5px solid var(--ink); background:#fff; border-radius:6px; padding:8px 14px; font:inherit; cursor:pointer; }
+  button.act:hover{ background:#f2f2f2; }
   button.primary{ background:var(--ink); color:#fff; }
   button.primary:hover{ background:#333; }
-
-  .verdict{ margin-top:12px; border-radius:8px; padding:10px 12px; font-size:13.5px; }
-  .verdict.pass{ background:var(--p-green); }
-  .verdict.fail{ background:var(--p-red); }
-
-  .econ-row{ display:grid; grid-template-columns: 160px 1fr; gap:12px; align-items:center; margin-bottom:12px; font-size:13px; }
-  .bar-outer{ height:22px; border:1.5px solid var(--ink); border-radius:6px; overflow:hidden; background:#fafafa; }
-  .bar-fill{ height:100%; display:flex; align-items:center; padding-left:6px; font-size:11px; color:#000; }
-  .bar-fill.advertised{ background:var(--p-orange); }
-  .bar-fill.measured{ background:var(--p-green); }
-  .bar-fill.increase{ background:var(--p-red); }
-
-  footer{ margin-top:34px; font-size:12px; color:var(--gray); border-top:1px solid var(--border); padding-top:14px; }
+  button:disabled{ opacity:.45; cursor:not-allowed; }
+  label.budget{ display:flex; gap:8px; align-items:center; }
+  input[type=range]{ width:140px; }
+  .files{ display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 2px; }
+  .file{ border:1.5px solid var(--ink); border-radius:6px; padding:6px 10px; font-family:ui-monospace,Menlo,monospace; font-size:.85em; }
+  .file.dirty{ background:var(--p-red); }
+  .file.clean{ background:var(--p-green); }
+  .log{ font-family:ui-monospace,Menlo,monospace; font-size:.82em; background:var(--soft); border:1.5px solid var(--border);
+    border-radius:8px; padding:10px; min-height:220px; max-height:360px; overflow:auto; white-space:pre-wrap; }
+  .log .turn{ font-weight:700; }
+  .log .agent{ color:#1a4a8a; }
+  .log .judge{ color:#6a2c8a; }
+  .log .block{ color:#a33; }
+  .log .ok{ color:#2e7d32; }
+  .state{ font-family:ui-monospace,Menlo,monospace; font-size:.82em; background:var(--p-yellow); border:1.5px solid var(--ink);
+    border-radius:8px; padding:8px 10px; min-height:44px; white-space:pre-wrap; }
+  .verdict{ margin-top:12px; border-radius:8px; padding:10px 12px; border:1.5px solid var(--ink); }
+  .verdict.good{ background:var(--p-green); }
+  .verdict.bad{ background:var(--p-red); }
+  .verdict.esc{ background:var(--p-orange); }
+  .try{ border:2px dashed var(--ink); border-radius:10px; padding:12px 14px; margin-top:18px; }
+  .try ol{ margin:6px 0 0 18px; padding:0; }
+  .try li{ margin:4px 0; }
+  .try li.done{ text-decoration:line-through; color:#2e7d32; }
+  .try li.done::after{ content:"  \2713"; text-decoration:none; }
+  footer{ margin-top:26px; font-size:.82em; color:var(--gray); border-top:1px solid var(--border); padding-top:12px; }
+  @media (prefers-reduced-motion: reduce){ *{ transition:none !important; animation:none !important; } }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Stopping Condition + Economics Check</h1>
-  <p class="sub">Module 12 &middot; Loop Engineering, Multi-Agent Ops, Economics &middot; two small
-    tools: does your stopping condition actually stop, and does a token-savings claim actually hold up?</p>
+  <h1>Who Decides "Done"?</h1>
+  <p class="sub">Module 12 &middot; Loop Engineering for Infrastructure Agents. The same agent, the same
+    starter with two hardcoded AWS keys, three different judges. Pick a judge and a situation, run the loop,
+    then compare what the loop said with what the repository actually holds.</p>
 
-  <h2 class="section">1. Does this stopping condition actually stop?</h2>
-  <p class="sub" style="margin-bottom:10px;">Pick a stopping condition, then run the loop.</p>
-  <div class="picker" id="conditionPicker">
-    <div class="opt selected" data-cond="precise">"stop when checkov exits 0" (precise, checkable)</div>
-    <div class="opt" data-cond="vague">"stop when it looks done" (vague)</div>
-  </div>
-  <div class="runbox">
-    <div class="tick-row" id="tickRow"></div>
-    <button id="runBtn" class="primary">Run 4 loop iterations</button>
-    <button id="resetBtn">Reset</button>
-    <div id="verdictBox"></div>
+  <div class="grid">
+    <div class="card">
+      <h2 style="margin-top:0">1. Who judges "done"?</h2>
+      <div class="picker" id="judgePicker" role="group" aria-label="Judge">
+        <button class="opt" data-judge="phrase" aria-pressed="false">Completion phrase
+          <small>ralph-loop style: the loop ends when the agent prints DONE</small></button>
+        <button class="opt" data-judge="goal" aria-pressed="false">Model evaluator
+          <small>/goal: a small model reads the transcript after each turn; it runs no commands</small></button>
+        <button class="opt" data-judge="gate" aria-pressed="true">Deterministic gate
+          <small>Stop hook runs verify.sh on the files: exit 0 done, 1 not done, 2 no verdict</small></button>
+      </div>
+
+      <h2>2. What is going on in the repo?</h2>
+      <div class="picker" id="scenarioPicker" role="group" aria-label="Situation">
+        <button class="opt" data-scn="narrow" aria-pressed="true">A narrow ticket
+          <small>"Take the key out of main.tf." A second key sits in shipper.tf.</small></button>
+        <button class="opt" data-scn="noscanner" aria-pressed="false">The scanner is missing
+          <small>checkov is not on PATH on this runner, so no scan can run</small></button>
+        <button class="opt" data-scn="stuck" aria-pressed="false">A finding the agent cannot fix
+          <small>every attempt leaves the finding in place</small></button>
+      </div>
+
+      <div class="row">
+        <label class="budget" for="budgetInput">Budget: <span id="budgetVal">5</span> sends back
+          <input type="range" id="budgetInput" min="1" max="8" value="5" /></label>
+      </div>
+      <div class="row">
+        <button class="act primary" id="runBtn">Run the loop</button>
+        <button class="act" id="resetBtn">Reset</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top:0">The working copy</h2>
+      <div class="files" id="files"></div>
+      <h2>Turn by turn</h2>
+      <div class="log" id="turnLog" aria-live="polite"></div>
+      <h2>.loop/state.md</h2>
+      <div class="state" id="stateFile"></div>
+      <div id="verdictBox"></div>
+    </div>
   </div>
 
-  <h2 class="section">2. The advertised number vs the measured number</h2>
-  <p class="sub" style="margin-bottom:10px;">Real, sourced figures from this chapter, not rounded to the marketing page.</p>
-  <div class="econ-row">
-    <div>Caveman, advertised</div>
-    <div class="bar-outer"><div class="bar-fill advertised" style="width:80%">60&ndash;90%</div></div>
-  </div>
-  <div class="econ-row">
-    <div>Caveman, measured</div>
-    <div class="bar-outer"><div class="bar-fill measured" style="width:9%">~8.5%</div></div>
-  </div>
-  <div class="econ-row">
-    <div>rtk, measured</div>
-    <div class="bar-outer"><div class="bar-fill increase" style="width:15%">cost increase</div></div>
+  <div class="try" id="tryThis">
+    <strong>Try this</strong>
+    <ol>
+      <li id="try1">Find a judge that ends the loop while a key is still in the repository.</li>
+      <li id="try2">Make the gate send the agent back, then end the run with an independent "done".</li>
+      <li id="try3">End a run as an escalation for a human: no verdict, or budget exhausted.</li>
+    </ol>
   </div>
 
   <footer>
-    Self-contained, no network calls. Part of <strong>Module 12: Loop Engineering, Multi-Agent
-    Ops, Economics</strong>, Agentic Infrastructure as Code.
+    <strong>Honest model.</strong> This is a toy with scripted agent turns, not a live agent. The agent's
+    behaviour in each situation follows what the chapter's real runs showed: given a narrow ticket it fixes
+    the file it was asked about and tries to stop. Real <code>/goal</code> runs on 25 October 2026 all ended
+    clean, after 0 to 8 sends back; the evaluator can do well when the agent shows a real scan in the
+    transcript. The point is what each judge reads, not how often it is wrong. Claude Code also overrides a
+    Stop hook after 8 continuations in a row with no tool use between them. Self-contained, no network calls.
+    Part of <strong>Module 12: Loop Engineering for Infrastructure Agents</strong>.
   </footer>
 </div>
 
 <script>
-let selectedCond = 'precise';
-let running = false;
+(function(){
+  const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const DELAY = reduced ? 0 : 450;
+  let judge = 'gate', scn = 'narrow', budget = 5, timers = [];
+  const done = { try1:false, try2:false, try3:false };
 
-document.querySelectorAll('#conditionPicker .opt').forEach(el => {
-  el.onclick = () => {
-    document.querySelectorAll('#conditionPicker .opt').forEach(o => o.classList.remove('selected'));
-    el.classList.add('selected');
-    selectedCond = el.dataset.cond;
-    reset();
-  };
-});
+  const $ = id => document.getElementById(id);
 
-function reset() {
-  document.getElementById('tickRow').innerHTML = '';
-  document.getElementById('verdictBox').innerHTML = '';
-}
+  function pick(groupId, attr, val){
+    document.querySelectorAll('#' + groupId + ' .opt').forEach(o =>
+      o.setAttribute('aria-pressed', o.dataset[attr] === val ? 'true' : 'false'));
+  }
+  document.querySelectorAll('#judgePicker .opt').forEach(o => o.onclick = () => { judge = o.dataset.judge; pick('judgePicker','judge',judge); reset(); });
+  document.querySelectorAll('#scenarioPicker .opt').forEach(o => o.onclick = () => { scn = o.dataset.scn; pick('scenarioPicker','scn',scn); reset(); });
+  $('budgetInput').oninput = e => { budget = +e.target.value; $('budgetVal').textContent = budget; reset(); };
 
-document.getElementById('resetBtn').onclick = reset;
+  // repo: which files still hold a key
+  let repo;
+  function drawFiles(){
+    $('files').innerHTML = Object.keys(repo).map(f =>
+      '<span class="file ' + (repo[f] ? 'dirty' : 'clean') + '">' + f + (repo[f] ? ': key' : ': clean') + '</span>').join('');
+  }
+  function line(cls, text){
+    const d = document.createElement('div'); d.className = cls; d.textContent = text;
+    $('turnLog').appendChild(d); $('turnLog').scrollTop = $('turnLog').scrollHeight;
+  }
+  function state(text){ $('stateFile').textContent += ($('stateFile').textContent ? '\n' : '') + text; }
+  function stamp(t){ return '2026-10-25T12:' + String(39 + t).padStart(2,'0') + ':00Z'; }
 
-document.getElementById('runBtn').onclick = () => {
-  reset();
-  const row = document.getElementById('tickRow');
-  const verdict = document.getElementById('verdictBox');
-  let stopped = false;
-  for (let i = 1; i <= 4; i++) {
-    const div = document.createElement('div');
-    div.className = 'tick';
-    if (selectedCond === 'precise') {
-      if (i < 3) {
-        div.textContent = `Run ${i}: checkov fails, fix applied`;
-        div.className += ' continue';
-      } else {
-        div.textContent = `Run ${i}: checkov exits 0, STOPPED`;
-        div.className += ' stopped';
-        stopped = true;
-      }
-    } else {
-      div.textContent = `Run ${i}: "looks done"? no clear signal, CONTINUE`;
-      div.className += ' continue';
-      if (i === 4) {
-        div.textContent = `Run ${i}: still no exact check to stop on, ESCALATE to a human`;
-        div.className = 'tick escalate';
-      }
+  function reset(){
+    timers.forEach(clearTimeout); timers = [];
+    repo = { 'main.tf': true, 'shipper.tf': true };
+    $('turnLog').textContent = ''; $('stateFile').textContent = ''; $('verdictBox').innerHTML = '';
+    $('runBtn').disabled = false;
+    drawFiles();
+  }
+  $('resetBtn').onclick = reset;
+
+  // verify.sh on the current repo: 0 DONE, 1 NOT DONE, 2 NO VERDICT
+  function verify(){
+    if (scn === 'noscanner') return { code:2, text:'NO VERDICT: checkov not on PATH' };
+    const left = Object.keys(repo).filter(f => repo[f]);
+    if (left.length === 0) return { code:0, text:'DONE: terraform validates, checkov reports no failed checks' };
+    return { code:1, text:'NOT DONE: CKV_SECRET_2 "AWS Access Key" in ' + left.join(', ') };
+  }
+
+  // The agent's scripted turn n. Returns the message it ends the turn with.
+  function agentTurn(n, feedback){
+    if (scn === 'narrow'){
+      if (n === 1){ repo['main.tf'] = false; return 'Removed the hardcoded key from main.tf. checkov passes. DONE'; }
+      if (feedback && /shipper/.test(feedback)){ repo['shipper.tf'] = false; return 'Fixed shipper.tf too; the scan finding named it. DONE'; }
+      return 'main.tf no longer has the key, as asked. DONE';
     }
-    row.appendChild(div);
-    if (stopped) break;
+    if (scn === 'noscanner'){
+      if (n === 1){ repo['main.tf'] = false; return 'Removed the key from main.tf. checkov is not installed here, so I could not scan. DONE'; }
+      return 'I still cannot run checkov on this machine. DONE';
+    }
+    // stuck
+    return 'Tried another way to remove the finding. It should be fixed now. DONE';
   }
-  if (selectedCond === 'precise') {
-    verdict.innerHTML = '<div class="verdict pass">Real stopping condition: the loop ran exactly as many times as it needed to, then stopped on its own. This is what step 6 requires.</div>';
-  } else {
-    verdict.innerHTML = '<div class="verdict fail">Vague stopping condition: nothing ever tells the loop it is actually done, so it either runs forever or needs a human to notice and step in, exactly the failure mode step 6 cannot tolerate.</div>';
-  }
-};
 
-reset();
+  // Judge after a turn: returns {stop:bool, why, kind}
+  function judgeTurn(msg){
+    if (judge === 'phrase'){
+      return /DONE/.test(msg) ? { stop:true, why:'the agent printed DONE', kind:'claim' } : { stop:false, why:'no DONE yet' };
+    }
+    if (judge === 'goal'){
+      // reads only the transcript; runs no commands
+      if (/could not scan|cannot run checkov/.test(msg)) return { stop:false, why:'the transcript does not show checkov passing' };
+      if (/should be fixed/.test(msg)) return { stop:false, why:'the transcript shows no scan result' };
+      return { stop:true, why:'the transcript says "checkov passes"', kind:'claim' };
+    }
+    // gate: ignores msg, asks the repository
+    const v = verify();
+    return { stop: v.code !== 1, why: v.text, kind: v.code === 0 ? 'done' : v.code === 2 ? 'noverdict' : 'blocked', code: v.code };
+  }
+
+  function finish(outcome){
+    const v = verify();
+    const actuallyClean = v.code === 0;
+    let cls, html;
+    if (outcome === 'claim'){
+      if (actuallyClean){ cls='good'; html='The loop ended on the agent\'s word, and this time the repo agrees. Lucky, not designed.'; }
+      else if (v.code === 2){ cls='bad'; html='The loop ended on the agent\'s word. Nobody ran the scanner, so "done" is a claim with nothing behind it.'; }
+      else { cls='bad'; html='<b>The loop said done. The repository says otherwise:</b> ' + v.text.replace('NOT DONE: ','') +
+        '. A transcript that says "checkov passes" is a claim about the scanner, not a run of it.'; done.try1 = true; }
+    } else if (outcome === 'done'){
+      cls='good'; html='<b>Done, and the independent check agrees.</b> The agent could not talk its way past an exit code.';
+      if ($('stateFile').textContent.includes('- blocked')) done.try2 = true;
+    } else if (outcome === 'noverdict'){
+      cls='esc'; html='<b>No verdict.</b> verify.sh exited 2, so the gate let the session end and recorded it for a human. Sending an agent back to fix a scanner it cannot see is a loop with no exit.'; done.try3 = true;
+    } else if (outcome === 'budget'){
+      cls='esc'; html='<b>Budget exhausted.</b> The loop stopped without "done" and a human must look. A budget is the only cost control a loop runs without a person.'; done.try3 = true;
+    }
+    $('verdictBox').innerHTML = '<div class="verdict ' + cls + '">' + html + '<br><small>Independent verify.sh afterwards: ' + v.text + '</small></div>';
+    ['try1','try2','try3'].forEach(k => $(k).classList.toggle('done', done[k]));
+    $('runBtn').disabled = false;
+  }
+
+  $('runBtn').onclick = () => {
+    reset(); $('runBtn').disabled = true;
+    let n = 0, sends = 0, feedback = '';
+    function step(){
+      n++;
+      line('turn', 'turn ' + n);
+      const msg = agentTurn(n, feedback); drawFiles();
+      line('agent', '  agent: ' + msg);
+      const j = judgeTurn(msg);
+      if (judge === 'gate'){
+        if (j.kind === 'blocked'){
+          if (sends >= budget){
+            state('- budget exhausted ' + stamp(n) + ' after ' + sends + ' blocks, escalate to a human');
+            line('block', '  Stop hook: budget exhausted, stopping without DONE');
+            return finish('budget');
+          }
+          sends++;
+          state('- blocked ' + stamp(n) + ': 1 finding(s)');
+          line('block', '  Stop hook: exit 2. verify.sh says the work is not done: ' + j.why);
+          feedback = j.why;
+          return timers.push(setTimeout(step, DELAY));
+        }
+        if (j.kind === 'noverdict'){
+          state('- no verdict ' + stamp(n) + ': ' + j.why);
+          line('judge', '  Stop hook: verify.sh exit 2, ' + j.why + '. Session ends; a human must look.');
+          return finish('noverdict');
+        }
+        state('- done ' + stamp(n) + ': ' + j.why);
+        line('ok', '  Stop hook: exit 0. ' + j.why);
+        return finish('done');
+      }
+      // phrase or goal: nothing writes .loop/state.md
+      if (j.stop){
+        line('judge', '  ' + (judge === 'goal' ? '/goal evaluator' : 'ralph-loop') + ': condition met, ' + j.why);
+        return finish('claim');
+      }
+      if (sends >= budget){
+        line('block', '  ' + (judge === 'goal' ? '/goal evaluator' : 'ralph-loop') + ': turn budget spent, loop ends without the condition');
+        return finish('budget');
+      }
+      sends++;
+      line('block', '  ' + (judge === 'goal' ? '/goal evaluator' : 'ralph-loop') + ': not yet, ' + j.why);
+      feedback = j.why;
+      timers.push(setTimeout(step, DELAY));
+    }
+    step();
+    if (judge !== 'gate') state('(empty: this judge does not write a state file)');
+  };
+
+  reset();
+})();
 </script>
 </body>
 </html>

@@ -1,0 +1,42 @@
+<svg viewBox="0 0 900 380" width="900" height="380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A loop drawn as a cycle with six labelled parts: a trigger starting it, the agent doing the work, a verifier checking the result, stop rules and a budget deciding whether to go round again, and state kept in the repository between runs.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="900" height="380">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="11" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" marker380eight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="900" height="380" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" fill="black">
+    <text x="450" y="30" text-anchor="middle" font-size="15">The six parts of a loop</text>
+    <rect x="40" y="150" width="150" height="70" rx="10" fill="#dae8fc" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+    <text x="115" y="180" text-anchor="middle" font-size="14">trigger</text>
+    <text x="115" y="200" text-anchor="middle" font-size="10">turn ends, clock, event</text>
+    <rect x="270" y="70" width="170" height="70" rx="10" fill="#fff2cc" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+    <text x="355" y="100" text-anchor="middle" font-size="14">work</text>
+    <text x="355" y="120" text-anchor="middle" font-size="10">the agent, inside the harness</text>
+    <rect x="520" y="70" width="170" height="70" rx="10" fill="#f8cecc" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+    <text x="605" y="100" text-anchor="middle" font-size="14">verifier</text>
+    <text x="605" y="120" text-anchor="middle" font-size="10">is it done? yes or no</text>
+    <rect x="700" y="210" width="170" height="80" rx="10" fill="#e1d5e7" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+    <text x="785" y="238" text-anchor="middle" font-size="14">stop rules</text>
+    <text x="785" y="257" text-anchor="middle" font-size="10">yes: stop. no: go again.</text>
+    <text x="785" y="274" text-anchor="middle" font-size="10">can't tell: stop, tell a human</text>
+    <rect x="400" y="230" width="170" height="60" rx="10" fill="#f5f5f5" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+    <text x="485" y="257" text-anchor="middle" font-size="14">budget</text>
+    <text x="485" y="276" text-anchor="middle" font-size="10">turns, time, money</text>
+    <rect x="160" y="300" width="250" height="60" rx="10" fill="#d5e8d4" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+    <text x="285" y="326" text-anchor="middle" font-size="14">state, in the repo</text>
+    <text x="285" y="345" text-anchor="middle" font-size="10">the agent forgets, the repo doesn't</text>
+    <path d="M190,170 L265,120" stroke="black" stroke-width="2.2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <path d="M440,105 L515,105" stroke="black" stroke-width="2.2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <path d="M690,120 L765,205" stroke="black" stroke-width="2.2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <path d="M700,260 L575,260" stroke="black" stroke-width="2.2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <path d="M400,270 L195,215" stroke="black" stroke-width="2.2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <text x="300" y="232" font-size="10">no, and budget left: go again</text>
+    <path d="M355,140 L300,295" stroke="black" stroke-width="1.6" stroke-dasharray="5,4" filter="url(#sketch)"/>
+    <path d="M785,290 L415,330" stroke="black" stroke-width="1.6" stroke-dasharray="5,4" filter="url(#sketch)"/>
+  </g>
+</svg>

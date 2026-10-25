@@ -293,33 +293,16 @@
  },
  "12": {
   "cmds": [
-   "bash lab/solution/loop.sh /tmp/m12-try",
-   "rm -rf lab/solution/work",
-   "bash lab/solution/loop.sh lab/solution/work",
-   "bash lab/solution/loop.sh lab/solution/work",
-   "bash lab/solution/loop.sh lab/solution/work",
-   "cp -r lab/starter /tmp/m12-broken",
-   "sed -i.bak 's#hashicorp/local#hashicorp/no-such-provider-m12#' /tmp/m12-broken/main.tf",
-   "bash lab/solution/loop.sh /tmp/m12-broken; echo \"exit $?\"",
-   "cd modules/module-12-loop-multiagent-economics/lab",
-   "python3 finops/gate.py finops/plan-over-budget.json",
-   "python3 finops/gate.py finops/plan-in-budget.json",
-   "python3 finops/gate.py finops/plan-empty.json; echo \"exit $?\"",
-   "python3 finops/gate.py finops/plan-nested.json; echo \"exit $?\"",
-   "cd starter",
-   "terraform init -backend=false -input=false",
-   "terraform plan -out=tfplan.bin",
-   "terraform show -json tfplan.bin > ../finops/plan-real.json",
-   "cd ..",
-   "python3 finops/gate.py finops/plan-real.json"
+   "bash lab/loop/install.sh work",
+   "bash loop/verify.sh; echo \"exit $?\"",
+   "claude -p \"/goal The hardcoded AWS key for the log shipper is out of main.tf, and checkov reports no failed checks for this directory. Stop after 6 turns.\" \\",
+   "claude -p \"The log shipper's AWS key is hardcoded as the variable default in main.tf. Take it out of main.tf.\" \\",
+   "python3 ../lab/loop/trace.py run.jsonl",
+   "python3 finops/gate.py finops/plan-over-budget.json"
   ],
   "paths": [
-   "lab/solution/loop.sh",
-   "lab/solution/work",
-   "modules/module-12-loop-multiagent-economics/lab",
-   "lab/finops/plan-empty.json",
-   "lab/finops/plan-nested.json",
-   "lab/finops/test_gate.py"
+   "modules/module-12-loop-multiagent-economics/",
+   "modules/module-12-loop-multiagent-economics/lab/"
   ],
   "files": []
  },
