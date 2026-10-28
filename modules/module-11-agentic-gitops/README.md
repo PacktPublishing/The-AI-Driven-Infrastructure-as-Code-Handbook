@@ -40,6 +40,7 @@ modules/module-11-agentic-gitops/
     ci/
       m11-pipeline-demo.yml    byte-identical copy of the companion repo's .github/workflows file
       main-ruleset.json        the GitHub ruleset that makes the gate a requirement, not advice
+      main-ruleset-production.json  same, plus one review from someone other than the last pusher
     run.sh                   tool checks -> merged-PR evidence -> real cluster up -> argo cd
                              (pinned) -> app sync/healthy at v2 -> self-heal -> numbered teardown
     .gitignore               .terraform/, state, plan files, rendered/ (token values)

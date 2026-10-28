@@ -9,6 +9,15 @@ resource "aws_dynamodb_table" "orders" {
     name = "order_id"
     type = "S"
   }
+
+  # The current, unhardened settings, written out so a plan-mode test can read them.
+  point_in_time_recovery {
+    enabled = false
+  }
+
+  server_side_encryption {
+    enabled = false
+  }
 }
 
 data "aws_iam_policy_document" "orders_access" {

@@ -30,16 +30,20 @@ Watch both. Matching the repo says nothing about whether the thing actually work
 
 ```yaml
 on:
-  pull_request:
-    paths:
-      - 'path/to/this/module/**'
+  pull_request:          # no paths: filter. A required check must report on every PR
 jobs:
   gate:
     steps:
       - uses: actions/checkout@v4
-      - run: terraform fmt -check -diff
-      - run: terraform validate
-      - uses: bridgecrewio/checkov-action@v12
+        with: { fetch-depth: 0 }
+      - id: changes      # git diff --name-only base...head | grep path/to/this/module/
+        run: echo "hit=true" >> "$GITHUB_OUTPUT"
+      - if: steps.changes.outputs.hit == 'true'
+        run: terraform fmt -check -diff
+      - if: steps.changes.outputs.hit == 'true'
+        run: terraform validate
+      - if: steps.changes.outputs.hit == 'true'
+        uses: bridgecrewio/checkov-action@v12
 ```
 
 ## Argo CD Application skeleton used in this module

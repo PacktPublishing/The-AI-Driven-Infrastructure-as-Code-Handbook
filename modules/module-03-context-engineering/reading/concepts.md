@@ -124,9 +124,9 @@ guide for its own sake. The specific, load-bearing facts an agent would otherwis
 have to guess, or get wrong, on the very first turn of a session that has no
 memory of any earlier one.
 
-![An annotated AGENTS.md file with four sections labeled: provider pins, naming convention, module boundaries, and a never-do list.](./diagrams/agentsmd-anatomy.svg)
+![An annotated AGENTS.md file with four sections labeled: provider constraints, naming convention, module boundaries, and a never-do list.](./diagrams/agentsmd-anatomy.svg)
 
-**Provider pins.** Which version of Terraform or OpenTofu, which provider version,
+**Provider constraints.** Which version of Terraform or OpenTofu, which provider version,
 pinned exactly. An agent that picks its own version picks whatever it last saw in
 training data, which could be a year old or a year ahead of what your team runs.
 

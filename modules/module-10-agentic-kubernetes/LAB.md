@@ -247,9 +247,14 @@ different, more interesting reason.
 
 ```
 kubectl --context kind-m10-lab apply -f lab/solution/xrd.yaml
+kubectl --context kind-m10-lab wait --for=condition=Established xrd/xappconfigs.platform.m10.example.org --timeout=120s
 kubectl --context kind-m10-lab apply -f lab/solution/composition.yaml
 kubectl --context kind-m10-lab apply -f lab/solution/xr.yaml
 ```
+
+The `wait` matters: Crossplane has to register the XRD's new API type with the API server
+before a Composition or an XR that names it can be accepted. Apply them too early and you get
+`no matches for kind "XAppConfig"`, which looks like a typo and isn't.
 
 **Verify** it goes `Ready`, then read the composed `ConfigMap`:
 
@@ -513,6 +518,7 @@ function bug isn't yours to patch.
 
 ```
 kubectl --context kind-m10-lab apply -f lab/solution/db-xrd.yaml
+kubectl --context kind-m10-lab wait --for=condition=Established xrd/xdatabases.platform.m10.example.org --timeout=120s
 kubectl --context kind-m10-lab apply -f lab/solution/db-composer-rbac.yaml
 kubectl --context kind-m10-lab apply -f lab/solution/db-composition.yaml
 ```
@@ -568,7 +574,7 @@ platform.m10.example.org/v1alpha1, spec.dbName required, spec.storageSize option
 new file at lab/requests/analytics-xr.yaml requesting a namespaced XDatabase named \
 analytics-db in namespace default, for a team that needs a 2Gi analytics database called \
 analytics_events. Only write that one file." \
-  --permission-mode acceptEdits --allowedTools "Read,Write"
+  --permission-mode acceptEdits --allowedTools "Read,Write" --disallowedTools "Bash"
 ```
 
 `[ Expected output ]`
@@ -588,9 +594,11 @@ spec:
   storageSize: 2Gi
 ```
 
-The agent proposed a file. It didn't apply anything, `--allowedTools "Read,Write"` doesn't
-include `Bash`, the agent has no path to `kubectl` at all here. Read the diff yourself, the
-same gate every module in this course has used, then apply it yourself:
+The agent proposed a file. It applied nothing. `--disallowedTools "Bash"` removes the agent's
+built-in shell tool for this invocation, so it has no path to `kubectl` at all here. On its
+own, `--allowedTools "Read,Write"` would only pre-approve those two tools; it doesn't prohibit
+any other tool call, which is why the explicit `--disallowedTools` matters. Read the diff
+yourself, the same gate every module in this course has used, then apply it yourself:
 
 ```
 kubectl --context kind-m10-lab diff -f lab/requests/analytics-xr.yaml
@@ -715,6 +723,12 @@ M10_LIVE_AGENT=1 ./run.sh
 This check needs Claude Code on `PATH` and a signed-in subscription, so it stays opt-in. An
 agent is non-deterministic by nature; if it ever writes a file that does not match the
 request, the script fails on the exact field that differs, which is the point.
+
+One thing the script does that you should not copy into real work: after its field checks,
+`kubectl diff` and the server-side dry run pass, it applies the agent's proposal with no human
+pause. That auto-apply exists only so the regression test can run unattended on a throwaway
+`kind` cluster. The manual walkthrough in Stage 2, Step 4 is where a human reads the diff and
+approves the apply, and that is the gate this module teaches.
 
 ## Summary
 

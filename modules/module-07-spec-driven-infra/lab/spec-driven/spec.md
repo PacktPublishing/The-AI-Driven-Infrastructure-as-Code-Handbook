@@ -4,13 +4,10 @@
 
 ### Functional Requirements
 
-- FR-001: The Auto Scaling Group's health check grace period MUST be long enough to
-  survive the checkout app's real boot sequence (a `dnf install` of httpd plus service
-  start on a cold instance, which can run well past a minute on a slow mirror), so a
-  slow-starting-but-healthy instance is not killed as if it had failed. It MUST also be
-  bounded: 180 seconds is three minutes, and that is the window this tier accepts a
-  genuinely broken instance surviving in exchange for not killing a slow but healthy one.
-  Anything materially longer trades too much away.
+- FR-001: The Auto Scaling Group's health check grace period MUST account for the
+  application's measured startup needs while limiting unhealthy-instance retention. This
+  example sets 180 seconds as a configuration value, but EC2-only checks do not verify
+  checkout application startup or readiness.
 - FR-002: Scale-in MUST express a preference for terminating the oldest launch template
   version first, so a mid-rollout instance running the newest code is the last one
   considered rather than an arbitrary pick. This is a preference, not a guarantee: AWS

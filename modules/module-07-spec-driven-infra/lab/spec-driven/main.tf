@@ -41,16 +41,13 @@ resource "aws_autoscaling_group" "checkout_web" {
   min_size = 2
   max_size = 4
 
-  # SC-001 / FR-001: long enough to survive a cold-boot dnf install + httpd start on a
-  # slow mirror, and bounded at three minutes, the window this tier accepts a broken
-  # instance surviving in exchange for not killing a slow but healthy one.
+  # SC-001 / FR-001: use a reviewed 180-second health-check grace period.
+  # This configuration uses EC2 checks; it does not test application startup.
   health_check_grace_period = 180
   health_check_type         = "EC2"
 
-  # SC-002 / FR-002: prefer the oldest launch template version during scale-in, so a
-  # mid-rollout instance running the newest code is the last one considered. AWS balances
-  # Availability Zones before applying termination policies, so this is a preference, not
-  # a guarantee.
+  # SC-002 / FR-002: prefer the oldest launch-template version at scale-in.
+  # AWS balances Availability Zones first, so this is not a guarantee.
   termination_policies = ["OldestLaunchTemplate", "OldestInstance", "Default"]
 
   # SC-004 / FR-004: instance warmup is the knob the target-tracking policy below actually

@@ -134,7 +134,7 @@ this stage:
 
 Standing context for this repo. Read this before writing or changing any Terraform here.
 
-## Provider pins
+## Provider constraints
 
 - `docker` provider: `kreuzwerker/docker`, `~> 3.0`
 - `local` provider: `hashicorp/local`, `~> 2.5`

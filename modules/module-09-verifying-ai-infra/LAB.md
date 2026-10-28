@@ -211,7 +211,7 @@ Passed checks: 25, Failed checks: 0, Skipped checks: 6
     plan json: format 1.2, 10 resource changes
 
 1 test, 1 passed, 0 warnings, 0 failures, 0 exceptions
-==> stage 5/5: cost gate (infracost)
+==> stage 5/5: cost report (infracost)
     SKIPPED: no INFRACOST_API_KEY set. Run 'infracost auth login' once (free, no card)
     to enable this stage for real. See reading/reference.md.
 

@@ -117,6 +117,11 @@ echo "==> real apply + destroy of the spec-driven module against Floci, values c
 terraform -chdir=spec-driven apply -auto-approve -input=false >/tmp/m07-apply.log 2>&1 || fail "spec-driven apply: $(tail -20 /tmp/m07-apply.log)"
 terraform -chdir=spec-driven state show aws_autoscaling_group.checkout_web > /tmp/m07-state.log 2>&1 \
   || fail "could not read applied ASG state: $(tail -5 /tmp/m07-state.log)"
+# SC-001..SC-004 are read from the applied state's JSON, not grepped out of console text.
+# A grep for one word proves one word is present; SC-002 is an exact ordered list and
+# SC-004 is four attributes that only count together.
+terraform -chdir=spec-driven show -json > /tmp/m07-state.json 2>/dev/null \
+  || fail "could not read applied state as JSON"
 # SC-005 lives on the launch template, not the group, and Floci does not record a
 # launch template's metadata_options at all, so applied state cannot prove it here.
 # The plan can: it is what Terraform would actually send to the API. Read from the
@@ -138,23 +143,39 @@ if tok != "required":
 print("    ok, SC-005 proved from the plan: http_tokens = required")
 PY
 rm -f spec-driven/sc005.tfplan
-python3 -c "
-import re, sys
-t = open('/tmp/m07-state.log').read()
-def val(text, key):
-    m = re.search(rf'{key}\s*=\s*(.+)', text)
-    return m.group(1).strip() if m else None
-want = {'health_check_grace_period': '180', 'min_size': '2', 'max_size': '4', 'default_cooldown': '90'}
-for k, w in want.items():
-    got = val(t, k)
-    if got != w:
-        print(f'applied state {k}: expected {w}, got {got}'); sys.exit(1)
-if 'OldestLaunchTemplate' not in t:
-    print('applied state missing termination_policies'); sys.exit(1)
-print('    ok, applied state matches SC-001, SC-002, SC-003 and the cooldown half of SC-004')
-" || fail "applied state didn't match spec"
-# Floci does not record default_instance_warmup, so the warmup half of SC-004 is asserted
-# against the configuration rather than applied state. Stated in spec.md under Scope.
+python3 - /tmp/m07-state.json <<'PY' || fail "applied state didn't match spec"
+import json,sys
+d=json.load(open(sys.argv[1]))
+res={r["address"]:r["values"] for r in d.get("values",{}).get("root_module",{}).get("resources",[])}
+asg=res.get("aws_autoscaling_group.checkout_web")
+pol=res.get("aws_autoscaling_policy.checkout_web_cpu")
+if asg is None: print("applied state has no aws_autoscaling_group.checkout_web"); sys.exit(1)
+if pol is None: print("applied state has no aws_autoscaling_policy.checkout_web_cpu"); sys.exit(1)
+bad=[]
+# SC-001 and SC-003: single values.
+for k,w in (("health_check_grace_period",180),("min_size",2),("max_size",4)):
+    if asg.get(k)!=w: bad.append(f"{k}: expected {w}, got {asg.get(k)!r}")
+# SC-002: the whole ordered list, not just one member of it. ["OldestInstance",
+# "OldestLaunchTemplate", "Default"] contains the right words and is the wrong policy.
+want=["OldestLaunchTemplate","OldestInstance","Default"]
+if asg.get("termination_policies")!=want:
+    bad.append(f"termination_policies: expected {want}, got {asg.get('termination_policies')!r}")
+# SC-004 as one criterion: the policy's type, its predefined metric, its target value and
+# the group's cooldown, all from applied state. Floci persists all four. The warmup half
+# is checked against the configuration below because Floci records it as 0.
+ttc=(pol.get("target_tracking_configuration") or [{}])[0]
+pms=(ttc.get("predefined_metric_specification") or [{}])[0]
+got=(pol.get("policy_type"),pms.get("predefined_metric_type"),ttc.get("target_value"),asg.get("default_cooldown"))
+exp=("TargetTrackingScaling","ASGAverageCPUUtilization",55,90)
+if got!=exp:
+    bad.append(f"SC-004 (policy_type, metric, target_value, default_cooldown): expected {exp}, got {got}")
+if bad:
+    print("\n".join("applied state "+b for b in bad)); sys.exit(1)
+print("    ok, applied state matches SC-001, SC-002 (exact ordered list), SC-003 and SC-004")
+PY
+# Floci does not record default_instance_warmup (it reads back as 0), so the warmup half of
+# SC-004 is asserted against the configuration rather than applied state. Stated in spec.md
+# under Scope.
 grep -qE '^[[:space:]]*default_instance_warmup[[:space:]]*=[[:space:]]*90[[:space:]]*$' spec-driven/main.tf \
   || fail "SC-004: default_instance_warmup = 90 is not set in spec-driven/main.tf"
 terraform -chdir=spec-driven destroy -auto-approve -input=false >/tmp/m07-destroy.log 2>&1 || fail "spec-driven destroy: $(tail -20 /tmp/m07-destroy.log)"

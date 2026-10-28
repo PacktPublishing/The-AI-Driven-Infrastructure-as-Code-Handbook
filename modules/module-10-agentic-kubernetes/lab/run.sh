@@ -5,7 +5,10 @@
 #                               all three seeded failures reproduced and fixed, teardown
 #   M10_LIVE_AGENT=1 ./run.sh   also runs the Claude Code step from LAB.md Stage 2, Step 4:
 #                               the agent writes requests/analytics-xr.yaml, the script
-#                               reads the diff, applies it, and asserts it goes Ready
+#                               reads the diff, applies it, and asserts it goes Ready.
+#                               The auto-apply after the diff and dry run is for this local
+#                               regression test only; in the manual walkthrough a human
+#                               reads the diff and approves the apply.
 #
 # Requires kind, kubectl, helm 4, docker (running) and python3 on PATH. Nothing here depends
 # on where those binaries live. The live-agent step additionally needs the claude CLI.
@@ -299,7 +302,7 @@ platform.m10.example.org/v1alpha1, spec.dbName required, spec.storageSize option
 new file at lab/requests/analytics-xr.yaml requesting a namespaced XDatabase named \
 analytics-db in namespace default, for a team that needs a 2Gi analytics database called \
 analytics_events. Only write that one file." \
-  --permission-mode acceptEdits --allowedTools "Read,Write") >/tmp/m10-agent.log 2>&1 || { cat /tmp/m10-agent.log; fail "claude -p exited non-zero"; }
+  --permission-mode acceptEdits --allowedTools "Read,Write" --disallowedTools "Bash") >/tmp/m10-agent.log 2>&1 || { cat /tmp/m10-agent.log; fail "claude -p exited non-zero"; }
   [ -f requests/analytics-xr.yaml ] || { cat /tmp/m10-agent.log; fail "agent did not write requests/analytics-xr.yaml"; }
   # The proposal must match the request, field by field, before anything reaches the cluster.
   # --dry-run=client parses the file with kubectl itself, so no YAML library is needed here.
@@ -320,6 +323,10 @@ analytics_events. Only write that one file." \
   grep -q "^+kind: XDatabase" /tmp/m10-agent-diff.log || fail "kubectl diff did not show the XDatabase create"
   kubectl --context "kind-$CLUSTER_NAME" apply --dry-run=server -f requests/analytics-xr.yaml >/dev/null || fail "API server rejected the proposal against the XDatabase schema"
   echo "    ok, kubectl diff shows exactly the pending create, server-side dry run accepts it"
+  # Intentional, and only here: the regression test applies the proposal itself once the checks
+  # above pass, with no human pause, so it can run unattended against a throwaway kind cluster.
+  # The manual walkthrough (LAB.md Stage 2, Step 4) is where a human reads the diff and approves
+  # the apply. Do not lift this auto-apply into any workflow that touches a real cluster.
   kubectl --context "kind-$CLUSTER_NAME" apply -f requests/analytics-xr.yaml >/dev/null || fail "analytics-xr apply"
   for i in $(seq 1 30); do
     LINE=$(kubectl --context "kind-$CLUSTER_NAME" get xdatabase analytics-db -n default --no-headers 2>/dev/null)

@@ -79,9 +79,6 @@ name: M11 pipeline demo
 
 on:
   pull_request:
-    paths:
-      - 'modules/module-11-agentic-gitops/lab/pipeline-demo/**'
-      - 'modules/module-11-agentic-gitops/lab/gitops-demo/**'
 
 jobs:
   gate:
@@ -91,16 +88,35 @@ jobs:
         working-directory: modules/module-11-agentic-gitops/lab/pipeline-demo
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: detect changes
+        id: changes
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if git diff --name-only "$BASE...$HEAD" | grep -qE '^modules/module-11-agentic-gitops/lab/(pipeline-demo|gitops-demo)/'; then
+            echo "m11=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "m11=false" >> "$GITHUB_OUTPUT"
+            echo "No change under lab/pipeline-demo or lab/gitops-demo. gate reports success without scanning."
+          fi
       - uses: hashicorp/setup-terraform@v3
+        if: steps.changes.outputs.m11 == 'true'
         with:
           terraform_version: 1.9.8
       - name: terraform fmt
+        if: steps.changes.outputs.m11 == 'true'
         run: terraform fmt -check -diff
       - name: terraform init
+        if: steps.changes.outputs.m11 == 'true'
         run: terraform init -backend=false -input=false
       - name: terraform validate
+        if: steps.changes.outputs.m11 == 'true'
         run: terraform validate
       - name: trivy
+        if: steps.changes.outputs.m11 == 'true'
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: config
@@ -108,12 +124,14 @@ jobs:
           severity: HIGH,CRITICAL
           exit-code: 1
       - name: checkov (terraform)
+        if: steps.changes.outputs.m11 == 'true'
         uses: bridgecrewio/checkov-action@v12
         with:
           directory: modules/module-11-agentic-gitops/lab/pipeline-demo
           quiet: true
           compact: true
       - name: checkov (manifests)
+        if: steps.changes.outputs.m11 == 'true'
         uses: bridgecrewio/checkov-action@v12
         with:
           directory: modules/module-11-agentic-gitops/lab/gitops-demo
@@ -122,14 +140,25 @@ jobs:
           compact: true
 ```
 
-The `paths:` filter matters. Without it, every pull request in the repo would trigger this
-workflow, including ones that never touch this module. Two directories are listed on purpose.
-`pipeline-demo/` holds the Terraform the gate was first built for. `gitops-demo/` holds the
-manifests Argo CD reconciles in stage 4, so a change to what the controller applies cannot
-reach `main` without passing the same gate. The first version of this workflow covered only
-`pipeline-demo/`, and the moment Checkov was pointed at the manifests it failed `CKV_K8S_21`:
-the demo ConfigMap lived in the `default` namespace. It now lives in its own namespace, which
-the Application in stage 4 creates on sync.
+The `detect changes` step matters, and so does the trigger it replaces. The obvious way to
+scope a workflow to one module is a `paths:` filter on the `pull_request` trigger. Don't,
+not when the check is going to be required. A required check has to report on every pull
+request, and a workflow a path filter skips never reports: GitHub leaves the check `Pending`
+forever and the ruleset in step 2 blocks every unrelated pull request in the repository. So
+the trigger has no filter, the job runs on every pull request, and the first step asks git
+which files the pull request changes compared with the branch it targets. The
+`fetch-depth: 0` on checkout is what gives that diff the history it needs. If nothing under
+the two lab directories changed, the step writes `m11=false`, every later step is skipped by
+its `if:`, and `gate` still finishes green in a few seconds. If something did change, the
+scans run for real. Either way the check reports, which is the property a required check
+cannot do without.
+
+Two directories are watched on purpose. `pipeline-demo/` holds the Terraform the gate was
+first built for. `gitops-demo/` holds the manifests Argo CD reconciles in stage 4, so a
+change to what the controller applies cannot reach `main` without passing the same gate. The
+first version of this workflow covered only `pipeline-demo/`, and the moment Checkov was
+pointed at the manifests it failed `CKV_K8S_21`: the demo ConfigMap lived in the `default`
+namespace. It now lives in its own namespace, which the Application in stage 4 creates on sync.
 
 This is the same fmt/validate/Trivy/Checkov sequence as M09's `pipeline.sh`, minus the policy
 and cost stages, which need a `policy/` directory and an Infracost API key this toy module
@@ -181,8 +210,22 @@ access can click merge anyway, or push to `main` directly and skip the pull requ
 
 Four rules. No deleting `main`, no force-pushing it, every change arrives as a pull request
 (zero approvals required, so a solo learner can still merge their own), and the check named
-`gate` must pass first. **Apply** it to the repository you are working in, then **read back**
-the rules now active on `main`:
+`gate` must pass first.
+
+That zero is a lab setting, not a recommendation. GitHub will not let the author of a pull
+request approve it, so a ruleset that demands one review would leave you, alone on your
+fork, unable to merge anything. The lab ruleset enforces pull-request-plus-passing-gate and
+lets one person merge. The production variant ships beside it as
+`lab/ci/main-ruleset-production.json`, identical except for two parameters:
+`required_approving_review_count` is `1` and `require_last_push_approval` is `true`. Together
+they mean one approving review from someone other than whoever pushed last, and that is the
+rule that stops an agent, or the human operating it, from approving its own change. Use the
+lab file here. Use the production file on any repository an agent can open pull requests
+against for real. Neither was applied to the companion repository's `main` while the runs
+below were recorded, which the next check shows.
+
+**Apply** the lab ruleset to the repository you are working in, then **read back** the rules
+now active on `main`:
 
 ```
 gh api -X POST "repos/$(gh repo view --json nameWithOwner -q .nameWithOwner)/rulesets" --input lab/ci/main-ruleset.json
@@ -540,8 +583,8 @@ contract	pass	4s	https://github.com/PacktPublishing/The-AI-Driven-Infrastructure
 gate	pass	38s	https://github.com/PacktPublishing/The-AI-Driven-Infrastructure-as-Code-Handbook/actions/runs/39913710067/job/120282330039
 ```
 
-The `paths:` filter from stage 1 is why `gate` ran at all on a manifest-only change. Inside it,
-the `checkov (manifests)` step scanned the ConfigMap with the kubernetes and secrets frameworks
+The `detect changes` step from stage 1 is why `gate` did more than report on a manifest-only
+change. Inside it, the `checkov (manifests)` step scanned the ConfigMap with the kubernetes and secrets frameworks
 and passed it: a version bump and a plain-text note, in a namespace of its own, nothing to
 flag. Had the agent put a credential in that ConfigMap, this is the step that would have gone
 red, the same way `CKV_SECRET_2` did in stage 2.

@@ -23,12 +23,19 @@ for f in "$W"/starter/tests/*.tftest.hcl; do
   [ "$CODE" -ne 0 ] || fail "tests/$name should be RED before the fix"
   grep -q "Reference to undeclared resource" "$W/starter-test-$name.log" && fail "tests/$name: RED must not be an undeclared-resource error"
 done
-# PITR and SSE are nested blocks: absent from config they are computed, so plan mode reports
-# "Unknown condition value" naming the attribute. That is the right RED for a missing block.
-# The policy test is a plain assertion failure naming the wildcard.
-grep -q "point_in_time_recovery" "$W/starter-test-pitr.log" || fail "pitr RED must name point_in_time_recovery"
-grep -q "server_side_encryption" "$W/starter-test-sse.log" || fail "sse RED must name server_side_encryption"
-grep -Eiq "read-only|dynamodb:\*|wildcard" "$W/starter-test-policy.log" || fail "policy RED must name the wildcard or read-only rule"
+# Every RED must be a real assertion that evaluated to false, printing the test's own
+# error_message. The starter writes point_in_time_recovery and server_side_encryption out as
+# enabled = false on purpose: were either block absent, the attribute would be computed and
+# plan mode would report "Unknown condition value", which is an error, not RED.
+for name in pitr sse policy; do
+  grep -q "Unknown condition value" "$W/starter-test-$name.log" && fail "tests/$name: RED must be a false assertion, not an unknown value"
+  grep -q "could not be evaluated" "$W/starter-test-$name.log" && fail "tests/$name: RED must be a false assertion, not an unevaluated condition"
+  grep -q "Error: Test assertion failed" "$W/starter-test-$name.log" || fail "tests/$name: expected 'Error: Test assertion failed'"
+done
+grep -q "point-in-time recovery is not enabled on aws_dynamodb_table.orders" "$W/starter-test-pitr.log" || fail "pitr RED must print the test's error_message"
+grep -q "Failure! 1 passed, 1 failed." "$W/starter-test-pitr.log" || fail "pitr RED must keep table_shape_unchanged passing"
+grep -q "server-side encryption is not enabled on aws_dynamodb_table.orders" "$W/starter-test-sse.log" || fail "sse RED must print the test's error_message"
+grep -q "policy actions must not contain a wildcard" "$W/starter-test-policy.log" || fail "policy RED must print the test's error_message"
 echo "    ok, red for the right reasons"
 
 echo "==> solution: the same tests must be GREEN"

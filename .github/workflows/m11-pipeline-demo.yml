@@ -2,9 +2,6 @@ name: M11 pipeline demo
 
 on:
   pull_request:
-    paths:
-      - 'modules/module-11-agentic-gitops/lab/pipeline-demo/**'
-      - 'modules/module-11-agentic-gitops/lab/gitops-demo/**'
 
 jobs:
   gate:
@@ -14,16 +11,35 @@ jobs:
         working-directory: modules/module-11-agentic-gitops/lab/pipeline-demo
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: detect changes
+        id: changes
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if git diff --name-only "$BASE...$HEAD" | grep -qE '^modules/module-11-agentic-gitops/lab/(pipeline-demo|gitops-demo)/'; then
+            echo "m11=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "m11=false" >> "$GITHUB_OUTPUT"
+            echo "No change under lab/pipeline-demo or lab/gitops-demo. gate reports success without scanning."
+          fi
       - uses: hashicorp/setup-terraform@v3
+        if: steps.changes.outputs.m11 == 'true'
         with:
           terraform_version: 1.9.8
       - name: terraform fmt
+        if: steps.changes.outputs.m11 == 'true'
         run: terraform fmt -check -diff
       - name: terraform init
+        if: steps.changes.outputs.m11 == 'true'
         run: terraform init -backend=false -input=false
       - name: terraform validate
+        if: steps.changes.outputs.m11 == 'true'
         run: terraform validate
       - name: trivy
+        if: steps.changes.outputs.m11 == 'true'
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: config
@@ -31,12 +47,14 @@ jobs:
           severity: HIGH,CRITICAL
           exit-code: 1
       - name: checkov (terraform)
+        if: steps.changes.outputs.m11 == 'true'
         uses: bridgecrewio/checkov-action@v12
         with:
           directory: modules/module-11-agentic-gitops/lab/pipeline-demo
           quiet: true
           compact: true
       - name: checkov (manifests)
+        if: steps.changes.outputs.m11 == 'true'
         uses: bridgecrewio/checkov-action@v12
         with:
           directory: modules/module-11-agentic-gitops/lab/gitops-demo

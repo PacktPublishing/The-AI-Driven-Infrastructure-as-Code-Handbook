@@ -273,8 +273,9 @@ gives Floci itself as a still-maturing project.
 claude mcp add --transport http github https://api.githubcopilot.com/mcp/ --header "Authorization: Bearer $(gh auth token)"
 ```
 
-`file: lab/mcp-config/github.mcp.json` is the same config as a file, `$GITHUB_TOKEN`
-substituted from your environment instead of inline.
+`file: lab/mcp-config/github.mcp.json` is the same config as a file, `${GITHUB_TOKEN}`
+expanded from your environment instead of inline. Claude Code expands the braced form in
+`.mcp.json` headers; the bare `$GITHUB_TOKEN` form is not expanded.
 
 ## Stage 6: Ship it, then hand the merge decision to a human
 

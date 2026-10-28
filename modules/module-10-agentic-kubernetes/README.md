@@ -42,7 +42,9 @@ modules/module-10-agentic-kubernetes/
     requests/                 where the agent-proposed XR lands, gitignored, generated live
     run.sh                   tool check -> real cluster up -> crossplane v2 -> warm-up XR ->
                              layer 1/2/3 -> 3 seeded failures -> teardown, no fixed sleeps;
-                             M10_LIVE_AGENT=1 adds the Claude Code step and gates its proposal
+                             M10_LIVE_AGENT=1 adds the Claude Code step, gates its proposal,
+                             then auto-applies it (regression test only; LAB.md is where a
+                             human approves)
     .gitignore
   reading/
     concepts.md              ~18 min standalone read, also book/chapters/10-agentic-kubernetes.md
@@ -79,7 +81,10 @@ cd modules/module-10-agentic-kubernetes/lab
 Requires `kind`, `kubectl`, a Helm 4 binary, and Docker reachable, all found on `PATH`, no
 machine-specific paths inside the script. The default run calls no agent. Add
 `M10_LIVE_AGENT=1` to also run the Stage 2, Step 4 Claude Code command and have the script
-diff, apply and verify the proposal it writes. It creates a real `kind` cluster
+diff, apply and verify the proposal it writes. That path auto-applies after its field checks,
+`kubectl diff` and server-side dry run, with no human pause; it is meant only for this local
+regression test. The manual walkthrough in LAB.md is where the human reads the diff and
+approves the apply. It creates a real `kind` cluster
 pinned by digest, installs Crossplane v2.4.0 via its real Helm chart, runs the warm-up
 `XAppConfig` XR, then builds the same Postgres database three ways: raw manifests applied
 directly, the same Postgres packaged as a Helm chart and installed as a second instance, and a
@@ -126,7 +131,7 @@ substrate changed, the authority boundary from M01 did not.
       three delivery layers, ran and passed
 - [x] A database delivered three real ways (manifests, Helm chart, Crossplane XR), verified
       by an actual query against each running Postgres instance, not a status field
-- [x] A real agent (Claude Code, `--allowedTools Read,Write`, no `Bash`) proposes a second
+- [x] A real agent (Claude Code, `--allowedTools "Read,Write" --disallowedTools "Bash"`) proposes a second
       database request from the XRD's schema alone; a human reads the diff and applies it
 
 ## Delivery guide: Udemy

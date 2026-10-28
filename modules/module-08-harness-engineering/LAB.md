@@ -256,6 +256,15 @@ resource "aws_dynamodb_table" "orders" {
     name = "order_id"
     type = "S"
   }
+
+  # The current, unhardened settings, written out so a plan-mode test can read them.
+  point_in_time_recovery {
+    enabled = false
+  }
+
+  server_side_encryption {
+    enabled = false
+  }
 }
 
 data "aws_iam_policy_document" "orders_access" {
@@ -271,9 +280,11 @@ resource "aws_iam_policy" "orders_access" {
 }
 ```
 
-A bare table, no backups, no encryption, and a policy that grants everything. `provider.tf` is
-the Floci stub every Tier 1 lab uses. The request you are about to make says nothing about
-which of those problems matters, on purpose.
+A bare table, no backups, encryption left at the default, and a policy that grants everything.
+The two `enabled = false` blocks change nothing about the table; they state what it already is,
+and Stage 3 explains why they are written out. `provider.tf` is the Floci stub every Tier 1 lab
+uses. The request you are about to make says nothing about which of those problems matters, on
+purpose.
 
 ### Step 2: Run it with the plugin disabled
 
@@ -570,7 +581,8 @@ Native. Plan approved. Execute it inline with executing-plans. Write the failing
 This runs for about twelve minutes. Every command's output lands in `../evidence/` because the
 plan said so. The three moments that matter, from those files:
 
-**RED, for the right reason.** The first test, `tests/pitr.tftest.hcl`, against the bare table:
+**RED, for the right reason.** The first test, `tests/pitr.tftest.hcl`, against the unhardened
+table:
 
 ```
 cat ../evidence/orders-red-pitr.txt
@@ -582,24 +594,41 @@ tests/pitr.tftest.hcl... in progress
   run "table_shape_unchanged"... pass
   run "pitr_enabled"... fail
 
-Error: Unknown condition value
+Error: Test assertion failed
 
   on tests/pitr.tftest.hcl line 14, in run "pitr_enabled":
   14:     condition     = aws_dynamodb_table.orders.point_in_time_recovery[0].enabled == true
     ├────────────────
-    │ aws_dynamodb_table.orders.point_in_time_recovery[0].enabled is a bool
+    │ Diff:
+    │ --- actual
+    │ +++ expected
+    │ - false
+    │ + true
 
-Condition expression could not be evaluated at this time. This means you have
-executed a `run` block with `command = plan` and one of the values your
-condition depended on is not known until after the plan has been applied.
-[...]
+
+point-in-time recovery is not enabled on aws_dynamodb_table.orders
+tests/pitr.tftest.hcl... tearing down
+tests/pitr.tftest.hcl... fail
+
 Failure! 1 passed, 1 failed.
 ```
 
-Read the error before you accept it as RED. A nested block that is absent from the
-configuration is computed, so plan mode cannot read it. That is this test failing because the
-feature is missing, which is the right reason. A syntax error or an undeclared resource would
-not be. The policy test fails as a plain assertion, and it prints the exact diff:
+Read the error before you accept it as RED. The assertion ran, compared `false` with `true`,
+and printed the message the test wrote for exactly this case. That is the test failing because
+the feature is missing, which is the right reason. A syntax error or an undeclared resource
+would not be, and neither would an unknown value. The `table_shape_unchanged` run passes in
+the same file, so the table's identity is already pinned before anything changes.
+
+**Under the hood.** If the `point_in_time_recovery` block were absent from `main.tf`, the
+attribute would be computed, and plan mode would report `Unknown condition value` with
+"Condition expression could not be evaluated at this time". That is an error, not a RED. The
+test never evaluated, so it cannot turn GREEN for the right reason either. This is why the
+starter writes the current settings out as `enabled = false`: a plan-mode test can only assert
+on a value the configuration states. The recorded Stage 3 session, `stage3-session.jsonl`,
+ran against the earlier starter without those two blocks, so its transcript shows the
+unknown-value error that the starter has since been tightened to avoid.
+
+The policy test fails as a plain assertion too, and it prints the exact diff:
 
 ```
 cat ../evidence/orders-red-policy.txt
@@ -875,8 +904,9 @@ cd modules/module-08-harness-engineering/lab
 
 `run.sh` checks:
 
-- The starter module, with the Stage 3 tests copied in, fails `terraform test` as assertion
-  failures (not as undeclared-resource errors), for the hardening reasons the tests name
+- The starter module, with the Stage 3 tests copied in, fails `terraform test` as assertions
+  that evaluate to false (not as unknown values or undeclared-resource errors), printing the
+  hardening reasons the tests name
 - The solution module passes the same tests
 - Checkov's JSON report shows the scan ran, examined `aws_dynamodb_table.orders`, and passed
   `CKV_AWS_28` (point-in-time recovery); the one accepted finding, `CKV_AWS_119`, stays listed

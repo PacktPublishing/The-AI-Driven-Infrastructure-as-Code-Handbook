@@ -42,7 +42,7 @@ print(f"    plan json: format {plan['format_version']}, {len(plan.get('resource_
 PY
 conftest test --policy policy "$OUT/plan.json" || { echo "BLOCKED at conftest"; exit 1; }
 
-echo "==> stage 5/5: cost gate (infracost)"
+echo "==> stage 5/5: cost report (infracost)"
 if [ -n "${INFRACOST_API_KEY:-}" ]; then
   infracost breakdown --path "$TARGET" --format json >"$OUT/infracost.json" 2>"$OUT/infracost.err" || { cat "$OUT/infracost.err"; echo "BLOCKED at cost stage (infracost error)"; exit 1; }
   echo "    infracost ran, see $OUT/infracost.json for the real estimate"

@@ -51,13 +51,10 @@ own spec was written straight into that template's format:
 
 ### Functional Requirements
 
-- FR-001: The Auto Scaling Group's health check grace period MUST be long enough to
-  survive the checkout app's real boot sequence (a `dnf install` of httpd plus service
-  start on a cold instance, which can run well past a minute on a slow mirror), so a
-  slow-starting-but-healthy instance is not killed as if it had failed. It MUST also be
-  bounded: 180 seconds is three minutes, and that is the window this tier accepts a
-  genuinely broken instance surviving in exchange for not killing a slow but healthy one.
-  Anything materially longer trades too much away.
+- FR-001: The Auto Scaling Group's health check grace period MUST account for the
+  application's measured startup needs while limiting unhealthy-instance retention. This
+  example sets 180 seconds as a configuration value, but EC2-only checks do not verify
+  checkout application startup or readiness.
 - FR-002: Scale-in MUST express a preference for terminating the oldest launch template
   version first, so a mid-rollout instance running the newest code is the last one
   considered rather than an arbitrary pick. This is a preference, not a guarantee: AWS
@@ -173,16 +170,13 @@ resource "aws_autoscaling_group" "checkout_web" {
   min_size = 2
   max_size = 4
 
-  # SC-001 / FR-001: long enough to survive a cold-boot dnf install + httpd start on a
-  # slow mirror, and bounded at three minutes, the window this tier accepts a broken
-  # instance surviving in exchange for not killing a slow but healthy one.
+  # SC-001 / FR-001: use a reviewed 180-second health-check grace period.
+  # This configuration uses EC2 checks; it does not test application startup.
   health_check_grace_period = 180
   health_check_type         = "EC2"
 
-  # SC-002 / FR-002: prefer the oldest launch template version during scale-in, so a
-  # mid-rollout instance running the newest code is the last one considered. AWS balances
-  # Availability Zones before applying termination policies, so this is a preference, not
-  # a guarantee.
+  # SC-002 / FR-002: prefer the oldest launch-template version at scale-in.
+  # AWS balances Availability Zones first, so this is not a guarantee.
   termination_policies = ["OldestLaunchTemplate", "OldestInstance", "Default"]
 
   # SC-004 / FR-004: instance warmup is the knob the target-tracking policy below actually
@@ -348,9 +342,11 @@ metadata_options.http_tokens (unset, IMDSv1 allowed) required     FR-005 / SC-00
 Every row is a real judgment call the one-line ticket left silent. Nothing in "give me an
 autoscaling web tier" says any of these numbers. The vibe-coded run picked something
 plausible-looking for each one and moved on, exactly what answering a spec-less ask under a
-deadline looks like. `60` seconds sounds fine until you remember `dnf install` on a cold mirror
-can run past a minute by itself, at which point the ASG kills a perfectly healthy instance for
-taking too long to boot, then keeps doing it, because the replacement hits the same clock.
+deadline looks like. `60` seconds sounds fine until you measure your own service's startup and
+find it runs past a minute, at which point the ASG kills a perfectly healthy instance for taking
+too long to boot, then keeps doing it, because the replacement hits the same clock. This lab
+installs no application and uses EC2-only health checks, so nothing here measures that. What it
+checks is narrower: that `180` was a reviewed decision written into the spec, not a guess.
 
 **Observe** one more thing the diff shows that the spec never asked for: the vibe-coded run also
 generated a whole ALB, two security groups, and a target group the ticket never mentioned and the
@@ -557,7 +553,10 @@ cd modules/module-07-spec-driven-infra/lab
   and fails both `CKV_AWS_79` and an ALB/TLS finding on vibe-coded
 - `spec.md` carries all three real parts: requirements, constraints, and success criteria
 - A real `terraform apply` and `destroy` of the spec-driven module against Floci, with the applied
-  state checked against SC-001 through SC-004, and SC-005/SC-006 verified separately by checkov
+  state read back as JSON and checked against SC-001 through SC-004: SC-002 must equal the exact
+  ordered list `["OldestLaunchTemplate", "OldestInstance", "Default"]`, and SC-004 is one
+  criterion covering the policy's type, predefined metric, target value, the group's cooldown and
+  its warmup. SC-005 is proved from the plan JSON and SC-006 from checkov's JSON result
 
 ## Summary
 

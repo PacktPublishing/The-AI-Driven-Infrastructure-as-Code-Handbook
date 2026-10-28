@@ -3,6 +3,8 @@ cd "$(dirname "$0")"
 export PATH="/Users/gshah/.rd/bin:$PATH"
 CLUSTER_NAME="cap-lab"
 NODE_IMAGE="kindest/node:v1.31.0@sha256:25a3504b2b340954595fa7a6ed1575ef2edadf5abd83c0776a4308b64bf47c93"
+ARGOCD_VERSION="v3.5.6"
+ARGOCD_MANIFEST="https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION}/manifests/install.yaml"
 fail(){ echo "FAIL: $*" >&2; kind delete cluster --name "$CLUSTER_NAME" >/dev/null 2>&1; exit 1; }
 
 echo "==> 1. real evidence: the merged PR's fix is really in place"
@@ -47,9 +49,9 @@ sleep 2
 kubectl apply -f composition.yaml >/dev/null || fail "composition apply"
 echo "    ok"
 
-echo "==> 5. argo cd, real upstream manifest, server-side apply"
+echo "==> 5. argo cd ${ARGOCD_VERSION}, pinned upstream manifest, server-side apply"
 kubectl create namespace argocd >/dev/null 2>&1
-kubectl apply -n argocd --server-side --force-conflicts -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml >/tmp/cap-t2-argocd.log 2>&1 || { cat /tmp/cap-t2-argocd.log; fail "argocd install"; }
+kubectl apply -n argocd --server-side --force-conflicts -f "$ARGOCD_MANIFEST" >/tmp/cap-t2-argocd.log 2>&1 || { cat /tmp/cap-t2-argocd.log; fail "argocd install"; }
 kubectl -n argocd wait --for=condition=available --timeout=180s deployment/argocd-repo-server deployment/argocd-server >/dev/null 2>&1 || fail "argocd never became available"
 echo "    ok"
 

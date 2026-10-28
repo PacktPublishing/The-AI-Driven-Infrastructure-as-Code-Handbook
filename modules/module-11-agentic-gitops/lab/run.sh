@@ -39,7 +39,8 @@ grep -q "AKIAABCDEFGHIJKLMNOP" pipeline-demo/main.tf && fail "pipeline-demo/main
 grep -qE '^\s*default\s*=' pipeline-demo/main.tf && fail "pipeline-demo/main.tf still has a variable default, a hardcoded value may remain"
 grep -q "signing_key_id" pipeline-demo/main.tf || fail "pipeline-demo/main.tf missing signing_key_id, the variable PR 2 added"
 # PR 3: the gate covers the directory the controller watches, and the manifest left the default namespace
-grep -q "lab/gitops-demo/\*\*" ci/m11-pipeline-demo.yml || fail "ci/m11-pipeline-demo.yml does not trigger on lab/gitops-demo, the gate misses what the controller applies"
+grep -q "lab/(pipeline-demo|gitops-demo)/" ci/m11-pipeline-demo.yml || fail "ci/m11-pipeline-demo.yml does not detect changes under lab/gitops-demo, the gate misses what the controller applies"
+grep -q "^    paths:" ci/m11-pipeline-demo.yml && fail "ci/m11-pipeline-demo.yml has a paths: filter, a required check skipped by a path filter stays Pending and blocks unrelated PRs"
 grep -q "framework: kubernetes,secrets" ci/m11-pipeline-demo.yml || fail "ci/m11-pipeline-demo.yml has no Checkov step for the manifests"
 grep -q "namespace: ${APP_NS}" gitops-demo/configmap.yaml || fail "gitops-demo/configmap.yaml not in its own namespace (CKV_K8S_21 would fail the gate)"
 grep -q "CreateNamespace=true" solution/argocd-app.yaml || fail "solution/argocd-app.yaml missing CreateNamespace=true"
