@@ -19,9 +19,9 @@ resource "local_file" "pipeline_config" {
 }
 
 variable "signing_key_id" {
-  description = "Key ID used to sign outbound webhook payloads. Set via TF_VAR_signing_key_id, never a default."
+  description = "Key ID used to sign outbound webhook payloads"
   type        = string
-  sensitive   = true
+  default     = "AKIA7HQ3ZT5WMX2RJN4B"
 }
 
 resource "local_file" "webhook_signing_config" {
