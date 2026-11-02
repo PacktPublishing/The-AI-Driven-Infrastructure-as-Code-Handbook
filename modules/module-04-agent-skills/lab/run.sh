@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # M04 Tier-1 lab validation. Exits non-zero on any pass-criterion failure.
 set -uo pipefail
+# Shared shims, found relative to this script: a checkov command that also works from Git
+# Bash on Windows, where pip's launcher on PATH cannot be executed by bash.
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)/labs/shared/tool-shims.sh" || exit 1
 cd "$(dirname "$0")"
 FLOCI_VERSION="${FLOCI_VERSION:-1.7.0}"
 export TF_VAR_artifact_uploader_key="AKIAFAKELABKEY000111"
@@ -10,6 +13,7 @@ export TF_VAR_artifact_uploader_key="AKIAFAKELABKEY000111"
 export TF_PLUGIN_CACHE_DIR="${TF_PLUGIN_CACHE_DIR:-$HOME/.terraform.d/plugin-cache}"
 mkdir -p "$TF_PLUGIN_CACHE_DIR"
 fail(){ echo "FAIL: $*" >&2; exit 1; }
+CHECKOV=$(checkov_cmd) || fail "checkov not found; see Appendix A"
 
 echo "==> starter (no skill): fmt + init + validate + plan"
 terraform -chdir=starter fmt -check -diff >/tmp/m04-fmt.log 2>&1 || fail "starter not fmt-clean: $(cat /tmp/m04-fmt.log)"
@@ -20,7 +24,8 @@ terraform -chdir=starter plan -no-color -input=false >/tmp/m04-plan.log 2>&1 || 
 grep -q "1 to add" /tmp/m04-plan.log || fail "starter plan didn't match expected 1 resource"
 
 echo "==> starter: checkov secrets framework must FAIL on the hardcoded key"
-checkov -d starter --framework secrets --compact --quiet >/tmp/m04-checkov-starter.log 2>&1
+# $CHECKOV is unquoted on purpose: on Windows it may be "python -m checkov.main".
+$CHECKOV -d starter --framework secrets --compact --quiet >/tmp/m04-checkov-starter.log 2>&1
 CODE=$?
 [ "$CODE" -ne 0 ] || fail "starter secrets scan unexpectedly passed"
 grep -q "CKV_SECRET_2" /tmp/m04-checkov-starter.log || fail "expected CKV_SECRET_2 finding, got: $(cat /tmp/m04-checkov-starter.log)"
@@ -31,7 +36,7 @@ terraform -chdir=solution fmt -check -diff >/tmp/m04-fmt-sol.log 2>&1 || fail "s
 terraform -chdir=solution init -backend=false -input=false -no-color >/dev/null || fail "solution init"
 terraform -chdir=solution validate -no-color >/tmp/m04-validate-sol.log 2>&1
 grep -q "Success" /tmp/m04-validate-sol.log || fail "solution validate: $(cat /tmp/m04-validate-sol.log)"
-checkov -d solution --framework secrets --compact --quiet >/tmp/m04-checkov-sol.log 2>&1 || fail "solution secrets scan: $(cat /tmp/m04-checkov-sol.log)"
+$CHECKOV -d solution --framework secrets --compact --quiet >/tmp/m04-checkov-sol.log 2>&1 || fail "solution secrets scan: $(cat /tmp/m04-checkov-sol.log)"
 echo "    ok, solution has no secrets finding"
 
 echo "==> solution: required tags + provider pin present"
@@ -45,7 +50,7 @@ echo "    ok"
 
 echo "==> starting floci ${FLOCI_VERSION}"
 docker rm -f floci >/dev/null 2>&1
-docker run -d --name floci -p 4566:4566 \
+MSYS_NO_PATHCONV=1 docker run -d --name floci -p 4566:4566 \
   -v /var/run/docker.sock:/var/run/docker.sock \
   "floci/floci:${FLOCI_VERSION}" >/dev/null || fail "could not start floci"
 for i in $(seq 1 30); do
@@ -54,8 +59,17 @@ for i in $(seq 1 30); do
 done
 curl -fsS http://localhost:4566/_floci/health >/dev/null 2>&1 || fail "floci never became healthy"
 
-echo "==> apply solution against floci"
-terraform -chdir=solution apply -auto-approve -no-color >/tmp/m04-apply.log 2>&1
+# LAB.md has the learner run `terraform plan`, read it, then `terraform apply` and type yes.
+# This script is unattended, so it mirrors that review step the only way a script can: it
+# writes the plan to a file, asserts the plan says what the lab says it should, and applies
+# that saved plan and nothing else. No -auto-approve, no second plan computed at apply time.
+echo "==> plan solution against floci (saved plan, the review step the lab does by hand)"
+terraform -chdir=solution plan -no-color -input=false -out=/tmp/m04-solution.tfplan >/tmp/m04-plan-sol.log 2>&1 || { tail -20 /tmp/m04-plan-sol.log; fail "solution plan"; }
+grep -q "Plan: 1 to add, 0 to change, 0 to destroy" /tmp/m04-plan-sol.log || fail "solution plan didn't match the expected 1 resource: $(grep Plan: /tmp/m04-plan-sol.log)"
+echo "    ok, plan says 1 to add"
+
+echo "==> apply the saved solution plan against floci"
+terraform -chdir=solution apply -no-color -input=false /tmp/m04-solution.tfplan >/tmp/m04-apply.log 2>&1
 grep -q "Apply complete" /tmp/m04-apply.log || { tail -20 /tmp/m04-apply.log; fail "apply"; }
 echo "    ok, bucket created"
 
@@ -65,6 +79,7 @@ grep -q "Destroy complete" /tmp/m04-destroy.log || { tail -20 /tmp/m04-destroy.l
 echo "    ok, bucket destroyed"
 
 docker rm -f floci >/dev/null 2>&1
+rm -f /tmp/m04-solution.tfplan
 rm -rf starter/.terraform starter/.terraform.lock.hcl solution/.terraform solution/.terraform.lock.hcl solution/terraform.tfstate*
 
 echo
@@ -102,7 +117,7 @@ echo "    ok, seeded dev/staging overlap caught, real exit code ${CODE}"
 
 echo "==> starting floci ${FLOCI_VERSION} for Part II"
 docker rm -f floci >/dev/null 2>&1
-docker run -d --name floci -p 4566:4566 \
+MSYS_NO_PATHCONV=1 docker run -d --name floci -p 4566:4566 \
   -v /var/run/docker.sock:/var/run/docker.sock \
   "floci/floci:${FLOCI_VERSION}" >/dev/null || fail "could not start floci"
 for i in $(seq 1 30); do
@@ -111,9 +126,15 @@ for i in $(seq 1 30); do
 done
 curl -fsS http://localhost:4566/_floci/health >/dev/null 2>&1 || fail "floci never became healthy"
 
-echo "==> apply vpc/envs/dev against floci"
+# Same pattern as Part I: plan to a file, assert the plan, apply only that saved plan.
+echo "==> plan vpc/envs/dev against floci (saved plan, the review step the lab does by hand)"
 export TF_VAR_endpoint="http://localhost:4566"
-terraform -chdir=vpc/envs/dev apply -auto-approve -no-color >/tmp/m04-vpc-apply.log 2>&1
+terraform -chdir=vpc/envs/dev plan -no-color -input=false -out=/tmp/m04-vpc-dev.tfplan >/tmp/m04-vpc-plan.log 2>&1 || { tail -20 /tmp/m04-vpc-plan.log; fail "vpc dev plan"; }
+grep -q "Plan: 12 to add, 0 to change, 0 to destroy" /tmp/m04-vpc-plan.log || fail "vpc dev plan didn't match the expected 12 resources: $(grep Plan: /tmp/m04-vpc-plan.log)"
+echo "    ok, plan says 12 to add"
+
+echo "==> apply the saved vpc/envs/dev plan against floci"
+terraform -chdir=vpc/envs/dev apply -no-color -input=false /tmp/m04-vpc-dev.tfplan >/tmp/m04-vpc-apply.log 2>&1
 grep -q "Apply complete" /tmp/m04-vpc-apply.log || { tail -20 /tmp/m04-vpc-apply.log; fail "vpc dev apply"; }
 grep -q "12 added" /tmp/m04-vpc-apply.log || fail "vpc dev apply didn't create the expected 12 resources"
 echo "    ok, dev VPC (vpc + igw + nat + eip + 2 subnets + 2 route tables + 2 assocs + 2 routes) created"
@@ -124,6 +145,7 @@ grep -q "Destroy complete" /tmp/m04-vpc-destroy.log || { tail -20 /tmp/m04-vpc-d
 echo "    ok, dev VPC destroyed"
 
 docker rm -f floci >/dev/null 2>&1
+rm -f /tmp/m04-vpc-dev.tfplan
 for env in dev staging prod; do
   rm -rf "vpc/envs/${env}/.terraform" "vpc/envs/${env}/.terraform.lock.hcl" "vpc/envs/${env}"/terraform.tfstate*
 done
@@ -135,7 +157,7 @@ grep -c "credentials\|id_rsa" .claude/skills/terraform-formatter-untrusted/SKILL
 echo "    ok, terraform-formatter-untrusted/SKILL.md grants no credential access"
 
 echo
-echo "LAB PASSED, Part I: starter fails the secrets scan, solution is clean, applies and destroys cleanly on floci ${FLOCI_VERSION}."
+echo "LAB PASSED, Part I: starter fails the secrets scan, solution is clean, plans 1 to add, applies the saved plan and destroys cleanly on floci ${FLOCI_VERSION}."
 echo "             Part II: dev/staging/prod all validate, the skill's bundled overlap checker passes clean and catches a real"
-echo "             seeded collision, and dev's 12-resource VPC applies and destroys cleanly on floci ${FLOCI_VERSION}."
+echo "             seeded collision, and dev's VPC plans 12 to add, applies the saved plan and destroys cleanly on floci ${FLOCI_VERSION}."
 echo "             Stage 3: terraform-formatter-untrusted/SKILL.md carries no credential read."

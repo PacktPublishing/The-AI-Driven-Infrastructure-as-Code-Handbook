@@ -87,7 +87,7 @@ module, the same one M09 uses:
 
 | | Plain `checkov -d .` | `checkov -d . --compact --quiet` |
 |---|---|---|
-| Output size | 25,680 characters | 3,881 characters |
+| Output size | 25,679 characters | 3,881 characters |
 | Rough token count | ~6,400 | ~970 |
 | Reduction | baseline | **~85%** |
 
@@ -124,7 +124,7 @@ guide for its own sake. The specific, load-bearing facts an agent would otherwis
 have to guess, or get wrong, on the very first turn of a session that has no
 memory of any earlier one.
 
-![An annotated AGENTS.md file with four sections labeled: provider constraints, naming convention, module boundaries, and a never-do list.](./diagrams/agentsmd-anatomy.svg)
+![An annotated AGENTS.md file with five sections labeled: provider constraints, naming convention, module boundaries, a never-do list, and where secrets come from.](./diagrams/agentsmd-anatomy.svg)
 
 **Provider constraints.** Which version of Terraform or OpenTofu, which provider version,
 pinned exactly. An agent that picks its own version picks whatever it last saw in
@@ -297,7 +297,7 @@ into a standing `AGENTS.md` convention instead of a one-off edit, so run 2 produ
 | Retain | Standing facts written once, in a file the agent reads every session, so they survive a context reset instead of needing re-explanation |
 | Route | An in-progress plan or task state written to disk, not held only in conversation, so a fresh session can continue it correctly |
 | Standing context | Information written down once, in a file the agent reads on every run, as opposed to a one-off prompt |
-| `AGENTS.md` / `CLAUDE.md` | A written file of standing context for a repo: provider pins, naming conventions, module boundaries, a never-do list |
+| `AGENTS.md` / `CLAUDE.md` | A written file of standing context for a repo: provider constraints, naming conventions, module boundaries, a never-do list |
 | Retrieval | The process by which an agent finds the files relevant to its task, mostly by name and path, the same way a human would |
 | Policy visibility | Whether a rule a team actually enforces is written somewhere the agent can read it, or only lives in someone's head |
 | Information gap | The distance between a rule that is real and a rule that is visible to the agent at the moment it needs it |

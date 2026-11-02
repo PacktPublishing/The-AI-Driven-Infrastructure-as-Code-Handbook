@@ -12,20 +12,14 @@ fixes the real cause from the real CI failure, a human reads one outcome and mer
 real GitOps controller, Argo CD, applies the result unattended and correctly. GitOps is
 the last link in that chain, not the whole subject.
 
-Spec: [`specs/M11-spec.md`](../../specs/M11-spec.md). Read it before changing anything here.
-
 ## What's in this module
 
 ```
 modules/module-11-agentic-gitops/
   README.md               this file, delivery guide
   explainer/
-    EXPLAINER.md            7 diagram beats, narrator notes, timing
-    deck/
-      build_deck.py          generator, load_diagram fix upgraded to re.search (see m11-sequence.md)
-      m11-agentic-gitops.html   13-slide self-contained deck
-      m11-sequence.md         slide table, fragment map, coverage check, a real bug fixed mid-build
-    diagrams/                6 hand-drawn SVGs
+    sim/
+      gitops-loop-sim.html    interactive end-to-end GitOps loop
   LAB.md                   Project 11: Ship an Agent's Change to Production Using a
                            Pipeline and GitOps (Tier 2, ~25 min)
   lab/
@@ -45,8 +39,9 @@ modules/module-11-agentic-gitops/
                              (pinned) -> app sync/healthy at v2 -> self-heal -> numbered teardown
     .gitignore               .terraform/, state, plan files, rendered/ (token values)
   reading/
-    concepts.md              ~15 min standalone read, also book/chapters/11-agentic-gitops.md
+    concepts.md              ~15 min standalone read, the spine of Chapter 11 of the book
     reference.md              one-page A4 cheat sheet
+    diagrams/                6 hand-drawn SVGs, one per section of concepts.md
   QUIZ.md                  9 questions, collapsible answers
   PROJECTS.md              5 stretch project seeds
 ```
@@ -117,13 +112,18 @@ together (`run.sh` fails if they differ), then re-run `run.sh`.
 
 ## Delivery guide: live workshop
 
-Run in this order, roughly 60 minutes with a break:
+Run in this order, roughly 60 minutes with a break. Each step walks one or two sections of
+`reading/concepts.md` with its diagram from `reading/diagrams/` on screen:
 
-1. Walk `explainer/EXPLAINER.md` beats 1-2 (hand-run vs CI-run), ~5 min.
-2. Walk beats 3-4 (GitOps in one picture, synced vs healthy), ~6 min.
-3. Walk beats 5-6 (the full loop traced, step 5 precisely), ~5 min.
-4. Walk beat 7 (open edges, named honestly), ~4 min.
-5. Walk the lab bridge, ~2 min.
+1. "This Chapter Is Not Really About GitOps", "Recap" and "From Plan and Apply to Reconcile,
+   in CI" (`hand-to-ci.svg`), hand-run vs CI-run, ~5 min.
+2. "GitOps in One Sentence" and "Argo CD and Flux: Synced and Healthy Are Two Different
+   Questions" (`gitops-picture.svg`, `synced-healthy.svg`), ~6 min.
+3. "The Full Loop, Traced End to End" and "Step 5, Precisely" (`full-loop.svg`,
+   `step5-precisely.svg`), ~5 min. Demo `explainer/sim/gitops-loop-sim.html` at the "Try it"
+   subsection.
+4. "What This Doesn't Close" (`open-edges.svg`), the open edges named honestly, ~4 min.
+5. The lab bridge, ~2 min.
 6. Break, then run `LAB.md` live, ~25 min. An agent opens the real PR, real CI catches its
    real flaw, a second agent fixes it, real merge, real Argo CD sync, real self-heal,
    numbered teardown.
@@ -158,13 +158,11 @@ does not build it.
 
 ## Definition-of-done status
 
-- [x] `specs/M11-spec.md` read before building
 - [x] All module directories present (`explainer/`, `lab/`, `reading/`, plus root `LAB.md`,
       `QUIZ.md`, `PROJECTS.md`, `README.md`)
-- [x] `EXPLAINER.md` has narrator notes and timing for every diagram beat
 - [x] `LAB.md` steps are copy-pasteable, solo-completable, Tier 2, real captured output only
-- [x] `reading/concepts.md` is standalone-readable (~15 min) and doubles as
-      `book/chapters/11-agentic-gitops.md`
+- [x] `reading/concepts.md` is standalone-readable (~15 min) and doubles as the draft of
+      Chapter 11 of the book
 - [x] `reading/reference.md` is a one-side-of-A4 cheat sheet
 - [x] `QUIZ.md`: 9 questions, collapsible answers, scenario-heavy
 - [x] `PROJECTS.md`: 5 stretch projects, hints not solutions
@@ -180,24 +178,17 @@ does not build it.
 - [x] Step 5 named precisely, with exactly what remains manual (the merge) stated clearly
 - [x] The lab's teardown is a numbered step (remove Application, delete cluster), not a
       footnote
-- [x] Diagram beats: 6 hand-drawn SVGs in `explainer/diagrams/`, same visual contract as
+- [x] Diagrams: 6 hand-drawn SVGs in `reading/diagrams/`, same visual contract as
       M01/M03/M04/M06/M09/M10
-- [x] Deck: 13 self-contained slides (title/closing re-worded for the reframe, same 11
-      content slides). `_looks_like_title` upgraded to the strict exact-match-or-similarity
-      version (was still the loose substring-containment version that caused the M03
-      "REDUCE" regression, until this pass). Verified with a real static parse of the
-      built HTML: 13 sections, zero duplicate title-in-SVG hits, old title string gone.
-      Playwright wasn't available in this environment this pass, so no fresh headless
-      screenshot was taken; the static parse is the honest substitute, not a Playwright
-      substitute claimed as one.
-- [x] Course slide voiceover script: `planning/voiceover/m11-slide-voiceover.md`
 - [x] Lab validation script: `lab/run.sh`, real cluster-up-to-teardown sequence, ran and
       passed
 
 ## Delivery guide: Udemy
 
-One concept per lecture, 3-6 minutes each, following the deck's sections. `LAB.md` ships as
-a standalone hands-on lecture after the concept lectures, note in the lecture description
-that this lab needs `kind`/`kubectl`/`helm`/Docker/`gh` locally, no cloud account, and that
-the PR/merge portion is demonstrated against this course's own public labs repo. `QUIZ.md`
-publishes as the module's Udemy quiz. `PROJECTS.md` publishes as downloadable resources.
+One concept per lecture, 3-6 minutes each, following the sections of `reading/concepts.md`.
+`LAB.md` ships as a standalone hands-on lecture after the concept lectures, note in the
+lecture description that this lab needs `kind`/`kubectl`/`helm`/Docker/`gh` locally, no cloud
+account, and that the PR/merge portion is demonstrated against the book's companion
+repository. `QUIZ.md` publishes as the module's Udemy quiz. `PROJECTS.md` publishes as
+downloadable resources. The GitOps-loop simulator ships as an embedded interactive alongside
+the lesson page.

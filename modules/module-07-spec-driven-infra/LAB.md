@@ -379,8 +379,10 @@ protection, no access logging, no WAF, HTTP instead of HTTPS, no TLS 1.2 minimum
 version passes `CKV_AWS_79`, exactly what SC-006 promised.
 
 **Observe** something else, though: the spec-driven version still has 1 failed check,
-`CKV_AWS_153`, the launch template's own tags. Checkov flags it because this spec's author (you)
-never wrote a requirement for tags. **Why does that matter?** A spec's success criteria only cover
+`CKV_AWS_153`. The recorded finding names `aws_autoscaling_group.checkout_web` and says the Auto
+Scaling Group should supply tags to launch configurations: the group declares no `tag` block, so
+the instances it launches carry none. Checkov flags it because this spec's author (you) never
+wrote a requirement for tags. **Why does that matter?** A spec's success criteria only cover
 what someone thought to write down. That's exactly why the policy gate in M09 still runs after
 this project. A spec pins down what gets generated. It doesn't replace the check that runs
 afterward.
@@ -394,6 +396,10 @@ docker run -d --name floci -p 4566:4566 \
   -v /var/run/docker.sock:/var/run/docker.sock \
   floci/floci:1.7.0
 ```
+
+From Git Bash on Windows, put `MSYS_NO_PATHCONV=1` in front of `docker run`, or start Floci with
+`docker compose -f labs/shared/docker-compose.floci.yml up -d` from the repository root instead
+(see Appendix A).
 
 **Apply** it and read the real state back against SC-001 through SC-004:
 
@@ -444,8 +450,9 @@ Destroy complete! Resources: 3 destroyed.
 ## Step 6: Apply the spec-driven module with OpenTofu
 
 Same HCL, different binary. This is what "one language, two runtimes" actually
-means: not a separate OpenTofu curriculum, one real proof that the module you just
-built and verified with Terraform applies identically with OpenTofu.
+means: one check, in place of a separate OpenTofu curriculum, that the module you just
+built and verified with Terraform also applies with OpenTofu, and produces the same
+resource count.
 
 **Confirm** the pinned version:
 
@@ -466,6 +473,10 @@ docker run -d --name floci -p 4566:4566 \
   -v /var/run/docker.sock:/var/run/docker.sock \
   floci/floci:1.7.0
 ```
+
+From Git Bash on Windows, put `MSYS_NO_PATHCONV=1` in front of `docker run`, or start Floci with
+`docker compose -f labs/shared/docker-compose.floci.yml up -d` from the repository root instead
+(see Appendix A).
 
 You're still in `lab/spec-driven` from Step 5. Terraform left its own provider cache,
 lock file, and state behind, and OpenTofu will re-resolve all three if you don't clear
@@ -523,9 +534,11 @@ Destroy complete! Resources: 3 destroyed.
 ```
 
 Terraform is BUSL-licensed. OpenTofu is MPL-2.0, a fork maintained under the Linux
-Foundation. For a module with no provider-specific Terraform-only features, which
-this one is, the choice of runtime is a license and tooling decision, not a
-different infrastructure outcome. That's the whole lesson, proven, not asserted.
+Foundation. The same HCL produces the same resource count under a different binary.
+The lab does not compare individual state values. For this supplied module and
+provider usage, the result demonstrates compatibility between Terraform and
+OpenTofu. It does not prove that every Terraform and OpenTofu module behaves
+identically.
 
 #### Exercise
 

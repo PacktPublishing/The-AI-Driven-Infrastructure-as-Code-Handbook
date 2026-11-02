@@ -1,10 +1,15 @@
+#!/usr/bin/env bash
 set -uo pipefail
+# Shared shims, found relative to this script: a checkov command that also works from Git
+# Bash on Windows, where pip's launcher on PATH cannot be executed by bash.
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)/labs/shared/tool-shims.sh" || exit 1
 cd "$(dirname "$0")"
 fail(){ echo "FAIL: $*" >&2; exit 1; }
+CHECKOV=$(checkov_cmd) || fail "checkov not found; see Appendix A"
 
 echo "==> starting Floci (autoscaling, ec2, iam services)"
 docker rm -f m07-floci >/dev/null 2>&1
-docker run -d --name m07-floci -p 4566:4566 \
+MSYS_NO_PATHCONV=1 docker run -d --name m07-floci -p 4566:4566 \
   -v /var/run/docker.sock:/var/run/docker.sock \
   floci/floci:1.7.0 >/dev/null || fail "could not start floci"
 READY=0
@@ -73,7 +78,8 @@ print('    ok, all five judgment calls genuinely diverge between the two runs')
 run_checkov() { # run_checkov <dir> <outfile>
   # No --quiet here: it suppresses passed_checks in the JSON, and SC-006 is a claim
   # about a check passing, which cannot be proved from an empty array.
-  checkov -d "$1" -o json --compact > "$2" 2>/tmp/m07-checkov-err.log
+  # $CHECKOV is unquoted on purpose: on Windows it may be "python -m checkov.main".
+  $CHECKOV -d "$1" -o json --compact > "$2" 2>/tmp/m07-checkov-err.log
   local rc=$?
   [ "$rc" -le 1 ] || fail "checkov errored on $1 (exit $rc): $(tail -5 /tmp/m07-checkov-err.log)"
   python3 - "$2" <<'PY' || fail "checkov produced no usable JSON for $1"

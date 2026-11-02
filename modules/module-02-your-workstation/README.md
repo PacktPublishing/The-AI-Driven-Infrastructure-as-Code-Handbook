@@ -10,20 +10,12 @@ module 1's lab run through a real agent three times, suggest, draft, and extende
 `acceptEdits`, plus a bounded subagent delegation and a real custom slash command, so real
 agent-driving skill is felt directly, not just read about.
 
-Spec: [`specs/M02-spec.md`](../../specs/M02-spec.md). Read it before changing anything here.
-
 ## What's in this module
 
 ```
 modules/module-02-your-workstation/
   README.md               this file, delivery guide
   explainer/
-    EXPLAINER.md           8 diagram beats, narrator notes, timing
-    deck/
-      build_deck.py         generator, strict load_diagram() title-match pattern
-      m02-your-workstation.html  17-slide self-contained deck
-      m02-sequence.md        slide table, fragment map, coverage check
-    diagrams/               7 hand-drawn SVGs (title slide has its own inline SVG)
     sim/
       permission-mode-sim.html   interactive permission-mode simulator, embedded in the lesson
   LAB.md                   Project 02: Build an Nginx Test Module Using Claude Code's Agent Modes (Tier 0, ~20 min)
@@ -36,20 +28,26 @@ modules/module-02-your-workstation/
     run.sh                   validates all three, plan-clean, checkov-clean, and genuinely differ
     .gitignore
   reading/
-    concepts.md              ~15 min standalone read, also book/chapters/02-your-workstation.md
+    concepts.md              ~15 min standalone read, the spine of Chapter 2 of the book
     reference.md              one-page A4 cheat sheet
+    diagrams/                7 hand-drawn SVGs, one per section of concepts.md
   QUIZ.md                  9 questions, collapsible answers
   PROJECTS.md              4 stretch project seeds, including an Ansible bonus
 ```
 
 ## Delivery guide: live workshop
 
-Run in this order, roughly 65 minutes with a break:
+Run in this order, roughly 65 minutes with a break. Each step walks one or two sections of
+`reading/concepts.md` with its diagram from `reading/diagrams/` on screen:
 
-1. Walk `explainer/EXPLAINER.md` beats 1-5 (why two CLIs, the pinned tool versions), ~5 min.
-2. Walk beats 6-11 (step 1 suggest, step 2 draft, what actually differed), ~8 min.
-3. Walk beats 12-13 (acceptEdits, subagents, a slash command), ~5 min.
-4. Walk beats 14-16 (where config will live, closing), ~3 min.
+1. "A Workstation, Not One Tool" and "Pinned Versions, Installed Once"
+   (`two-clis-one-workstation.svg`, `pinned-tool-versions.svg`), why two CLIs, ~5 min.
+2. "Step 1: Suggest", "Step 2: Draft" and "What Actually Differed" (`step1-suggest.svg`,
+   `step2-draft.svg`, `what-actually-differed.svg`), ~8 min. Demo
+   `explainer/sim/permission-mode-sim.html` at the "Try it" subsection.
+3. "`acceptEdits`, Delegating to a Subagent, and a Slash Command" (`delegate-subagent.svg`),
+   ~5 min.
+4. "Where Config Will Live" (`config-preview.svg`) and the closing, ~3 min.
 5. Break, then run `LAB.md` live, ~20 min. Learners need their own agent CLI authenticated.
 6. Close on the exercise: which step would you hand to a machine without watching.
 
@@ -80,13 +78,11 @@ still short of a plan the learner approves before anything moves.
 
 ## Definition-of-done status
 
-- [x] `specs/M02-spec.md` read before building
 - [x] All module directories present (`explainer/`, `lab/`, `reading/`, plus root `LAB.md`,
       `QUIZ.md`, `PROJECTS.md`, `README.md`)
-- [x] `EXPLAINER.md` has narrator notes and timing for every diagram beat
 - [x] `LAB.md` steps are copy-pasteable, solo-completable, Tier 0, real captured output only
-- [x] `reading/concepts.md` is standalone-readable (~15 min) and doubles as
-      `book/chapters/02-your-workstation.md`
+- [x] `reading/concepts.md` is standalone-readable (~15 min) and doubles as the draft of
+      Chapter 2 of the book
 - [x] `reading/reference.md` is a one-side-of-A4 cheat sheet
 - [x] `QUIZ.md`: 9 questions, collapsible answers, scenario-heavy
 - [x] `PROJECTS.md`: 4 stretch project seeds, hints not solutions, including an Ansible bonus
@@ -102,14 +98,8 @@ still short of a plan the learner approves before anything moves.
       one
 - [x] No tool beyond Claude Code, Codex CLI, and Environment Setup's existing pins is
       introduced here
-- [x] Diagram beats: 7 hand-drawn SVGs in `explainer/diagrams/`, same visual contract as
+- [x] Diagrams: 7 hand-drawn SVGs in `reading/diagrams/`, same visual contract as
       M01/M03/M04/M06/M09
-- [x] Deck: 17 self-contained slides, zero external refs, `_looks_like_title` uses the strict
-      exact-match-or->0.75-ratio check (not loose substring containment), verified
-      programmatically that every source SVG's real `<text>` content survived into the deck,
-      zero missing diagram labels, zero invisible-line regressions
-- [x] Course slide voiceover script: `planning/voiceover/m02-slide-voiceover.md` (needs a pass
-      for the two new slides added this round, not yet re-recorded)
 - [x] Lab validation script: `lab/run.sh`, checks all three real solution runs (plan-clean,
       checkov-clean, abspath present), and step1/step2's genuine divergence
 - [x] Zero occurrences of "rung" anywhere in learner-facing content, "step" used throughout,
@@ -121,6 +111,6 @@ still short of a plan the learner approves before anything moves.
 ## Delivery guide: Udemy
 
 This module's lecture cut mirrors the established pattern: one concept per lecture, 3-6 minutes
-each, following the deck's 8 sections. `LAB.md` ships as a standalone hands-on lecture after the
-concept lectures. `QUIZ.md` publishes as the module's Udemy quiz. `PROJECTS.md` publishes as
+each, following the eight sections of `reading/concepts.md`. `LAB.md` ships as a standalone
+hands-on lecture after the concept lectures. `QUIZ.md` publishes as the module's Udemy quiz. `PROJECTS.md` publishes as
 downloadable resources.

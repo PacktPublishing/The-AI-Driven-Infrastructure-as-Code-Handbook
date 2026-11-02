@@ -17,5 +17,12 @@ if ! ../hooks/blast_radius_gate.sh tfplan.json; then
   exit 1
 fi
 
+# Capture apply's exit status before cleaning up. Without this, a failed apply is masked
+# by the rm -f that follows it, and the wrapper reports success to whatever called it.
 terraform apply -no-color -input=false -auto-approve tfplan.bin
+APPLY_RC=$?
 rm -f tfplan.bin tfplan.json
+if [ "$APPLY_RC" -ne 0 ]; then
+  echo "apply failed: terraform apply exited ${APPLY_RC}. The plan files were removed; fix the cause and re-run." >&2
+fi
+exit "$APPLY_RC"

@@ -22,6 +22,7 @@
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 cd "$HERE"
+. "$HERE/../../../labs/shared/tool-shims.sh"   # checkov resolver for Git Bash on Windows
 PORT="${CAPSTONE_FLOCI_PORT:-4566}"
 FLOCI="cap-floci-run"
 WORK="$HERE/.pipeline"
@@ -39,9 +40,10 @@ run(){ local log="$RUNLOG/$1.log"; shift; "$@" >"$log" 2>&1 && return 0 || retur
 expect_fail(){ local log="$1"; shift; if run "$log" "$@"; then return 1; fi; return 0; }
 
 echo "==> 1. preflight"
-for t in terraform trivy checkov conftest jq docker curl aws; do
+for t in terraform trivy conftest jq docker curl aws; do
   command -v "$t" >/dev/null 2>&1 || fail "required tool not found: $t (the AWS CLI is required for the drift step)"
 done
+checkov_cmd >/dev/null || fail "required tool not found: checkov (see Appendix A)"
 if [ -f solution/terraform.tfstate ] && [ "$(jq '.resources | length' solution/terraform.tfstate)" != "0" ]; then
   fail "solution/terraform.tfstate still holds resources from an earlier run. destroy them or remove the state file, then re-run"
 fi
@@ -53,7 +55,7 @@ cleanup_floci
 if curl -fsS "http://localhost:$PORT/_floci/health" >/dev/null 2>&1; then
   fail "something already answers on port $PORT. stop it, or set CAPSTONE_FLOCI_PORT to a free port"
 fi
-docker run -d --name "$FLOCI" -p "$PORT:4566" -v /var/run/docker.sock:/var/run/docker.sock floci/floci:1.7.0 >/dev/null || fail "floci start"
+MSYS_NO_PATHCONV=1 docker run -d --name "$FLOCI" -p "$PORT:4566" -v /var/run/docker.sock:/var/run/docker.sock floci/floci:1.7.0 >/dev/null || fail "floci start"
 for _ in $(seq 1 30); do curl -fsS "http://localhost:$PORT/_floci/health" >"$RUNLOG/floci-health.log" 2>&1 && break; sleep 2; done
 curl -fsS "http://localhost:$PORT/_floci/health" >/dev/null 2>&1 || fail "floci never healthy on port $PORT"
 docker inspect "$FLOCI" --format '{{range .Mounts}}{{.Source}}{{end}}' | grep -q docker.sock || fail "docker socket is not mounted into floci"

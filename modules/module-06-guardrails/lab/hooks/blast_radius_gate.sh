@@ -21,7 +21,7 @@ command -v jq >/dev/null 2>&1 || { echo "GATE ERROR: jq not found on PATH." >&2;
 
 # Fail closed. `set -uo pipefail` does not stop this script on a failed command,
 # because -e is not enabled, so every jq call is checked here instead. Without
-# this, a malformed or wrong-shaped plan makes jq print nothing, the integer
+# this, a malformed or mis-structured plan makes jq print nothing, the integer
 # tests below silently evaluate to false, and the script falls through to
 # "gate passes". A plan this gate cannot read is not a zero-risk plan.
 count() {
@@ -37,6 +37,23 @@ unreadable() {
 }
 
 jq -e 'type == "object" and (.resource_changes | type) == "array"' "$PLAN_JSON" >/dev/null 2>&1 || unreadable
+
+# Every entry must carry what the three policies read: a string .type and a non-empty
+# .change.actions array of strings. An entry missing either cannot be classified, and an
+# unclassifiable entry is not a zero-risk entry. Without this check, an entry with no
+# actions counts as "one change, no delete" and sails through.
+jq -e 'all(.resource_changes[];
+          type == "object"
+          and (.type | type) == "string"
+          and (.change | type) == "object"
+          and (.change.actions | type) == "array"
+          and (.change.actions | length) > 0
+          and all(.change.actions[]; type == "string"))' "$PLAN_JSON" >/dev/null 2>&1 || {
+  echo "GATE ERROR: a resource_changes entry in $PLAN_JSON has no readable .type or .change.actions." >&2
+  echo "BLOCKED: an entry the gate cannot classify is not a zero-risk entry. Failing closed." >&2
+  exit 1
+}
+
 TOTAL=$(count '[.resource_changes[] | select(.change.actions != ["no-op"])] | length') || unreadable
 DELETES=$(count '[.resource_changes[] | select(.change.actions | index("delete"))] | length') || unreadable
 

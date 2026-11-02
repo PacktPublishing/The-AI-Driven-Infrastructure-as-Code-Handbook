@@ -46,6 +46,7 @@ resource "docker_container" "site" {
   ports {
     internal = 80
     external = 8080
+    ip       = "127.0.0.1"
   }
 
   volumes {

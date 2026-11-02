@@ -1,8 +1,7 @@
 {
   "permissions": {
     "deny": [
-      "Write(shared/**)",
-      "Edit(shared/**)"
+      "Edit(/shared/**)"
     ]
   }
 }

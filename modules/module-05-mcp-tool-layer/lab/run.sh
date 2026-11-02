@@ -1,6 +1,11 @@
+#!/usr/bin/env bash
 set -uo pipefail
+# Shared shims, found relative to this script: a checkov command that also works from Git
+# Bash on Windows, where pip's launcher on PATH cannot be executed by bash.
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)/labs/shared/tool-shims.sh" || exit 1
 cd "$(dirname "$0")"
 fail(){ echo "FAIL: $*" >&2; exit 1; }
+CHECKOV=$(checkov_cmd) || fail "checkov not found; see Appendix A"
 
 echo "==> terraform MCP server image: real pull + real --help response"
 docker pull hashicorp/terraform-mcp-server:latest >/tmp/m05-pull.log 2>&1 || fail "docker pull: $(cat /tmp/m05-pull.log)"
@@ -15,8 +20,19 @@ t = json.load(open('mcp-config/terraform.mcp.json'))
 assert t['mcpServers']['terraform']['command'] == 'docker'
 g = json.load(open('mcp-config/github.mcp.json'))
 assert g['mcpServers']['github']['url'].startswith('https://api.githubcopilot.com')
+h = g['mcpServers']['github']['headers']
+assert h['Authorization'] == 'Bearer \${GITHUB_TOKEN}', h.get('Authorization')
 print('    ok')
 " || fail "mcp-config JSON"
+
+echo "==> github.mcp.json exposes only create_pull_request, never a merge tool"
+python3 -c "
+import json
+h = json.load(open('mcp-config/github.mcp.json'))['mcpServers']['github']['headers']
+tools = [t.strip() for t in h.get('X-MCP-Tools', '').split(',') if t.strip()]
+assert tools == ['create_pull_request'], f'X-MCP-Tools must be exactly create_pull_request, got {tools}'
+print('    ok, X-MCP-Tools = create_pull_request, merge_pull_request is not offered to the agent')
+" || fail "github.mcp.json is missing the X-MCP-Tools restriction"
 
 echo "==> evidence: the stale answer is really low-confidence"
 grep -qi "guess\|not certain\|low" evidence/stale-answer.txt || fail "stale-answer.txt doesn't read like a hedge"
@@ -64,13 +80,14 @@ mkdir -p /tmp/m05-checkov-scratch
 cp module/*.tf /tmp/m05-checkov-scratch/
 sed -i.bak 's/storage_encrypted       = true/storage_encrypted       = false/' /tmp/m05-checkov-scratch/db.tf
 grep -q "storage_encrypted       = false" /tmp/m05-checkov-scratch/db.tf || fail "seed did not take, db.tf still has storage_encrypted = true"
-checkov -d /tmp/m05-checkov-scratch --framework terraform --check CKV_AWS_16 --compact --quiet >/tmp/m05-checkov-seeded.log 2>&1
+# $CHECKOV is unquoted on purpose: on Windows it may be "python -m checkov.main".
+$CHECKOV -d /tmp/m05-checkov-scratch --framework terraform --check CKV_AWS_16 --compact --quiet >/tmp/m05-checkov-seeded.log 2>&1
 CODE=$?
 [ "$CODE" -ne 0 ] || fail "seeded module unexpectedly passed checkov, CKV_AWS_16 should have caught storage_encrypted=false"
 grep -q "CKV_AWS_16" /tmp/m05-checkov-seeded.log || fail "expected CKV_AWS_16 finding, got: $(cat /tmp/m05-checkov-seeded.log)"
 echo "    ok, CKV_AWS_16 found as expected on the seeded module"
 
-checkov -d module --framework terraform --check CKV_AWS_16 --compact --quiet >/tmp/m05-checkov-fixed.log 2>&1 || fail "shipped module: checkov CKV_AWS_16: $(cat /tmp/m05-checkov-fixed.log)"
+$CHECKOV -d module --framework terraform --check CKV_AWS_16 --compact --quiet >/tmp/m05-checkov-fixed.log 2>&1 || fail "shipped module: checkov CKV_AWS_16: $(cat /tmp/m05-checkov-fixed.log)"
 grep -q "Passed checks: 1, Failed checks: 0" /tmp/m05-checkov-fixed.log || fail "shipped module did not pass CKV_AWS_16 cleanly: $(cat /tmp/m05-checkov-fixed.log)"
 echo "    ok, shipped module (storage_encrypted = true) passes CKV_AWS_16"
 rm -rf /tmp/m05-checkov-scratch

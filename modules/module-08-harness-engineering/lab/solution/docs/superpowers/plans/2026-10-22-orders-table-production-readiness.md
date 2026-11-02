@@ -1,5 +1,20 @@
 # Orders Table Production Readiness Implementation Plan
 
+> **Revision note, 2026-10-30.** This plan is what the Superpowers `writing-plans` skill wrote in
+> the recorded session of 2026-10-22, kept as the session produced it, with the expected RED
+> output in Task 1 Step 3 and Task 2 Step 2 corrected after the session. The starter `main.tf`
+> now writes `point_in_time_recovery { enabled = false }` and
+> `server_side_encryption { enabled = false }` out explicitly, so those two tests fail as
+> `Error: Test assertion failed` with the test's own `error_message`, which is the RED the lab
+> and `lab/run.sh` require. The session's expectation of an `Unknown condition value` error was
+> an error, not a failed assertion, and is not valid RED. The original session log,
+> `lab/evidence/stage3-session.jsonl`, still shows that error, unchanged; `orders-red-pitr.txt`
+> and `orders-red-sse.txt` in the same directory were re-run on 2026-10-28 against the current
+> starter. Task 1's `main.tf` line range was updated for the longer starter. On cost, the
+> design document's revision note applies here too: the AWS-owned key is free of charge, the
+> AWS-managed key carries AWS KMS charges for its use, and a customer-managed key adds a monthly
+> key fee. Nothing else was changed.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Harden the checkout service's `checkout-orders` DynamoDB table with point-in-time recovery, server-side encryption on the AWS-managed key, and a read-only IAM policy, each change proven RED then GREEN by `terraform test`, then applied and destroyed against Floci.
@@ -39,7 +54,7 @@ Failure modes the spec implies that the per-task tests would not catch on their 
 
 **Files:**
 - Create: `tests/pitr.tftest.hcl`
-- Modify: `main.tf:3-12` (the `aws_dynamodb_table.orders` resource)
+- Modify: `main.tf:3-21` (the `aws_dynamodb_table.orders` resource)
 
 **Interfaces:**
 - Consumes: nothing.
@@ -77,7 +92,7 @@ run "pitr_enabled" {
 - [ ] **Step 3: Run it and watch it fail for the right reason**
 
 Run: `terraform test -no-color -filter=tests/pitr.tftest.hcl 2>&1 | tee ../evidence/orders-red-pitr.txt`
-Expected: `run "table_shape_unchanged"... pass`, then `run "pitr_enabled"... fail` with `Error: Unknown condition value` naming `point_in_time_recovery[0].enabled`, and the summary `Failure! 1 passed, 1 failed.` The "unknown" error is the real RED here: the block is computed when absent from config. Any other error (syntax, provider, init) is not RED and must be fixed before continuing.
+Expected: `run "table_shape_unchanged"... pass`, then `run "pitr_enabled"... fail` with `Error: Test assertion failed`, a diff of actual `false` against expected `true`, the message `point-in-time recovery is not enabled on aws_dynamodb_table.orders`, and the summary `Failure! 1 passed, 1 failed.` A failed assertion is the real RED here. An error of any kind (`Unknown condition value`, syntax, provider, init) is not RED and must be fixed before continuing. (Corrected after the session; see the revision note.)
 
 - [ ] **Step 4: Add the block to `main.tf`**
 
@@ -133,7 +148,7 @@ No assertion on `kms_key_arn`: it is computed and cannot be evaluated in plan mo
 - [ ] **Step 2: Run it and watch it fail for the right reason**
 
 Run: `terraform test -no-color -filter=tests/sse.tftest.hcl 2>&1 | tee ../evidence/orders-red-sse.txt`
-Expected: `run "sse_enabled"... fail` with `Error: Unknown condition value` naming `server_side_encryption[0].enabled`, summary `Failure! 0 passed, 1 failed.`
+Expected: `run "sse_enabled"... fail` with `Error: Test assertion failed`, a diff of actual `false` against expected `true`, the message `server-side encryption is not enabled on aws_dynamodb_table.orders`, and the summary `Failure! 0 passed, 1 failed.` (Corrected after the session; see the revision note.)
 
 - [ ] **Step 3: Add the block to `main.tf`**
 

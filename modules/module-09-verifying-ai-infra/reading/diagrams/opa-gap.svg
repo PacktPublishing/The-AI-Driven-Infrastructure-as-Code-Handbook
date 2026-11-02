@@ -1,6 +1,6 @@
-<svg viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A Terraform plan flows through Trivy and Checkov's generic rule sets, then through a third gate labeled Conftest checking an org-specific rule neither generic scanner encodes.">
+<svg viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The Terraform configuration source files feed fmt and validate, Trivy and Checkov, while the saved plan JSON from terraform show -json feeds Conftest with OPA checking an org-specific rule neither default rule bundle encodes. The chain then continues with a dashed arrow to human approval, a separate later step.">
   <defs>
-    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="900" height="260">
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="900" height="300">
       <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="33" result="noise"/>
       <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
     </filter>
@@ -8,27 +8,53 @@
       <path d="M0,0 L10,5 L0,10 z" fill="black"/>
     </marker>
   </defs>
-  <rect x="0" y="0" width="900" height="260" fill="white"/>
+  <rect x="0" y="0" width="900" height="300" fill="white"/>
   <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
-    <rect x="20" y="90" width="140" height="60" rx="10" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
-    <text x="90" y="125" text-anchor="middle" font-size="13" fill="black">a plan</text>
+    <!-- two inputs -->
+    <rect x="20" y="40" width="480" height="46" rx="10" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="260" y="62" text-anchor="middle" font-size="12" fill="black">Terraform configuration</text>
+    <text x="260" y="78" text-anchor="middle" font-size="10" fill="black">the .tf source files</text>
 
-    <path d="M160,120 L270,120" stroke="black" stroke-width="2.2" marker-end="url(#arrow)" filter="url(#sketch)"/>
-    <rect x="280" y="60" width="150" height="50" rx="8" fill="#ffe6cc" stroke="black" stroke-width="2" filter="url(#sketch)"/>
-    <text x="355" y="90" text-anchor="middle" font-size="12" fill="black">Trivy: generic rules</text>
-    <rect x="280" y="130" width="150" height="50" rx="8" fill="#ffe6cc" stroke="black" stroke-width="2" filter="url(#sketch)"/>
-    <text x="355" y="160" text-anchor="middle" font-size="12" fill="black">Checkov: generic rules</text>
+    <rect x="530" y="40" width="140" height="46" rx="10" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="600" y="62" text-anchor="middle" font-size="12" fill="black">plan JSON</text>
+    <text x="600" y="78" text-anchor="middle" font-size="10" fill="black">terraform show -json</text>
 
-    <path d="M430,120 L540,120" stroke="black" stroke-width="2.4" marker-end="url(#arrow)" filter="url(#sketch)"/>
-    <rect x="550" y="85" width="180" height="70" rx="10" fill="#e1d5e7" stroke="black" stroke-width="2.6" filter="url(#sketch)"/>
-    <text x="640" y="112" text-anchor="middle" font-size="13" fill="black">Conftest / OPA</text>
-    <text x="640" y="132" text-anchor="middle" font-size="12" fill="black">your org's own rule</text>
+    <!-- inputs down to the gates that read them -->
+    <g stroke="black" stroke-width="1.8" fill="none" marker-end="url(#arrow)" filter="url(#sketch)">
+      <path d="M90,86 L90,148"/>
+      <path d="M260,86 L260,148"/>
+      <path d="M430,86 L430,148"/>
+      <path d="M600,86 L600,148"/>
+    </g>
 
-    <path d="M730,120 L830,120" stroke="black" stroke-width="2.4" marker-end="url(#arrow)" filter="url(#sketch)"/>
-    <text x="860" y="115" text-anchor="middle" font-size="12" fill="black">pass</text>
-    <text x="860" y="132" font-size="12" fill="black">or</text>
-    <text x="860" y="149" text-anchor="middle" font-size="12" fill="black">block</text>
+    <!-- the gates, in order -->
+    <rect x="20" y="150" width="140" height="56" rx="8" fill="#d5e8d4" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+    <text x="90" y="182" text-anchor="middle" font-size="12" fill="black">fmt / validate</text>
 
-    <text x="450" y="220" text-anchor="middle" font-size="13" fill="black">neither generic scanner knows your naming, tagging, or ownership rules exist</text>
+    <rect x="190" y="150" width="140" height="56" rx="8" fill="#ffe6cc" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+    <text x="260" y="175" text-anchor="middle" font-size="12" fill="black">Trivy</text>
+    <text x="260" y="192" text-anchor="middle" font-size="10" fill="black">generic rules</text>
+
+    <rect x="360" y="150" width="140" height="56" rx="8" fill="#ffe6cc" stroke="black" stroke-width="2" filter="url(#sketch)"/>
+    <text x="430" y="175" text-anchor="middle" font-size="12" fill="black">Checkov</text>
+    <text x="430" y="192" text-anchor="middle" font-size="10" fill="black">generic rules</text>
+
+    <rect x="530" y="150" width="140" height="56" rx="8" fill="#e1d5e7" stroke="black" stroke-width="2.6" filter="url(#sketch)"/>
+    <text x="600" y="175" text-anchor="middle" font-size="12" fill="black">Conftest / OPA</text>
+    <text x="600" y="192" text-anchor="middle" font-size="10" fill="black">your org's own rule</text>
+
+    <rect x="710" y="150" width="170" height="56" rx="8" fill="#f8cecc" stroke="black" stroke-width="2.2" stroke-dasharray="7 4" filter="url(#sketch)"/>
+    <text x="795" y="175" text-anchor="middle" font-size="12" fill="black">human approval</text>
+    <text x="795" y="192" text-anchor="middle" font-size="10" fill="black">separate later step</text>
+
+    <g stroke="black" stroke-width="2.2" fill="none" marker-end="url(#arrow)" filter="url(#sketch)">
+      <path d="M160,178 L186,178"/>
+      <path d="M330,178 L356,178"/>
+      <path d="M500,178 L526,178"/>
+      <path d="M670,178 L706,178" stroke-dasharray="5 4"/>
+    </g>
+
+    <text x="450" y="250" text-anchor="middle" font-size="13" fill="black">Trivy and Checkov scan source files; Conftest evaluates the saved plan JSON</text>
+    <text x="450" y="272" text-anchor="middle" font-size="11" fill="black">cost reporting and human approval are explained in the following figures</text>
   </g>
 </svg>

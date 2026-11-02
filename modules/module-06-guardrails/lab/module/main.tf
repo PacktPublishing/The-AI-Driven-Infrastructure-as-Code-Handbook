@@ -18,8 +18,3 @@ resource "aws_s3_bucket" "logs" {
     ManagedBy   = "terraform"
   }
 }
-
-resource "aws_s3_bucket" "docs" {
-  bucket = "m06-lab-docs"
-  tags = { Environment = "lab", Owner = "m06-lab", ManagedBy = "terraform" }
-}

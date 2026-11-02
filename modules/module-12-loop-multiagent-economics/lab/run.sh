@@ -6,6 +6,9 @@
 #
 # Requires terraform, checkov, python3 with PyYAML. actionlint is used when present.
 set -uo pipefail
+# Shared shims, found relative to this script: a checkov command that also works from Git
+# Bash on Windows, where pip's launcher on PATH cannot be executed by bash.
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)/labs/shared/tool-shims.sh" || exit 1
 cd "$(dirname "$0")"
 LAB="$PWD"
 TMP=$(mktemp -d)
@@ -17,9 +20,10 @@ newcopy(){ # newcopy <name> <source-dir>: a fresh git working copy with the loop
     || fail "git init failed for $1"
 }
 
-for t in terraform checkov python3 git; do
+for t in terraform python3 git; do
   command -v "$t" >/dev/null 2>&1 || fail "$t is not on PATH"
 done
+checkov_cmd >/dev/null || fail "checkov is not on PATH; see Appendix A"
 
 echo "==> 1. verifier on the starter: NOT DONE, both hardcoded keys named"
 newcopy starter starter

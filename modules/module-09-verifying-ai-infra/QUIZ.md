@@ -25,16 +25,17 @@ coverage gap, not a safety margin, run both.
 **2. What is Conftest, running OPA policies, for that Trivy and Checkov are not?**
 
 - A. A faster replacement for Trivy and Checkov
-- B. Checking rules specific to your own organization that no generic scanner encodes
+- B. Checking rules specific to your own organization that neither scanner's default rule bundle encodes
 - C. A tool for estimating cloud cost
 - D. A replacement for `terraform plan`
 
 <details>
 <summary>Answer</summary>
 
-**B.** Trivy and Checkov ship generic, vendor-maintained rule sets. Neither one knows your
-team's naming convention, tagging rule, or approved module registry. You write that rule
-once, in Rego, and Conftest checks every plan against it.
+**B.** Trivy and Checkov ship generic, vendor-maintained default rule bundles. Both can take
+custom checks, but someone still has to write and maintain those, and neither default bundle
+knows your team's naming convention, tagging rule, or approved module registry. This lab
+writes that rule once, in Rego, and Conftest checks every plan against it.
 
 </details>
 
@@ -53,7 +54,8 @@ once, in Rego, and Conftest checks every plan against it.
 **B.** A report that a human might read is not the same as a check wired to fail the
 pipeline past a real threshold. The plan that quietly adds three oversized instances should
 stop at the same gate as a failing scanner, not sail through because nobody read the
-report carefully.
+report carefully. This module's `pipeline.sh` runs Infracost as that report, failing only
+if the CLI itself errors. M12 wires the threshold that turns it into a gate.
 
 </details>
 

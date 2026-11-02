@@ -3,7 +3,7 @@
 3-5 stretch project seeds. Hints, not solutions.
 
 1. **Write your team's `AGENTS.md`.** For a real repo you actually work in, not a toy one.
-   Include provider pins, your team's real naming convention, and at least one never-do rule
+   Include provider constraints, your team's real naming convention, and at least one never-do rule
    your team enforces informally today.
 
 2. **Break it on purpose.** Delete one line from your `AGENTS.md`, run the same intent you

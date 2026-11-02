@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 set -uo pipefail
 cd "$(dirname "$0")"
 export PATH="/Users/gshah/.rd/bin:$PATH"
@@ -6,6 +7,21 @@ NODE_IMAGE="kindest/node:v1.31.0@sha256:25a3504b2b340954595fa7a6ed1575ef2edadf5a
 ARGOCD_VERSION="v3.5.6"
 ARGOCD_MANIFEST="https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION}/manifests/install.yaml"
 fail(){ echo "FAIL: $*" >&2; kind delete cluster --name "$CLUSTER_NAME" >/dev/null 2>&1; exit 1; }
+
+# Teardown proof. Docker must answer, and the answer must be empty. A Docker
+# error is not "no orphans": an inspection that cannot run cannot vouch for the
+# teardown, so it fails the run instead of letting the success line print.
+# Tested without a cluster by test_teardown_check.sh.
+assert_no_orphans(){
+  local orphans
+  if ! orphans=$(docker ps -a --filter "name=$CLUSTER_NAME" --format '{{.Names}}' 2>&1); then
+    fail "docker inspection failed, teardown unconfirmed: $orphans"
+  fi
+  [ -z "$orphans" ] || fail "orphan cluster container remains: $orphans"
+}
+
+# When sourced (by the test above), expose the functions and run nothing.
+[ "${BASH_SOURCE[0]}" != "$0" ] && return 0
 
 echo "==> 1. real evidence: the merged PR's fix is really in place"
 python3 -c "
@@ -81,8 +97,8 @@ echo "    ok, Synced/Healthy, real ConfigMap reconciled from the merged repo"
 echo "==> 7. numbered teardown: remove application, delete cluster"
 kubectl delete -f argocd-application.yaml >/dev/null 2>&1 || fail "application delete"
 kind delete cluster --name "$CLUSTER_NAME" >/dev/null 2>&1 || fail "cluster delete"
-docker ps -a --filter "name=$CLUSTER_NAME" --format '{{.Names}}' | grep -q "$CLUSTER_NAME" && fail "orphan cluster container remains"
-echo "    ok, application removed, cluster deleted, no orphans"
+assert_no_orphans
+echo "    ok, application removed, cluster deleted, no orphans (docker confirmed)"
 
 echo
 echo "TIER 2 PIPELINE PASSED -- real merged PR evidence, real crossplane v2, real argo cd synced/healthy, teardown clean"

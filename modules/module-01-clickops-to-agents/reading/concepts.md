@@ -258,8 +258,8 @@ up the second half of this course. They are not an afterthought bolted on at the
 
 ### Three numbers from 2026
 
-The Firefly *State of IaC 2026* survey, a vendor survey, so treat these numbers as
-directional rather than exact, found that **46%** of organizations are already running AI
+Firefly's October 2026 *State of Infrastructure as Code* research, a vendor survey, so treat
+these numbers as directional rather than exact, found that **46%** of organizations are already running AI
 for infrastructure work in production, or in advanced pilots. That is real, mainstream
 adoption, not an early-adopter curiosity. But only **34%** of respondents said they would
 trust an autonomous system to make changes in production without a human approving each
@@ -309,7 +309,7 @@ equivalent change in application code would have.
 
 **Silent failure.** This is the one that catches teams off guard the most. Gao et al.'s
 "InfraBench: Evaluating Infrastructure Agents Across Layers, Lifecycle, and Risk"
-(arXiv:2608.11234, Jul 2026) found that agents can "routinely satisfy short-term
+(arXiv:2608.11234, originally posted July 2026; revised October 2026) found that agents can "routinely satisfy short-term
 objectives while leaving non-durable changes, broken distributed invariants...and
 uncleaned state" behind them. In plain words: the task the agent was given gets done, the agent reports
 success, and something sitting right next to that task quietly breaks, or gets left half

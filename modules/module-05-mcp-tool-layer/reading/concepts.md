@@ -23,12 +23,23 @@ and again, slightly differently each time.
 
 ## MCP: One Protocol, Many Clients
 
-MCP, the Model Context Protocol, is nothing but a shared interface. One server exposes a
-tool, or a resource, once. Any agent client that speaks the protocol can call it. The
-tangle from the last section turns into spokes: one connection from each agent client to
-the shared protocol, one connection from the protocol to each tool.
+MCP, the Model Context Protocol, is a shared protocol, not a central hub. There is no
+service in the middle that every agent talks to and that talks to every tool on its behalf.
+Instead, each agent application, the MCP *host*, holds one or more MCP *clients*, and each
+client connects directly to one server. Claude Code with two servers registered is one host
+holding two clients, one connected to the Terraform MCP server, one to the GitHub MCP
+server. Codex with the same two servers is a second host with its own two clients. The
+protocol is what is shared, on every one of those connections. The connections themselves
+are separate: one is a local process over stdio, another is an HTTPS session to a hosted
+server, and nothing passes between them.
 
-![After MCP: three agent vendors each speak one shared protocol to a hub, and the hub holds the connection to the terraform registry, github, and a cloud provider.](./diagrams/after-mcp-spokes.svg)
+One server exposes a tool, or a resource, once. Any client that speaks the protocol can
+call it. The tangle from the last section turns into something simpler, but not into a
+hub. Every arrow in the figure below is one direct client-to-server connection, stdio or
+HTTP, each with its own transport and its own credentials, never a shared session routed
+through a middle box.
+
+![After MCP: three agent apps, each holding MCP clients that connect directly to the terraform registry, github, and a cloud provider servers over one shared protocol, with no central hub.](./diagrams/after-mcp-spokes.svg)
 
 Would you call MCP a new idea? Not really. It's the same move as an ODBC driver or a
 POSIX system call, one interface, many implementations behind it, many callers in front of
@@ -103,19 +114,21 @@ scratch copy, watch Checkov fail, fix it, watch Checkov pass.
 
 One more real result belongs in this chapter, because it's a genuinely useful lesson and it
 would be dishonest to leave it out just because it's inconvenient. `aws-iac-mcp-server` is
-named, in this course's own conventions, as the AWS-endorsed successor to the deprecated
-`awslabs/terraform-mcp-server`. It's real. `uvx awslabs.aws-iac-mcp-server@latest` really
-installs, 86 real packages, a real dependency tree including `cfn-lint` and `botocore`. Then
-it crashes on startup: `ModuleNotFoundError: No module named 'fastmcp.server.proxy'`.
-Pinning an older `fastmcp` doesn't fix it, it trades one crash for a different, real one, a
-`pydantic` incompatibility this time.
+real, but AWS names it as the successor to its deprecated CloudFormation and CDK MCP
+servers, not to its deprecated `awslabs/terraform-mcp-server`. For Terraform, AWS points at
+HashiCorp's official Terraform MCP server. `uvx awslabs.aws-iac-mcp-server@latest` really
+installs, 86 real packages, a real dependency tree including `cfn-lint` and `botocore`.
+Then, in the captured lab run of 31 August 2026, it crashed on startup:
+`ModuleNotFoundError: No module named 'fastmcp.server.proxy'`. Pinning an older `fastmcp`
+didn't fix it, it traded one crash for a different, real one, a `pydantic` incompatibility
+this time.
 
 Two facts sit side by side here, and a working engineer needs both. First: the server's
 documented tool list is real and would genuinely help if part of your stack is CloudFormation
 or CDK, `validate_cloudformation_template`, `check_cloudformation_template_compliance`,
 `search_cdk_documentation`, none of it Terraform-specific, all of it CFN/CDK-scoped. Second:
-it doesn't start, today, in a clean environment. "Official" describes who publishes a
-package. It says nothing about whether the package runs. Verify an MCP server actually
+it didn't start, on the day it was captured, in a clean environment. "Official" describes
+who publishes a package. It says nothing about whether the package runs. Verify an MCP server actually
 connects, and actually covers the IaC tool you're using, before you build a workflow that
 assumes it will.
 
@@ -127,9 +140,13 @@ The GitHub MCP server lets an agent do real things on a real repository: read fi
 branches, open a pull request. That last one is worth slowing down on, because "the agent
 can open a PR" sounds, at first, like a step up in autonomy. It isn't.
 
-Opening a pull request is a proposal. Nothing merges until a human reviews the diff and
-clicks merge. The authority boundary from module 1, the agent proposes, the pipeline
-decides, holds exactly as written here. The agent's reach through MCP still ends at
+Opening a pull request is a proposal, but MCP alone does not prevent a merge. GitHub's
+MCP server also offers a merge tool, so the lab registers the server with
+`X-MCP-Tools: create_pull_request` and the merge tool is never offered to the agent. That
+header restricts this server only; it does not stop a shell `gh pr merge`, which is why
+the agent's tool permissions and the repository's own rules have to hold the same line.
+With all three in place, the authority boundary from module 1, the agent proposes, the
+pipeline decides, holds exactly as written here. The agent's reach through MCP ends at
 "here's a change, please look at it."
 
 ![An agent opens a real pull request through the GitHub MCP server, but merging is a separate action a human still has to take, the same authority boundary from module one's thesis diagram.](./diagrams/pr-not-merge.svg)
@@ -166,7 +183,8 @@ pull request opened by the GitHub MCP server, closed by a human, not merged.
 |---|---|
 | MCP (Model Context Protocol) | A shared protocol that lets an agent call a tool or read a resource from an external server, without a bespoke integration per vendor |
 | MCP server | The program exposing a tool or resource over MCP, for example the official Terraform MCP server |
-| MCP client | The agent side of the connection, the thing that calls the server's tools |
+| MCP host | The application running the agent, for example Claude Code or Codex. A host holds one MCP client per server it uses |
+| MCP client | The agent side of one connection, held by the host, connected directly to one server, the thing that calls that server's tools |
 | Tool call | An MCP request that asks a server to do something and return a real result |
 | Resource | Data an MCP server exposes for an agent to read |
 | Terraform MCP server | HashiCorp's official server (GA June 2026), never the deprecated `awslabs/terraform-mcp-server` |

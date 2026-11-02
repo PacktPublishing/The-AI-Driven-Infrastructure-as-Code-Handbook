@@ -1,10 +1,15 @@
+#!/usr/bin/env bash
 set -uo pipefail
+# Shared shims, found relative to this script: a checkov command that also works from Git
+# Bash on Windows, where pip's launcher on PATH cannot be executed by bash.
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)/labs/shared/tool-shims.sh" || exit 1
 cd "$(dirname "$0")"
 fail(){ echo "FAIL: $*" >&2; exit 1; }
+CHECKOV=$(checkov_cmd) || fail "checkov not found; see Appendix A"
 
 echo "==> pinned-tool prerequisites reachable"
 terraform version >/dev/null 2>&1 || fail "terraform not on PATH"
-checkov --version >/dev/null 2>&1 || fail "checkov not on PATH"
+$CHECKOV --version >/dev/null 2>&1 || fail "checkov not on PATH"
 docker info >/dev/null 2>&1 || fail "docker not reachable"
 echo "    ok"
 
@@ -42,9 +47,10 @@ done
 echo "    ok"
 
 echo "==> all three must be checkov-clean (no built-in coverage for these resource types, same gap as M01)"
-checkov -d solution/step1-suggested --compact --quiet >/tmp/m02-ck1.log 2>&1 || fail "step1 checkov: $(cat /tmp/m02-ck1.log)"
-checkov -d solution/step2-drafted --compact --quiet >/tmp/m02-ck2.log 2>&1 || fail "step2 checkov: $(cat /tmp/m02-ck2.log)"
-checkov -d solution/step3-acceptedits --compact --quiet >/tmp/m02-ck3.log 2>&1 || fail "step3 checkov: $(cat /tmp/m02-ck3.log)"
+# $CHECKOV is unquoted on purpose: on Windows it may be "python -m checkov.main".
+$CHECKOV -d solution/step1-suggested --compact --quiet >/tmp/m02-ck1.log 2>&1 || fail "step1 checkov: $(cat /tmp/m02-ck1.log)"
+$CHECKOV -d solution/step2-drafted --compact --quiet >/tmp/m02-ck2.log 2>&1 || fail "step2 checkov: $(cat /tmp/m02-ck2.log)"
+$CHECKOV -d solution/step3-acceptedits --compact --quiet >/tmp/m02-ck3.log 2>&1 || fail "step3 checkov: $(cat /tmp/m02-ck3.log)"
 echo "    ok"
 
 echo "==> the two draft files must genuinely differ (real finding: same intent, same model, two runs diverge)"

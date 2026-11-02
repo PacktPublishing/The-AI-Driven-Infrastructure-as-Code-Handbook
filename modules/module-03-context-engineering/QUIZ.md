@@ -89,7 +89,7 @@ human would follow.
 <summary>Answer</summary>
 
 **B.** "Follow best practices" gives an agent nothing to actually check its own output
-against. The AGENTS.md examples in this module, provider pins, a naming convention, a
+against. The AGENTS.md examples in this module, provider constraints, a naming convention, a
 never-do list, are specific enough that a violation is obvious on sight.
 
 </details>

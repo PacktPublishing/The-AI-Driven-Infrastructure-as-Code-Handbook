@@ -46,6 +46,16 @@ IllegalStateException: RDS runtime arn:aws:rds:... already has an active contain
 A learner hitting that will assume the lab is broken. **Put the socket mount in every lab's setup step
 and call out the failure mode in the troubleshooting section.**
 
+**On Windows, prefer WSL2 (Ubuntu).** From Git Bash, that `docker run` needs `MSYS_NO_PATHCONV=1` in
+front of it, because MSYS rewrites the `/var/run/docker.sock:/var/run/docker.sock` argument into a
+Windows path list before Docker sees it. `labs/shared/docker-compose.floci.yml` avoids the problem.
+Git Bash has one more trap: pip's `checkov` launcher script cannot be executed by bash
+(`checkov: cannot execute: required file not found`). `run.sh` here, and every lab script that scans,
+sources `labs/shared/tool-shims.sh`, which falls back to `python -m checkov.main` and prints the
+command it used. For a `checkov` command you type, run `python -m checkov.main` with the same
+arguments. `labs/shared/tool-shims.test.sh` reproduces the failure on any machine and checks the
+fallback.
+
 ## Constraints to design labs around
 
 - **Pin `floci/floci:1.7.0`.** Nightlies ship daily; `latest` is a moving target mid-course.

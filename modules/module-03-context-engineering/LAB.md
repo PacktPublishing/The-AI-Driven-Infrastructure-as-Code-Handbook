@@ -44,14 +44,14 @@ spike. You will come back to your own nginx module for stages 2 and 3.
 
 ```
 cd labs/shared/floci-spike
-checkov -d . --framework terraform > /tmp/verbose.txt
-checkov -d . --framework terraform --compact --quiet > /tmp/compact.txt
+checkov -d . --framework terraform --skip-download > /tmp/verbose.txt
+checkov -d . --framework terraform --skip-download --compact --quiet > /tmp/compact.txt
 wc -c /tmp/verbose.txt /tmp/compact.txt
 ```
 
 `[ Approximate output ]`
 ```
-   25680 /tmp/verbose.txt
+   25679 /tmp/verbose.txt
     3881 /tmp/compact.txt
 ```
 
@@ -60,6 +60,12 @@ and every repeated source-code excerpt got printed too. That's an ~85%
 reduction from one flag. **Read** `/tmp/verbose.txt` and count how many lines
 you'd actually act on versus how many you'd just scroll past. That gap is
 exactly what Reduce removes before it ever reaches an agent's context window.
+
+`--skip-download` is there so the measurement comes out the same on and off the
+network. Without it, checkov fetches a guideline URL for every check and prints a
+`Guide:` line under each result. Those lines alone take the verbose file to about
+37,000 bytes and the compact one to about 7,500. The findings don't change. Only
+the noise does, and most of that noise isn't even about your code.
 
 ## Stage 2: Retain
 
@@ -116,7 +122,7 @@ Success! The configuration is valid.
 
 Check: CKV_SECRET_2: "AWS Access Key"
 	FAILED for resource: abac545fc3bf803134bc8f78fb6160a5c6a87b26
-	File: /main.tf:32-33
+	File: /main.tf:22-23
 ```
 
 `Exit code 1`. Same finding as M01, on purpose. Nothing here is invalid
@@ -334,7 +340,7 @@ difference, because it's the seam between this module and M06:
 ## Exercise
 
 Delete one section from your own `AGENTS.md`, the naming convention or the
-provider pins, and run the exact same intent a third time. Does the mistake
+provider constraints, and run the exact same intent a third time. Does the mistake
 that section was preventing come back? Then, separately, write a `STATE.md`
 of your own for something you're actually mid-way through this week, not a
 lab exercise, a real piece of work. Write three lines in `notes.md`: which
@@ -354,7 +360,7 @@ cd modules/module-03-context-engineering/lab
 `run.sh` checks:
 
 - Run 1 fails checkov on `CKV_SECRET_2`, the hardcoded secret
-- Run 2 is clean, and `AGENTS.md` carries all four required sections
+- Run 2 is clean, and `AGENTS.md` carries all five required sections
 
 Run it whenever the pinned provider or checkov versions in this project get
 bumped.

@@ -12,8 +12,8 @@ works, runs one infrastructure change through its whole workflow, and positions 
 bigger builds. The course's bottom-up rule still applies: never add a loop on top of a broken
 harness.
 
-Spec: [`specs/M08-spec.md`](../../specs/M08-spec.md). Read it before changing anything here.
-Why this module was rewritten on 2026-10-22: [`decisions/0007-teach-real-superpowers.md`](../../decisions/0007-teach-real-superpowers.md).
+This module was rewritten on 2026-10-22 to teach the real Superpowers plugin as it ships,
+rather than a home-made "superpowers pattern".
 
 ## Versions shown on screen
 
@@ -32,15 +32,8 @@ Why this module was rewritten on 2026-10-22: [`decisions/0007-teach-real-superpo
 modules/module-08-harness-engineering/
   README.md               this file, delivery guide
   explainer/
-    EXPLAINER.md           9 diagram beats, narrator notes, timing
-    deck/
-      build_deck.py         generator, same lineage as M06/M07
-      m08-harness-engineering.html   16-slide self-contained deck
-      m08-sequence.md        slide table, diagram-to-figure map, coverage check
-    diagrams/               8 hand-drawn SVGs
     sim/
       bootstrap-sim.html     plugin off or on, three requests, which skill fires first
-      bootstrap-sim.test.mjs
   LAB.md                   Project 08: Run an IaC Change Through the Superpowers Workflow Harness (Tier 1, ~35 min)
   lab/
     orders/                  the starter: a bare DynamoDB table and a dynamodb:* policy, Floci provider stub
@@ -52,26 +45,30 @@ modules/module-08-harness-engineering/
     run.sh                   validates the full real sequence, including a real Floci apply/destroy
     .gitignore
   reading/
-    concepts.md              ~15 min standalone read, the seed of book/chapters/08-harness-engineering.md
+    concepts.md              ~15 min standalone read, the seed of Chapter 8 of the book
     reference.md             one-page A4 cheat sheet
-    diagrams/                the same 8 SVGs, for the reading
+    diagrams/                8 hand-drawn SVGs, one per section of concepts.md
   QUIZ.md                  9 questions, collapsible answers
   PROJECTS.md              5 stretch project seeds
 ```
 
 ## Delivery guide: live workshop
 
-Run in this order, roughly 60 minutes with a break:
+Run in this order, roughly 60 minutes with a break. Each step walks one or two sections of
+`reading/concepts.md` with its diagram from `reading/diagrams/` on screen:
 
-1. Walk `explainer/EXPLAINER.md` beat 2 (three things called a harness), ~3 min. Do not skip
-   it; every later confusion in this module traces back to the word.
-2. Walk beats 3 and 4 (a skills library plus a bootstrap, the bootstrap path), ~7 min. Open the
-   three real files on screen from the installed plugin directory.
-3. Walk beat 5 (the basic workflow), ~3 min.
-4. Walk beats 6 and 7 (the IaC loop, skill versus gate), ~6 min. Say the honest finding out
-   loud: without the harness a strong model still tested; the harness made it uniform.
-5. Walk beat 8 (Superpowers and GSD, stacked), ~3 min.
-6. Walk beat 9 (harness before loop), ~2 min.
+1. "Three Things Called a Harness" (`three-harnesses.svg`), ~3 min. Do not skip it; every
+   later confusion in this module traces back to the word.
+2. "Superpowers: Where It Came From and What It Is" and "The Bootstrap Is the Whole Trick"
+   (`skills-plus-bootstrap.svg`, `bootstrap-path.svg`), ~7 min. Open the three real files on
+   screen from the installed plugin directory, then run `explainer/sim/bootstrap-sim.html`
+   with the plugin off and on.
+3. The basic workflow, still in the Superpowers section (`basic-workflow.svg`), ~3 min.
+4. "Adapting a Software Harness to Infrastructure" and "Skill Versus Gate, Revisited"
+   (`iac-loop.svg`, `skill-vs-gate.svg`), ~6 min. Say the honest finding out loud: without
+   the harness a strong model still tested; the harness made it uniform.
+5. "OpenGSD, and When to Reach for It" (`superpowers-and-gsd.svg`), stacked, ~3 min.
+6. "What Has to Be True Before You Loop" (`harness-before-loop.svg`), ~2 min.
 7. Break, then run `LAB.md` live, ~35 min. Stage 3 is interactive and is the part people
    remember: brainstorming asks, you answer, the plan appears, the test fails first.
 8. Close on PROJECTS.md seed 1: port one of their own checklists into a skill.
@@ -88,10 +85,12 @@ cd modules/module-08-harness-engineering/lab
 ```
 
 Requires `terraform`, `checkov`, and Docker reachable at `/var/run/docker.sock`. It confirms the
-starter's tests fail as assertions (not as errors), the solution's tests pass, Checkov reports no
-finding for the two hardening checks the tests cover, then pulls and runs `floci/floci:1.7.0`,
-applies the solution for real, and destroys it. With `M08_LIVE_AGENT=1` it also runs the Claude
-Code probe and asserts the Superpowers bootstrap answered.
+starter's tests fail as assertions (not as errors), the solution's tests pass, Checkov passes
+`CKV_AWS_28` and fails nothing except the accepted `CKV_AWS_119`, then pulls and runs
+`floci/floci:1.7.0`, applies the solution for real, checks for drift with
+`terraform plan -detailed-exitcode`, reads both flags back from state as enabled, and destroys
+it. With `M08_LIVE_AGENT=1` it also runs the Claude Code probe and asserts the Superpowers
+bootstrap answered.
 
 ## Where the captures came from
 
@@ -101,7 +100,10 @@ but credentials, inside the companion repository checkout, which carries no `CLA
 authoring repository's own `CLAUDE.md` and plugins were not loaded. Stage 2's two runs were
 captured as `claude -p --output-format stream-json` event logs, kept verbatim under
 `lab/evidence/`. Stage 3 was driven in a real interactive `claude` session and the pane captured.
-Nothing was edited to look better.
+Two of its evidence files, `orders-red-pitr.txt` and `orders-red-sse.txt`, were re-run on
+2026-10-28 after the starter gained explicit `enabled = false` settings; the session's original
+log, `stage3-session.jsonl`, still shows the earlier unknown-value error, and `LAB.md` Stage 3
+says which file is which. Nothing was edited to look better.
 
 ## Autonomy ladder
 
@@ -110,13 +112,10 @@ taught in M12) safe to attempt: a loop on top of a broken harness just repeats i
 
 ## Definition-of-done status
 
-- [x] `specs/M08-spec.md` read before building
 - [x] All module directories present (`explainer/`, `lab/`, `reading/`, plus root `LAB.md`,
       `QUIZ.md`, `PROJECTS.md`, `README.md`)
-- [x] `EXPLAINER.md` has narrator notes and timing for every diagram beat
 - [x] `LAB.md` steps are copy-pasteable, solo-completable, Tier 1, real captured output only
-- [x] `reading/concepts.md` is standalone-readable (~15 min) and seeds
-      `book/chapters/08-harness-engineering.md`
+- [x] `reading/concepts.md` is standalone-readable (~15 min) and seeds Chapter 8 of the book
 - [x] `reading/reference.md` is a one-side-of-A4 cheat sheet
 - [x] `QUIZ.md`: 9 questions, collapsible answers, scenario-heavy
 - [x] `PROJECTS.md`: 5 stretch projects, hints not solutions
@@ -124,22 +123,21 @@ taught in M12) safe to attempt: a loop on top of a broken harness just repeats i
 - [x] No retired tools presented as current
 - [x] Every skill name, file path, hook event and command exists in Superpowers 7.0.0, checked
       against the installed plugin directory
-- [x] The three senses of harness named on slide 3 and in the first concept section
+- [x] The three senses of harness named in the first concept section
 - [x] Stage 3's RED is an assertion failure, not an undeclared-resource error
 - [x] OpenGSD positioned in one section with a decision table, not taught hands-on
 - [x] No "superpowers pattern", no invented origin story, no regex Stop hook
 - [x] No new autonomy step introduced; step 5 previewed as "what this makes possible"
-- [x] Course slide voiceover script: `planning/voiceover/m08-slide-voiceover.md`
 - [x] Lab validation script: `lab/run.sh`
 - [x] Zero "rung" anywhere in learner-facing content, "step" used throughout
 
 ## Delivery guide: Udemy
 
-One concept per lecture, 3 to 6 minutes each, following the deck's 6 sections: three things
-called a harness (slide 3), Superpowers and its bootstrap (slides 5 to 7), adapting it to
-infrastructure (slides 9 to 10), bigger builds (slide 12), harness before loop (slide 14), and
-the closing. `LAB.md` ships as four hands-on lectures, one per stage; Stage 3 is screen-recorded
+One concept per lecture, 3 to 6 minutes each, following the sections of `reading/concepts.md`:
+three things called a harness, Superpowers and its bootstrap, adapting it to infrastructure,
+skill versus gate and harness versus context, OpenGSD for bigger builds, harness before loop,
+and the closing. `LAB.md` ships as four hands-on lectures, one per stage; Stage 3 is screen-recorded
 from an interactive session. `QUIZ.md` publishes as the module's Udemy quiz. `PROJECTS.md`,
 `reading/reference.md` and `lab/skills/iac-verification/SKILL.md` publish as downloadable
-resources. The Module 8 lectures recorded before 2026-10-22 are retired; re-record from
-`planning/voiceover/m08-slide-voiceover.md`.
+resources. The Module 8 lectures recorded before 2026-10-22 are retired; re-record from the current
+`reading/concepts.md`.

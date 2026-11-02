@@ -50,11 +50,15 @@ means the skill sits there, written, correct, and never triggered.
 
 ### Step 2: Run with no skill available
 
-Copy the starter into its own run folder, with no `.claude/skills/` anywhere in it:
+Copy the starter into a temporary directory **outside the repo**. Claude Code discovers
+`.claude/skills/` by walking up from the working directory, so a run folder anywhere under
+`lab/` would find the skill that already ships in `lab/.claude/skills/` and this run would
+stop being a no-skill run. A directory under `/tmp` has no `.claude/` above it:
 
 ```
-cp -r modules/module-04-agent-skills/lab/starter modules/module-04-agent-skills/lab/run1
-cd modules/module-04-agent-skills/lab/run1
+RUN1_DIR=$(mktemp -d /tmp/m04-noskill.XXXXXX)
+cp -R modules/module-04-agent-skills/lab/starter/. "$RUN1_DIR/"
+cd "$RUN1_DIR"
 ```
 
 **Open** Claude Code (or Codex) in that directory and give it this exact prompt, no skill
@@ -65,7 +69,10 @@ claude -p "Give me a small S3 bucket for build artifacts, with a credential for 
   --permission-mode acceptEdits --allowedTools "Read,Write,Edit"
 ```
 
-This is what came back, captured for real, with no skill in the folder:
+This is what came back, captured for real, with no skill in the folder. The transcript was
+recorded under this lab's earlier layout, where the no-skill run lived in a `run1/` folder
+inside `lab/`, which is why the file label below says `run1/`. The file is the same
+`main.tf` the agent writes into `$RUN1_DIR` today:
 
 `file: run1/main.tf`
 ```
@@ -108,16 +115,19 @@ framework, missing encryption, missing versioning, and so on. Leave those for no
 module's skill isn't scoped to fix general S3 posture, that's a systematic job for M09's
 scanners. This skill is scoped to three things: provider pins, required tags, and secrets.
 
+You have the evidence you came for. **Leave** the temporary directory, delete it, and go
+back into the lab folder:
+
+```
+cd -
+rm -rf "$RUN1_DIR"
+cd modules/module-04-agent-skills/lab
+```
+
 ### Step 3: Write the skill
 
-Back in `modules/module-04-agent-skills/lab` (this skill belongs to the lab, not to one run
-folder, so both runs can find it):
-
-```
-cd ..
-```
-
-**Write** the skill that was missing. This is the actual deliverable of this stage:
+This skill belongs to the lab folder, under `lab/.claude/skills/`, so the with-skill run in
+Step 4 can find it. **Write** the skill that was missing. This is the actual deliverable of this stage:
 
 `file: .claude/skills/terraform-module-conventions/SKILL.md`
 ```
@@ -221,11 +231,29 @@ docker run -d --name floci -p 4566:4566 \
   floci/floci:1.7.0
 ```
 
-**Apply** the module with the skill's fixes in place:
+From Git Bash on Windows, put `MSYS_NO_PATHCONV=1` in front of `docker run`, or start Floci with
+`docker compose -f labs/shared/docker-compose.floci.yml up -d` from the repository root instead
+(see Appendix A).
+
+**Plan** the module with the skill's fixes in place, and read the plan before anything
+runs:
 
 ```
 export TF_VAR_artifact_uploader_key="AKIAFAKELABKEY000111"
-terraform apply -auto-approve
+terraform plan
+```
+
+`[ Expected output ]`
+```
+Plan: 1 to add, 0 to change, 0 to destroy.
+```
+
+One bucket, carrying the three tags you never typed, and no credential anywhere in the
+plan. That read is the review step. The agent proposed the module, you inspect the
+Terraform plan, and then **apply** it. Type `yes` at the prompt:
+
+```
+terraform apply
 ```
 
 `[ Expected output ]`
@@ -390,13 +418,30 @@ docker run -d --name floci -p 4566:4566 \
   floci/floci:1.7.0
 ```
 
-**Apply** the dev environment, the fastest of the three to check for real:
+From Git Bash on Windows, put `MSYS_NO_PATHCONV=1` in front of `docker run`, or start Floci with
+`docker compose -f labs/shared/docker-compose.floci.yml up -d` from the repository root instead
+(see Appendix A).
+
+**Plan** the dev environment, the fastest of the three to check for real:
 
 ```
 cd vpc/envs/dev
 export TF_VAR_endpoint="http://localhost:4566"
 terraform init -backend=false -input=false
-terraform apply -auto-approve
+terraform plan
+```
+
+`[ Expected output ]`
+```
+Plan: 12 to add, 0 to change, 0 to destroy.
+```
+
+Twelve resources, one NAT gateway, because dev's `terraform.tfvars` says `az_count = 1`
+and `nat_strategy = "single"`. Inspect the Terraform plan, confirm that is what you asked
+for, and then **apply**. Type `yes` at the prompt:
+
+```
+terraform apply
 ```
 
 `[ Expected output ]`
@@ -441,10 +486,12 @@ an emulated API, not a real network path.
   call, two ranges either overlap or they don't, so the skill doesn't just tell the agent to
   "check for overlaps", it hands it a script that decides.
 - Whether prod should be `per_az` and staging shouldn't is **not** something the script checks.
-  That's a design decision written into the skill's prose, the same kind of convention Stage 1
-  taught, sitting right next to a rule the skill can mechanically enforce. A skill can carry
-  both at once. Confusing "the script verified this" with "the agent decided this and I should
-  double check" is the mistake to watch for once a skill starts bundling real code.
+  The script catches overlapping CIDRs mechanically, but it does not verify NAT redundancy in
+  production. That design choice is written into the skill's prose, the same kind of
+  convention Stage 1 taught, sitting right next to a rule the skill can check mechanically,
+  and it still needs review or a separate policy check. A skill can carry both at once.
+  Confusing "the script verified this" with "the agent decided this and I should double
+  check" is the mistake to watch for once a skill starts bundling real code.
 
 #### Exercise: Stage 2
 
@@ -554,10 +601,12 @@ cd modules/module-04-agent-skills/lab
 `run.sh` checks:
 
 - Stage 1: run 1 fails the secrets scan, run 2 is clean and carries the required tags and
-  provider pin, then applies and destroys the solution module against a real Floci container
+  provider pin, then plans, applies the saved plan, and destroys the solution module against
+  a real Floci container
 - Stage 2: all three VPC environments `validate` clean, the overlap checker passes on the real
-  environments and correctly catches a seeded collision in a scratch copy, then applies and
-  destroys the dev environment's twelve resources against a real Floci container
+  environments and correctly catches a seeded collision in a scratch copy, then plans,
+  applies the saved plan, and destroys the dev environment's twelve resources against a real
+  Floci container
 - Stage 3: the shipped `terraform-formatter-untrusted/SKILL.md` no longer contains a
   credential read, `grep -c "credentials\|id_rsa"` against it returns `0`
 
@@ -579,3 +628,8 @@ A skill's prose can be followed or misjudged. A skill's bundled script either ex
 doesn't. Neither replaces the harness, M06 and M08's gates run whether or not an agent reaches
 for a skill, but a skill that ships code closes more of the gap between the agent trying to
 follow a rule and the rule actually being checked.
+
+On the autonomy ladder this project sits at step 3, propose with plan. The agent drafted the
+module, and you read the files, the validation evidence, and the Terraform plan before
+anything applied. The skill changed what the agent proposed. It did not change who reads the
+plan before `apply`, and that stays a human.

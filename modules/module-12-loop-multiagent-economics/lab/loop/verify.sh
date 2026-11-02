@@ -7,7 +7,17 @@
 set -uo pipefail
 cd "$(dirname "$0")/.."   # the working copy this loop owns
 no_verdict(){ echo "NO VERDICT: $*" >&2; exit 2; }
-for t in terraform checkov; do command -v "$t" >/dev/null 2>&1 || no_verdict "$t not on PATH"; done
+command -v terraform >/dev/null 2>&1 || no_verdict "terraform not on PATH"
+# Same resolver as labs/shared/tool-shims.sh, inlined because install.sh copies this file
+# into the working copy: on Windows, Git Bash cannot execute pip's `checkov` launcher
+# script, so fall back to the module itself. Unquoted below on purpose, so it splits.
+CHECKOV=""
+if command -v checkov >/dev/null 2>&1 && checkov --version >/dev/null 2>&1; then CHECKOV=checkov; else
+  for py in python3 python py; do
+    command -v "$py" >/dev/null 2>&1 && "$py" -m checkov.main --version >/dev/null 2>&1 && { CHECKOV="$py -m checkov.main"; break; }
+  done
+fi
+[ -n "$CHECKOV" ] || no_verdict "checkov not on PATH"
 # A suppression is not a fix. An agent told "make the scan pass" can reach for a
 # checkov:skip comment; this loop does not accept one.
 if grep -rn --include='*.tf' 'checkov:skip' . >/dev/null 2>&1; then
@@ -17,7 +27,7 @@ if grep -rn --include='*.tf' 'checkov:skip' . >/dev/null 2>&1; then
 fi
 terraform init -backend=false -input=false -no-color >/dev/null 2>&1 || no_verdict "terraform init failed"
 terraform validate -no-color >/dev/null 2>&1 || no_verdict "terraform validate failed"
-out=$(checkov -d . --framework terraform,secrets --compact --quiet 2>&1); code=$?
+out=$($CHECKOV -d . --framework terraform,secrets --compact --quiet 2>&1); code=$?
 [ "$code" -eq 0 ] && { echo "DONE: terraform validates, checkov reports no failed checks"; exit 0; }
 if [ "$code" -eq 1 ] && echo "$out" | grep -q "FAILED for resource"; then
   echo "NOT DONE: checkov still reports failed checks:" >&2

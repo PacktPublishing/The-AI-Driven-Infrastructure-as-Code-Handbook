@@ -12,7 +12,8 @@
 
 3. **Pick a real cost threshold and test it against a past surprise.** If your team has ever
    been surprised by a cloud bill, what threshold, wired as a real gate, would have caught
-   the plan before it shipped?
+   the plan before it shipped? This module's `pipeline.sh` only reports the estimate, so
+   wiring the threshold is the project.
 
 4. **Audit a suppression in your own codebase.** Find a `# noqa`, `#checkov:skip`, or similar
    comment somewhere real. Confirm, the way this module did, that it's actually doing what

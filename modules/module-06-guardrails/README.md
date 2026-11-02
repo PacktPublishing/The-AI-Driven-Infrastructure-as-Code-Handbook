@@ -9,20 +9,12 @@ attempted `apply`, and a permission boundary that limits what the agent can touc
 plan even exists. This is the piece of M01's thesis, "the agent proposes, the pipeline
 decides," that actually stops an unsafe apply.
 
-Spec: [`specs/M06-spec.md`](../../specs/M06-spec.md). Read it before changing anything here.
-
 ## What's in this module
 
 ```
 modules/module-06-guardrails/
   README.md               this file, delivery guide
   explainer/
-    EXPLAINER.md           8 diagram beats, narrator notes, timing
-    deck/
-      build_deck.py         generator, mirrors M01/M03/M04's own generator
-      m06-guardrails.html    14-slide self-contained deck
-      m06-sequence.md        slide table, fragment map, coverage check
-    diagrams/               6 hand-drawn SVGs (title slide has its own inline SVG)
     sim/
       blast-radius-sim.html  interactive gate visualizer, real terraform plan -json output
   LAB.md                   Project 06: Guard a Real Delete Using a Hook and a Plan-Approve-Apply Harness (Tier 1, ~40 min)
@@ -31,25 +23,37 @@ modules/module-06-guardrails/
     hooks/
       blast_radius_gate.sh    the gate itself: delete / count / high-radius-type checks
       apply_with_gate.sh      wraps plan -> show -json -> gate -> apply
-    .claude/settings.local.example.json   the permission-boundary example (deny Write/Edit on shared/**)
+    harness/
+      propose.sh              a real agent proposes, a real plan gets saved under plans/
+      approve.sh              a human approves a saved plan
+      apply_with_approval.sh  refuses to apply any plan that has not been approved
+    plans/                   where saved plans land, gitignored
+    task-contract-template.md   the task contract the lab copies and fills in first
+    .claude/settings.local.example.json   the permission-boundary example (deny Edit(/shared/**), which covers Write too)
     run.sh                   validates the full real sequence against Floci
     .gitignore
   reading/
-    concepts.md              ~15 min standalone read, also book/chapters/06-guardrails.md
+    concepts.md              ~15 min standalone read, the spine of Chapter 6 of the book
     reference.md              one-page A4 cheat sheet
+    diagrams/                7 hand-drawn SVGs, one per section of concepts.md
   QUIZ.md                  7 questions, collapsible answers
   PROJECTS.md              3 stretch project seeds
 ```
 
 ## Delivery guide: live workshop
 
-Run in this order, roughly 55 minutes with a break:
+Run in this order, roughly 55 minutes with a break. Each step walks one or two sections of
+`reading/concepts.md` with its diagram from `reading/diagrams/` on screen:
 
-1. Walk `explainer/EXPLAINER.md` beats 1-2 (the checkpoint, the permission boundary), ~4 min.
-2. Walk beats 3-4 (voluntary vs enforced, where a hook sits), ~6 min.
-3. Walk beat 5 (blast radius mechanics), demo the sim live, ~5 min.
-4. Walk beats 6-7 (gate vs warning, step 4), ~6 min.
-5. Walk beat 8 (the lab bridge), ~2 min.
+1. "Recap", "A Task Contract Names the Rules" and "Permissions" (`permission-boundary.svg`),
+   the checkpoint and the permission boundary, ~4 min.
+2. "Hooks: Code That Runs Whether or Not the Agent Wants It To" (`voluntary-vs-enforced.svg`,
+   `hook-checkpoint.svg`), voluntary vs enforced, where a hook sits, ~6 min.
+3. "Blast Radius, Mechanically" (`blast-radius-mechanics.svg`), demo
+   `explainer/sim/blast-radius-sim.html` live, ~5 min.
+4. "A Gate That Actually Gates", "Two More Ways to Stop the Same Delete" and "Step 4: Gated
+   Apply" (`gate-vs-warning.svg`, `three-guardrails.svg`, `ladder-rung4.svg`), ~6 min.
+5. The lab bridge: open `lab/task-contract-template.md`, ~2 min.
 6. Break, then run `LAB.md` live, ~20 min. Docker socket mounted, Floci pinned, real apply,
    real blocked delete, real destroy.
 7. Close on the lab's "Which failure was which" section.
@@ -79,13 +83,11 @@ have to say yes.
 
 ## Definition-of-done status
 
-- [x] `specs/M06-spec.md` read before building
 - [x] All module directories present (`explainer/`, `lab/`, `reading/`, plus root `LAB.md`,
       `QUIZ.md`, `PROJECTS.md`, `README.md`)
-- [x] `EXPLAINER.md` has narrator notes and timing for every diagram beat
 - [x] `LAB.md` steps are copy-pasteable, solo-completable, Tier 1, real captured output only
-- [x] `reading/concepts.md` is standalone-readable (~15 min) and doubles as
-      `book/chapters/06-guardrails.md`
+- [x] `reading/concepts.md` is standalone-readable (~15 min) and doubles as the draft of
+      Chapter 6 of the book
 - [x] `reading/reference.md` is a one-side-of-A4 cheat sheet
 - [x] `QUIZ.md`: 7 questions, collapsible answers, scenario-heavy
 - [x] `PROJECTS.md`: 3 stretch projects, hints not solutions
@@ -97,17 +99,14 @@ have to say yes.
 - [x] Autonomy step 4 named explicitly, shown as checks-plus-approval, not checks-alone
 - [x] Simulator's canned plans are realistic `terraform plan -json` output, verified against 9
       real interaction states via Playwright
-- [x] Diagram beats: 6 hand-drawn SVGs in `explainer/diagrams/`, same visual contract as
+- [x] Diagrams: 7 hand-drawn SVGs in `reading/diagrams/`, same visual contract as
       M01/M03/M04
-- [x] Deck: 14 self-contained slides, zero external refs, real Playwright render check across
-      all 14 slides and every fragment, zero invisible-line regressions
-- [x] Course slide voiceover script: `planning/voiceover/m06-slide-voiceover.md`
 - [x] Lab validation script: `lab/run.sh`, checks the full real gate sequence end to end
 
 ## Delivery guide: Udemy
 
 This module's lecture cut mirrors M01/M03/M04's pattern: one concept per lecture, 3-6 minutes
-each, following the deck's 8 sections. `LAB.md` ships as a standalone hands-on lecture after the
-concept lectures. `QUIZ.md` publishes as the module's Udemy quiz. `PROJECTS.md` publishes as
+each, following the eight sections of `reading/concepts.md`. `LAB.md` ships as a standalone
+hands-on lecture after the concept lectures. `QUIZ.md` publishes as the module's Udemy quiz. `PROJECTS.md` publishes as
 downloadable resources. The blast-radius simulator ships as an embedded interactive alongside
 the lesson page.

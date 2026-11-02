@@ -14,7 +14,7 @@
     <text x="165" y="133" text-anchor="middle" font-size="13" fill="black">the window</text>
     <text x="165" y="170" text-anchor="middle" font-size="12" fill="black">filter noisy tool</text>
     <text x="165" y="188" text-anchor="middle" font-size="12" fill="black">output at the input</text>
-    <text x="165" y="225" text-anchor="middle" font-size="12" fill="black">checkov --compact</text>
+    <text x="165" y="225" text-anchor="middle" font-size="12" fill="black">checkov --compact --quiet</text>
     <text x="165" y="243" text-anchor="middle" font-size="12" fill="black">85% smaller, same findings</text>
 
     <rect x="325" y="50" width="250" height="230" rx="10" fill="#d5e8d4" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
@@ -24,7 +24,7 @@
     <text x="450" y="170" text-anchor="middle" font-size="12" fill="black">standing facts, written</text>
     <text x="450" y="188" text-anchor="middle" font-size="12" fill="black">once, read every run</text>
     <text x="450" y="225" text-anchor="middle" font-size="12" fill="black">AGENTS.md</text>
-    <text x="450" y="243" text-anchor="middle" font-size="12" fill="black">pins, naming, never-do</text>
+    <text x="450" y="243" text-anchor="middle" font-size="12" fill="black">constraints, naming, never-do</text>
 
     <rect x="610" y="50" width="250" height="230" rx="10" fill="#e1d5e7" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
     <text x="735" y="85" text-anchor="middle" font-size="20" fill="black">ROUTE</text>

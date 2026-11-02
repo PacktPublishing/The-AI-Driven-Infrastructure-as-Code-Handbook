@@ -4,8 +4,12 @@
 # pipeline. Evidence is written to a fresh directory on every run so a stale plan from an
 # earlier run can never be mistaken for this one.
 set -euo pipefail
+# Shared shims, found relative to this script: a checkov command that also works from Git
+# Bash on Windows, where pip's launcher on PATH cannot be executed by bash.
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)/labs/shared/tool-shims.sh"
 cd "$(dirname "$0")"
 TARGET="${1:-module}"
+CHECKOV=$(checkov_cmd) || { echo "BLOCKED: checkov not found (see Appendix A, Checkov)"; exit 1; }
 ENDPOINT="${ENDPOINT:-http://localhost:4566}"
 OUT="${M09_OUT:-/tmp/m09-pipeline}"
 rm -rf "$OUT" && mkdir -p "$OUT"
@@ -24,7 +28,8 @@ echo "==> stage 3/5: checkov"
 # #checkov:skip=CKV_...:reason comment in the .tf file, so it is scoped to that resource
 # and reviewed next to the code. A CLI-wide skip would silence the same check for every
 # resource in the target. Checkov counts inline waivers under "Skipped checks".
-checkov -d "$TARGET" --compact --quiet --framework terraform --skip-download || { echo "BLOCKED at checkov"; exit 1; }
+# $CHECKOV is unquoted on purpose: on Windows it may be "python -m checkov.main".
+$CHECKOV -d "$TARGET" --compact --quiet --framework terraform --skip-download || { echo "BLOCKED at checkov"; exit 1; }
 echo "    checkov: no unreviewed findings"
 
 echo "==> stage 4/5: conftest (org policy: every aws_s3_bucket needs tags.Owner)"

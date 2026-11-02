@@ -14,7 +14,7 @@
     <rect x="60" y="60" width="330" height="200" rx="10" fill="#d5e8d4" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
     <text x="225" y="95" text-anchor="middle" font-size="19" fill="black">context engineering</text>
     <text x="225" y="130" text-anchor="middle" font-size="14" fill="black">AGENTS.md, repo shape,</text>
-    <text x="225" y="150" text-anchor="middle" font-size="14" fill="black">provider pins, policy text</text>
+    <text x="225" y="150" text-anchor="middle" font-size="14" fill="black">provider constraints, policy text</text>
     <text x="225" y="190" text-anchor="middle" font-size="14" fill="black">written once,</text>
     <text x="225" y="210" text-anchor="middle" font-size="14" fill="black">true on every run</text>
 

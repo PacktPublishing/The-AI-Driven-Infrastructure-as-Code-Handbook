@@ -59,6 +59,11 @@ once and enable them, so do that before stage 2. Your fork's `main` starts where
 companion repository was when you forked it, so the version numbers you see in stage 4 may
 start higher than the ones captured here.
 
+Do not open the lab's pull requests against the companion repository itself. GitHub holds
+workflow runs from a fork's first pull request for maintainer approval, so the gate you are here
+to watch never runs there, and pull requests like that are closed without review. Every pull
+request in this lab goes against your own fork's `main`.
+
 ## The intent
 
 > Take the checkov-style gate from M09 and make it run on its own, on every pull request. Once a
@@ -272,6 +277,10 @@ you.
 
 **Ask** Claude Code, from this repo, to make a real, ordinary-sounding change and open a real PR
 for it:
+
+**On a fork:** replace `PacktPublishing/The-AI-Driven-Infrastructure-as-Code-Handbook` in the
+prompt below with your fork's `owner/name` before running it, so the agent opens the pull request
+where your gate runs.
 
 ```
 claude -p "Add a new Terraform variable named signing_key_id to
@@ -547,6 +556,10 @@ whatever your `main` is at.
 Now the connecting piece. The pull request in stages 2 and 3 never touched anything a
 controller applies. This one does, and it goes through the same gate. **Ask** an agent to make
 a small, ordinary release change to the manifest Argo CD is watching:
+
+**On a fork:** replace `PacktPublishing/The-AI-Driven-Infrastructure-as-Code-Handbook` in the
+prompt below with your fork's `owner/name` before running it, so the agent opens the pull request
+where your gate runs.
 
 ```
 claude -p "In modules/module-11-agentic-gitops/lab/gitops-demo/configmap.yaml, bump data.version from v1 to v2 and add a data key named release_note with the value 'shipped through the gate, applied by the controller'. Change nothing else in the repository. Create a branch named m11-gitops-release-v2, commit, push, and open a real PR against PacktPublishing/The-AI-Driven-Infrastructure-as-Code-Handbook with gh pr create." \

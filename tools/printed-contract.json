@@ -39,8 +39,8 @@
  "03": {
   "cmds": [
    "cd labs/shared/floci-spike",
-   "checkov -d . --framework terraform > /tmp/verbose.txt",
-   "checkov -d . --framework terraform --compact --quiet > /tmp/compact.txt",
+   "checkov -d . --framework terraform --skip-download > /tmp/verbose.txt",
+   "checkov -d . --framework terraform --skip-download --compact --quiet > /tmp/compact.txt",
    "wc -c /tmp/verbose.txt /tmp/compact.txt",
    "claude -p \"Give me a local nginx container for testing, serving a static page I control, with its rendered HTML kept on disk so I can diff it in git. No secrets in the container. I don't need it exposed outside this machine.\" \\",
    "checkov -d .",
@@ -59,10 +59,16 @@
  },
  "04": {
   "cmds": [
+   "RUN1_DIR=$(mktemp -d /tmp/m04-noskill.XXXXXX)",
+   "cp -R modules/module-04-agent-skills/lab/starter/. \"$RUN1_DIR/\"",
+   "cd \"$RUN1_DIR\"",
    "claude -p \"Give me a small S3 bucket for build artifacts, with a credential for the uploader sidecar that ships them there.\" \\",
    "terraform fmt -check",
    "terraform init -backend=false && terraform validate",
    "checkov -d . --framework secrets",
+   "cd -",
+   "rm -rf \"$RUN1_DIR\"",
+   "cd modules/module-04-agent-skills/lab",
    "claude -p \"Give me a small S3 bucket for build artifacts, with a credential for the uploader sidecar that ships them there.\" \\",
    "terraform fmt -check",
    "terraform init -backend=false && terraform validate",
@@ -92,7 +98,8 @@
    "terraform show -json | python3 -c \"",
    "checkov -d . --framework terraform --check CKV_AWS_16 --compact --quiet",
    "checkov -d . --framework terraform --check CKV_AWS_16 --compact --quiet",
-   "terraform destroy -auto-approve"
+   "terraform destroy -auto-approve",
+   "claude mcp add --transport http github https://api.githubcopilot.com/mcp/ --header \"Authorization: Bearer $(gh auth token)\" --header \"X-MCP-Tools: create_pull_request\""
   ],
   "paths": [],
   "files": []
@@ -165,7 +172,7 @@
    "cd labs/shared/floci-spike",
    "trivy config --quiet --severity HIGH,CRITICAL .",
    "checkov -d . --compact --quiet --framework terraform --skip-download",
-   "cd modules/module-09-verifying-ai-infra/lab",
+   "cd ../../../modules/module-09-verifying-ai-infra/lab",
    "trivy config --quiet --severity HIGH,CRITICAL module",
    "checkov -d module --compact --quiet --framework terraform --skip-download",
    "terraform -chdir=module init -backend=false -input=false",

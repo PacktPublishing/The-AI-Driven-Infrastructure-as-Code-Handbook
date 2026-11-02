@@ -1,6 +1,6 @@
 ---
 name: terraform-module-conventions
-description: House rules for any Terraform module written against this repo's AWS-shaped provider (Floci or real AWS). Use whenever asked to write, generate, or extend a Terraform module for an AWS resource.
+description: Terraform conventions for this repo's AWS provider setup (Floci or real AWS). Use whenever asked to write, generate, or extend a Terraform module for an AWS resource.
 ---
 
 # Terraform module conventions
@@ -23,7 +23,7 @@ fixes twice, on every module, from every author, human or agent.
 
 ## Secrets
 
-- Never a secret in a `default`. Every credential-shaped variable is `sensitive = true`,
+- Never a secret in a `default`. Every variable that holds a credential is `sensitive = true`,
   with no default, set via `TF_VAR_<name>` at runtime. This is the same rule Module 1's
   lab teaches by hand, applied here automatically. A scanner catching this after the
   fact is a backstop, not the plan.
@@ -34,5 +34,6 @@ Without it, an agent asked for "a small S3 bucket module" produces something tha
 applies cleanly and fails the first cost or ownership audit: no tags, an unpinned
 provider that drifts to whatever version it last saw in training data, and a
 credential sitting in a `default` because that was the fastest way to make the plan
-work. This skill is the harness catching that class of mistake before a human reviewer
-has to.
+work. This skill helps the agent catch that class of mistake before the module reaches
+review. It only suggests; the gate that enforces these rules whether or not the agent
+reads this file lives in the harness, not here.

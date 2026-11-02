@@ -47,20 +47,22 @@ That is the whole lesson in one sentence: **running one scanner is a coverage ga
 safety margin.** You would not ship with only one of the four asymmetries from module one
 checked. Do not ship with only one scanner either.
 
-## What Neither One Catches
+## What Neither Default Rule Bundle Catches
 
-Even running both tools together, there is a category of rule neither one will ever
-check, because neither one knows your team exists. Say your organization requires every
-`aws_s3_bucket` to carry an `Owner` tag, so someone is on the hook when it shows up on a
-bill. Trivy does not know that rule. Checkov does not either. It is not a security rule
-in the generic sense, it is *your* rule.
+Even running both tools together, there is a category of rule neither one checks out of
+the box, because no vendor-maintained rule bundle knows your team exists. Say your
+organization requires every `aws_s3_bucket` to carry an `Owner` tag, so someone is on the
+hook when it shows up on a bill. Trivy's default rules do not know that rule. Checkov's do
+not either. Both tools can support custom checks, but those checks still need someone to
+write and maintain them, and their default rule bundles are what the opening demo ran. It
+is not a security rule in the generic sense, it is *your* rule.
 
 This is what **OPA**, the Open Policy Agent, and its command line front end **Conftest**,
 are for. You write the rule once, in a small policy language called Rego, and Conftest
 checks every plan against it, the same way Trivy and Checkov check plans against their
 own built in rules.
 
-![A Terraform plan flowing through Trivy and Checkov's generic rule sets, then through a third, org-specific gate labeled Conftest, checking a rule neither generic scanner encodes.](./diagrams/opa-gap.svg)
+![Terraform source flowing through Trivy and Checkov's default rule bundles, and the saved plan JSON flowing through a third, org-specific gate labeled Conftest, checking a rule neither default bundle encodes.](./diagrams/opa-gap.svg)
 
 This chapter's lab has you write exactly this policy, watch it fail on a real,
 unfixed module, fix the module, and watch it pass.
@@ -165,7 +167,7 @@ the capstone's optional Tier 3.
 |---|---|
 | Trivy | A misconfiguration and vulnerability scanner, one of two scanners this course always runs together |
 | Checkov | The second scanner this course always runs, with a broader Terraform rule set than Trivy for most AWS resources |
-| OPA | Open Policy Agent, a general purpose policy engine for rules generic scanners do not encode |
+| OPA | Open Policy Agent, a general purpose policy engine for rules the scanners' default bundles do not encode |
 | Conftest | The command line tool that runs OPA policies against structured input like a Terraform plan |
 | Rego | The policy language OPA and Conftest policies are written in |
 | Cost check | This chapter's Infracost stage: runs the real estimate if you have a key, skips honestly if you do not, fails only on a broken CLI run, not a crossed threshold. The FinOps gate in M12 is the one wired to actually fail past a real threshold |

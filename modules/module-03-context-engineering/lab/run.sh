@@ -1,12 +1,18 @@
+#!/usr/bin/env bash
 set -uo pipefail
+# Shared shims, found relative to this script: a checkov command that also works from Git
+# Bash on Windows, where pip's launcher on PATH cannot be executed by bash.
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)/labs/shared/tool-shims.sh" || exit 1
 cd "$(dirname "$0")"
 fail(){ echo "FAIL: $*" >&2; exit 1; }
+CHECKOV=$(checkov_cmd) || fail "checkov not found; see Appendix A"
 
 echo "==> reduce: --compact must cut checkov output by a real, large margin"
 FLOCI_SPIKE="../../../labs/shared/floci-spike"
 [ -d "$FLOCI_SPIKE" ] || fail "floci-spike dir not found at $FLOCI_SPIKE"
-checkov -d "$FLOCI_SPIKE" --framework terraform >/tmp/m03-verbose.log 2>/dev/null
-checkov -d "$FLOCI_SPIKE" --framework terraform --compact --quiet >/tmp/m03-compact.log 2>/dev/null
+# $CHECKOV is unquoted on purpose: on Windows it may be "python -m checkov.main".
+$CHECKOV -d "$FLOCI_SPIKE" --framework terraform --skip-download >/tmp/m03-verbose.log 2>/dev/null
+$CHECKOV -d "$FLOCI_SPIKE" --framework terraform --skip-download --compact --quiet >/tmp/m03-compact.log 2>/dev/null
 VERBOSE_SIZE=$(wc -c </tmp/m03-verbose.log)
 COMPACT_SIZE=$(wc -c </tmp/m03-compact.log)
 [ "$VERBOSE_SIZE" -gt 0 ] || fail "verbose checkov output was empty"
@@ -22,7 +28,7 @@ terraform -chdir=starter validate -no-color >/tmp/m03-validate1.log 2>&1
 grep -q "Success" /tmp/m03-validate1.log || fail "starter validate: $(cat /tmp/m03-validate1.log)"
 
 echo "==> run 1: checkov must FAIL on the hardcoded secret"
-checkov -d starter --compact --quiet >/tmp/m03-checkov1.log 2>&1
+$CHECKOV -d starter --compact --quiet >/tmp/m03-checkov1.log 2>&1
 [ $? -ne 0 ] || fail "run 1 unexpectedly passed checkov, expected CKV_SECRET_2"
 grep -q "CKV_SECRET_2" /tmp/m03-checkov1.log || fail "expected CKV_SECRET_2 in run 1"
 echo "    ok, run 1 (no AGENTS.md) fails as expected"
@@ -32,17 +38,18 @@ terraform -chdir=solution fmt -check -diff >/tmp/m03-fmt2.log 2>&1 || fail "solu
 terraform -chdir=solution init -backend=false -input=false -no-color >/dev/null || fail "solution init"
 terraform -chdir=solution validate -no-color >/tmp/m03-validate2.log 2>&1
 grep -q "Success" /tmp/m03-validate2.log || fail "solution validate: $(cat /tmp/m03-validate2.log)"
-checkov -d solution --compact --quiet >/tmp/m03-checkov2.log 2>&1 || fail "run 2 checkov: $(cat /tmp/m03-checkov2.log)"
+$CHECKOV -d solution --compact --quiet >/tmp/m03-checkov2.log 2>&1 || fail "run 2 checkov: $(cat /tmp/m03-checkov2.log)"
 echo "    ok, run 2 (with AGENTS.md) is checkov-clean"
 
 echo "==> AGENTS.md structural check"
 AF=solution/AGENTS.md
 [ -f "$AF" ] || fail "AGENTS.md missing"
-grep -qi "provider" "$AF" || fail "AGENTS.md missing provider pins section"
+grep -qi "provider" "$AF" || fail "AGENTS.md missing provider constraints section"
 grep -qi "naming" "$AF" || fail "AGENTS.md missing naming convention section"
+grep -qi "module boundar" "$AF" || fail "AGENTS.md missing module boundaries section"
 grep -qi "never" "$AF" || fail "AGENTS.md missing a never-do list"
 grep -qi "TF_VAR_" "$AF" || fail "AGENTS.md missing where-secrets-come-from guidance"
-echo "    ok, AGENTS.md has all four required sections"
+echo "    ok, AGENTS.md has all five required sections"
 
 rm -rf starter/.terraform starter/.terraform.lock.hcl solution/.terraform solution/.terraform.lock.hcl
 

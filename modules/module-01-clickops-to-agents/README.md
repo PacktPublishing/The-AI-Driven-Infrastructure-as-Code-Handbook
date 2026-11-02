@@ -8,39 +8,47 @@ The on-ramp. No tooling, no installs, no accounts. Sets every frame the rest of 
 reuses: the seven eras, the agent-as-loop definition, the autonomy ladder, the three-layer
 diagnostic, and the thesis, *the agent proposes, the pipeline decides*.
 
-Spec: [`specs/M01-spec.md`](../../specs/M01-spec.md). Read it before changing anything
-here.
-
 ## What's in this module
 
 ```
 modules/module-01-clickops-to-agents/
   README.md               this file, delivery guide
   explainer/
-    EXPLAINER.md           16 diagram beats, narrator notes, timing
+    sim/
+      agent-classifier-sim.html   interactive "is this an agent?" classifier
   LAB.md                   Project 01: Build an Nginx Module Using Terraform and Checkov (Tier 0, ~12 min)
   lab/
     starter/main.tf         the skeleton learners copy, deliberately fails checkov
     solution/main.tf        the fixed version
+    run.sh                   checks starter fails checkov and solution passes
     .gitignore
   reading/
-    concepts.md              ~15 min standalone read, also book/chapters/01-clickops-to-agents.md
+    concepts.md              ~15 min standalone read, the spine of Chapter 1 of the book
     reference.md              one-page A4 cheat sheet
+    diagrams/                13 hand-drawn SVGs, one per section of concepts.md
   QUIZ.md                  8 questions, collapsible answers
   PROJECTS.md              5 stretch project seeds
 ```
 
 ## Delivery guide: live workshop
 
-Run in this order, roughly 50 minutes with a break:
+Run in this order, roughly 50 minutes with a break. Each step walks one or two sections of
+`reading/concepts.md` with its diagram from `reading/diagrams/` on screen:
 
-1. Walk beats 1-6 of `explainer/EXPLAINER.md` (history), ~17 min.
-2. Walk beats 7-10 (definitions), ~14 min. Pause after beat 8 for the scenario check
-   (autocomplete vs. automation vs. agent) built into the narrator notes.
-3. Walk beats 11-13 (the honest state of things, the evidence), ~11 min. Say the vendor
+1. "How Infrastructure Automation Evolved" (`broken-server.svg`, `seven-eras-staircase.svg`),
+   the history, ~17 min.
+2. "What Is an Agent?" (`agent-loop.svg`, `three-things-ai.svg`, `coding-agent.svg`,
+   `operational-agent.svg`) and "The Autonomy Ladder" (`autonomy-ladder.svg`), the
+   definitions, ~14 min. Pause at "Try it: is this an agent?" for the scenario check
+   (autocomplete vs. automation vs. agent); `explainer/sim/agent-classifier-sim.html` runs
+   it interactively.
+3. "Where the AI Infrastructure Industry Actually Stands" (`industry-stats.svg`) and "Why
+   Infrastructure Is Harder Than Application Code" (`four-asymmetries.svg`,
+   `vulnerability-density.svg`), the honest state of things, ~11 min. Say the vendor
    survey and preprint caveats out loud, every time, they're part of the material, not a
    disclaimer.
-4. Walk beats 14-16 (thesis, three layers, journey), ~10 min.
+4. "The Core Rule" (`thesis-boundary.svg`), "Context, Harness, Loop" (`three-layers.svg`)
+   and "What You Will Build" (`journey-map.svg`), ~10 min.
 5. Break, then run `LAB.md` live, ~12 min, everyone on their own machine, `terraform` and
    `checkov` only, no agent yet, no cloud account.
 6. Close on the Lab's Exercise: three lines on which steps they'd hand to a machine. Collect
@@ -53,21 +61,21 @@ longer format.
 
 Thirteen lectures, all inside the 3-6 minute band, one concept per lecture:
 
-| # | Lecture | Beats | min |
+| # | Lecture | Section of `reading/concepts.md` | min |
 |---|---|---|---|
-| 1 | What this course is, and who it's for | 1 | 3 |
-| 2 | The server nobody can rebuild | 2 | 4 |
-| 3 | Seven eras of infrastructure automation | 3 | 5 |
-| 4 | What each era solved, and what it left behind | 4, 5 | 5 |
-| 5 | The two arrows: intent up, verification up | 6 | 4 |
-| 6 | What an agent actually is | 7 | 4 |
-| 7 | Autocomplete, automation, agent | 8 | 4 |
-| 8 | The autonomy ladder | 9 | 4 |
-| 9 | Every step needs a gate | 10 | 4 |
-| 10 | Where the industry really is in 2026 | 11 | 4 |
-| 11 | Why infrastructure is harder than app code | 12 | 4 |
-| 12 | The evidence nobody wants to hear | 13 | 5 |
-| 13 | Propose, don't decide, and your journey from here | 14, 15, 16 | 6 |
+| 1 | What this course is, and who it's for | chapter opening | 3 |
+| 2 | The server nobody can rebuild | "The server nobody can rebuild" | 4 |
+| 3 | Seven eras of infrastructure automation | "Seven eras, one pattern" | 5 |
+| 4 | What each era solved, and what it left behind | "What each era fixed, and what it left behind" | 5 |
+| 5 | The two arrows: intent up, verification up | "Two things keep rising" | 4 |
+| 6 | What an agent actually is | "A working definition", "The stopping condition problem" | 4 |
+| 7 | Autocomplete, automation, agent | "Three things people call AI", "Coding agents and operational agents" | 4 |
+| 8 | The autonomy ladder | "The Autonomy Ladder for Infrastructure Agents" | 4 |
+| 9 | Every step needs a gate | "Every step needs a gate" | 4 |
+| 10 | Where the industry really is in 2026 | "Where the AI Infrastructure Industry Actually Stands" | 4 |
+| 11 | Why infrastructure is harder than app code | "Four differences" | 4 |
+| 12 | The evidence nobody wants to hear | "The uncomfortable evidence" | 5 |
+| 13 | Propose, don't decide, and your journey from here | "The Core Rule", "Context, Harness, Loop", "What You Will Build" | 6 |
 
 `LAB.md` ships as a standalone hands-on lecture after lecture 13, since Udemy learners
 complete it solo, not in a workshop room. `QUIZ.md` publishes as the module's Udemy quiz.
@@ -106,14 +114,12 @@ step 2, draft, human reads every line before doing anything with it.
 
 ## Definition-of-done status
 
-- [x] `specs/M01-spec.md` read before building
 - [x] All module directories present (`explainer/`, `lab/`, `reading/`, plus root
       `LAB.md`, `QUIZ.md`, `PROJECTS.md`, `README.md`)
-- [x] `EXPLAINER.md` has narrator notes and timing for every diagram beat
 - [x] `LAB.md` steps are copy-pasteable, solo-completable, Tier 0, no destroy step needed
       because the lab never applies (stated explicitly in the lab)
-- [x] `reading/concepts.md` is standalone-readable (~15 min) and doubles as
-      `book/chapters/01-clickops-to-agents.md`
+- [x] `reading/concepts.md` is standalone-readable (~15 min) and doubles as the draft of
+      Chapter 1 of the book
 - [x] `reading/reference.md` is a one-side-of-A4 cheat sheet
 - [x] `QUIZ.md`: 8 questions, collapsible answers, 5 of 8 scenario-based
 - [x] `PROJECTS.md`: 5 stretch projects, hints not solutions
@@ -122,8 +128,8 @@ step 2, draft, human reads every line before doing anything with it.
 - [x] Autonomy-ladder step named (step 2, in the lab)
 - [x] No retired tools presented as current
 - [x] No "prompt engineering," no "vibe coding" as a practice, anywhere in this module
-- [x] Every statistic matches the fact-discipline table in the course `CLAUDE.md`
-- [x] Diagram beats: hand-drawn SVGs in `explainer/diagrams/` cover every beat; a separate
+- [x] Every statistic follows the course's fact discipline: source, date and sample size
+      stated, and a second source behind every vendor or preprint figure
+- [x] Diagrams: 13 hand-drawn SVGs in `reading/diagrams/` cover every section; a separate
       `.excalidraw` render pass was decided against, the SVGs are the deliverable (2026-08-31)
-- [x] Course slide voiceover script: `planning/voiceover/m01-slide-voiceover.md`
 - [x] Lab validation script: `lab/run.sh`, checks starter fails checkov / solution passes

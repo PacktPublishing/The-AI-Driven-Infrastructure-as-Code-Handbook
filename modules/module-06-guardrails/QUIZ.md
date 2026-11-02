@@ -76,7 +76,7 @@ descriptiveness, and PR quality all need a human or a much smarter check, not a 
 
 ---
 
-**5. A permission boundary denies `Write(shared/**)` for an agent. What question is this rule
+**5. A permission boundary denies `Edit(/shared/**)` for an agent. What question is this rule
 actually answering?**
 
 - A. "Is this specific change to `shared/` safe?"

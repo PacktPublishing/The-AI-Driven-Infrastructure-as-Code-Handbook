@@ -1,5 +1,27 @@
 # Design: production-ready orders table for the checkout service
 
+> **Revision note, 2026-10-30.** This document is what the Superpowers `brainstorming` skill
+> wrote in the recorded session of 2026-10-22, kept as the session produced it, with three
+> corrections made after the session so it does not contradict the lab as it now ships:
+>
+> - **Starter.** The starter `main.tf` now writes `point_in_time_recovery { enabled = false }`
+>   and `server_side_encryption { enabled = false }` out explicitly. The session's starter had
+>   neither block. The Intent paragraph below now describes the current starter.
+> - **RED evidence.** A plan-mode assertion on a nested block that is absent from the
+>   configuration reports `Unknown condition value`. That is an error, not a failed assertion,
+>   so it is not valid RED. With both blocks written out, each test fails as
+>   `Error: Test assertion failed` and prints its own `error_message`. The Tests section below
+>   has been corrected to say so. The original session log, `lab/evidence/stage3-session.jsonl`,
+>   still shows the unknown-value error, unchanged.
+> - **Cost.** The session's text said both key options are free. Only the AWS-owned key is free
+>   of charge. The AWS-managed key `aws/dynamodb` has no monthly key fee, but AWS KMS charges
+>   apply to its use, and a customer-managed key adds a monthly key fee on top. The sentence in
+>   "Why `enabled = true`, resolved" has been corrected.
+>
+> Nothing else was changed. The checkov counts below (15 passed, 2 failed before the change;
+> 16 passed, 1 failed after) were re-checked on 2026-10-30 against the current starter and
+> solution with checkov 3.3.30 and still hold.
+
 Date: 2026-10-22
 Scope: `modules/module-08-harness-engineering/lab/orders/` (`main.tf`, `tests/`)
 Status: approved by the author, 2026-10-22
@@ -7,8 +29,9 @@ Status: approved by the author, 2026-10-22
 ## Intent
 
 `main.tf` defines the DynamoDB table the checkout service stores orders in. It was added in a
-hurry before launch and carries a TODO to harden it. The table has no point-in-time recovery, no
-explicit encryption setting, and an IAM policy that grants `dynamodb:*` on it.
+hurry before launch and carries a TODO to harden it. The table has point-in-time recovery off and
+server-side encryption off, both written out as `enabled = false`, and an IAM policy that grants
+`dynamodb:*` on it.
 
 This project closes those three gaps and nothing else. The module is a Tier-1 lab exercise: it
 is applied against Floci (a local AWS emulator on `localhost:4566`) and destroyed at the end of
@@ -94,7 +117,9 @@ So the literal phrase "encryption on with the AWS-owned key" describes the table
 (DynamoDB always encrypts at rest, and the absent block already means the AWS-owned key). The
 only change that is *visible* in HCL, in `terraform plan`, in `terraform test`, and to checkov
 (`CKV_AWS_119`) is `enabled = true`, which selects the AWS-managed key `aws/dynamodb` instead.
-Both are free to the account and neither needs a KMS resource in this module. The author chose
+Neither needs a KMS resource in this module. The AWS-owned key is free of charge; the AWS-managed
+key has no monthly key fee, but AWS KMS charges apply to its use (corrected after the session, see
+the revision note). The author chose
 `enabled = true` (AWS-managed key) because that is the only reading under which there is
 something to test RED then GREEN.
 
@@ -134,10 +159,13 @@ Files are run independently, so three files give three independent verdicts:
    attribute: the data source depends on the table ARN, which is unknown before apply, so `json`
    is unknown in plan mode.
 
-Each run block fails against today's `main.tf`. The first two fail with an "unknown condition
-value" error, because both nested blocks are computed when absent from the config. The third
-fails because `["dynamodb:*"]` is not the expected set. All three are real RED results. The
-builder watches all three fail, with output captured, before touching `main.tf`.
+Each run block fails against today's `main.tf` as a failed assertion. The first two fail because
+the starter states `enabled = false` for both blocks, so each condition evaluates to false and
+prints its `error_message`. The third fails because `["dynamodb:*"]` is not the expected set. All
+three are real RED results. Were either block absent from the config, plan mode would report
+"unknown condition value" instead, which is an error, not RED (corrected after the session, see
+the revision note). The builder watches all three fail, with output captured, before touching
+`main.tf`.
 
 ### Verification sequence
 

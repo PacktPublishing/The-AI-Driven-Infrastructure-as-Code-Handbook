@@ -14,7 +14,8 @@ buckets, both deliberately left unhardened.
   module, reproducing the exact numbers from the reading
 - **A real Checkov finding Trivy never reports**, proof the two tools don't cover the same
   ground
-- **A real OPA policy**, written from scratch, for a rule neither scanner can ever know
+- **A real OPA policy**, written from scratch, for a rule neither scanner's default rule bundle
+  knows
 - **A real cost check**, wired honestly: it runs for real if you have an Infracost key, and
   skips with a clear message if you don't, never a guessed number
 - **A five-stage pipeline script** that blocks on the first real failure, cheap checks first
@@ -36,6 +37,25 @@ docker info
 trivy --version
 checkov --version
 conftest --version
+```
+
+- **Windows.** Use WSL2 (Ubuntu) if you can: the Tier 1 labs mount the Docker socket. Git
+  Bash also works for this project's scripts. If `checkov --version` prints
+  `cannot execute: required file not found` in Git Bash, bash has found pip's `checkov`
+  launcher script, which it cannot run (PowerShell runs `checkov.exe` instead).
+  `pipeline.sh` and `run.sh` route around it through `labs/shared/tool-shims.sh` and print
+  the command they used. For `checkov` commands you type yourself, run
+  `python -m checkov.main` with the same arguments:
+
+```
+python -m checkov.main -d . --compact --quiet --framework terraform --skip-download
+```
+
+- Or, still on Windows, put a one-line shim named `checkov` ahead of pip's on your `PATH`.
+  Git Bash puts `~/bin` first when the directory exists:
+
+```
+mkdir -p ~/bin && printf '#!/usr/bin/env bash\nexec python -m checkov.main "$@"\n' > ~/bin/checkov && chmod +x ~/bin/checkov
 ```
 
 ## Step 1: Reproduce the opening demo, live
@@ -68,10 +88,11 @@ your own machine.
 
 ## Step 2: Run Trivy and Checkov
 
-**Move** into the lab module, same pattern as every lab since M01:
+**Move** into the lab module. You are still inside `labs/shared/floci-spike`, so this goes two
+levels up to the repo root and then down into the lab:
 
 ```
-cd modules/module-09-verifying-ai-infra/lab
+cd ../../../modules/module-09-verifying-ai-infra/lab
 ```
 
 `file: module/main.tf` is a small, two-bucket module, deliberately unhardened.
@@ -106,8 +127,9 @@ would have missed this finding entirely.
 
 ## Step 3: Write an OPA Policy
 
-Your org has one rule neither Trivy nor Checkov can ever check: every `aws_s3_bucket` must
-carry an `Owner` tag. **Write** it as a real OPA policy:
+Your org has one rule that neither Trivy's nor Checkov's default rule bundle checks: every
+`aws_s3_bucket` must carry an `Owner` tag. Both tools accept custom checks, but someone has
+to write and maintain those too, and this lab writes the rule once, in the place built for it. **Write** it as a real OPA policy:
 
 `file: policy/required_tags.rego`
 ```
@@ -551,7 +573,7 @@ clean pass.
 ## Validation
 
 Run the full pipeline yourself, both the starter module and the solution, against a real
-Floci container:
+Floci container. From the repo root:
 
 ```
 cd modules/module-09-verifying-ai-infra/lab
@@ -560,7 +582,11 @@ cd modules/module-09-verifying-ai-infra/lab
 
 `run.sh` checks:
 
-- The opening demo reproduces on the real `floci-spike` module: Trivy 7, Checkov 25
+- The opening demo reproduces on the real `floci-spike` module: Trivy 7, Checkov 25. The exact
+  counts are asserted when `trivy` and `checkov` are at the versions this course pins (Trivy
+  0.72.0, Checkov 3.3.16). On any other version the script prints a `WARN` line naming the
+  drift and asserts the lower bounds the lesson depends on instead: at least one Trivy
+  HIGH/CRITICAL finding, and more Checkov failures than Trivy findings
 - Both scanners run against this project's own module and agree the starter is unhardened
 - The OPA policy fails on the starter module and passes on the solution
 - `pipeline.sh` blocks at stage 2 on the starter module and passes all five stages on the
@@ -577,7 +603,7 @@ What you built:
 
 - Both scanners reproduced against a real module, same numbers as the reading
 - A real Checkov finding Trivy never reported, the coverage gap made concrete
-- A real OPA policy for the one rule neither scanner can check
+- A real OPA policy for the one rule neither scanner's default rule bundle checks
 - A cost check wired to skip honestly, never to guess
 - A five-stage pipeline that blocks on the first real failure, cheap checks first
 - A deterministic eval rubric, graded against a real agent's own Terraform output

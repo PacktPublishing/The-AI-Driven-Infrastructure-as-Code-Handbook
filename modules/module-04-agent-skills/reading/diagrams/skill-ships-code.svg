@@ -1,0 +1,32 @@
+<svg viewBox="0 0 880 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A skill's SKILL.md pointing two ways: prose instructions the agent reads and reasons about, and a bundled scripts directory the skill's own instructions tell the agent to execute, with a real exit code.">
+  <defs>
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="880" height="320">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="13" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="black"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="880" height="320" fill="white"/>
+  <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
+    <rect x="340" y="30" width="200" height="55" rx="8" fill="#e1d5e7" stroke="black" stroke-width="2.4" filter="url(#sketch)"/>
+    <text x="440" y="63" text-anchor="middle" font-size="15" fill="black">SKILL.md</text>
+
+    <path d="M400,85 L230,150" stroke="black" stroke-width="2.2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <path d="M480,85 L650,150" stroke="black" stroke-width="2.2" marker-end="url(#arrow)" filter="url(#sketch)"/>
+
+    <rect x="70" y="150" width="320" height="80" rx="8" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="230" y="180" text-anchor="middle" font-size="14" fill="black">prose: "prod gets a NAT</text>
+    <text x="230" y="200" text-anchor="middle" font-size="14" fill="black">gateway per AZ"</text>
+    <text x="230" y="255" text-anchor="middle" font-size="12" fill="black">agent reads it, reasons about it,</text>
+    <text x="230" y="272" text-anchor="middle" font-size="12" fill="black">can still get it wrong</text>
+
+    <rect x="490" y="150" width="320" height="80" rx="8" fill="#d5e8d4" stroke="black" stroke-width="2.6" filter="url(#sketch)"/>
+    <text x="650" y="180" text-anchor="middle" font-size="14" fill="black">scripts/check_cidr_overlap.py</text>
+    <text x="650" y="200" text-anchor="middle" font-size="14" fill="black">"run this before you proceed"</text>
+    <text x="650" y="255" text-anchor="middle" font-size="12" fill="black">plain ipaddress arithmetic,</text>
+    <text x="650" y="272" text-anchor="middle" font-size="12" fill="black">exit 0 or exit 1, no judgment call</text>
+  </g>
+  <text x="440" y="308" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="14" fill="black">one skill, two kinds of rule: judgment the agent reasons about, arithmetic a script decides</text>
+</svg>

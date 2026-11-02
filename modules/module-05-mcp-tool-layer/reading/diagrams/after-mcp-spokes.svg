@@ -1,6 +1,6 @@
-<svg viewBox="0 0 880 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="After MCP: three agent vendors each speak one shared protocol to a hub, and the hub, not each vendor, holds the connection to the terraform registry, github, and a cloud provider.">
+<svg viewBox="0 0 880 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="After MCP: three agent applications, each hosting its own MCP clients, and each client connected directly to one MCP server for the terraform registry, github, or a cloud provider. Every arrow is its own client-to-server connection speaking the same protocol; there is no central hub.">
   <defs>
-    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="880" height="320">
+    <filter id="sketch" filterUnits="userSpaceOnUse" x="0" y="0" width="880" height="420">
       <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="12" result="noise"/>
       <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
     </filter>
@@ -8,35 +8,57 @@
       <path d="M0,0 L10,5 L0,10 z" fill="black"/>
     </marker>
   </defs>
-  <rect x="0" y="0" width="880" height="320" fill="white"/>
+  <rect x="0" y="0" width="880" height="420" fill="white"/>
   <g font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive">
-    <text x="440" y="34" text-anchor="middle" font-size="17" fill="black">after MCP: one protocol, many clients, many servers</text>
+    <text x="440" y="30" text-anchor="middle" font-size="17" fill="black">after MCP: one protocol, many clients, many servers</text>
+    <text x="440" y="50" text-anchor="middle" font-size="11" fill="black">MCP is the shared interface on each direct connection, not a central hub</text>
 
-    <rect x="40" y="70" width="140" height="46" rx="8" fill="#e1d5e7" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
-    <text x="110" y="98" text-anchor="middle" font-size="12" fill="black">agent vendor A</text>
-    <rect x="40" y="140" width="140" height="46" rx="8" fill="#e1d5e7" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
-    <text x="110" y="168" text-anchor="middle" font-size="12" fill="black">agent vendor B</text>
-    <rect x="40" y="210" width="140" height="46" rx="8" fill="#e1d5e7" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
-    <text x="110" y="238" text-anchor="middle" font-size="12" fill="black">agent vendor C</text>
+    <!-- hosts, each holding its own MCP clients -->
+    <rect x="30" y="70" width="260" height="90" rx="8" fill="#e1d5e7" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="45" y="112" font-size="12" fill="black">agent app A</text>
+    <text x="45" y="128" font-size="10" fill="black">(the host)</text>
+    <rect x="165" y="80" width="110" height="30" rx="5" fill="white" stroke="black" stroke-width="1.6" filter="url(#sketch)"/>
+    <text x="220" y="100" text-anchor="middle" font-size="10" fill="black">MCP client</text>
+    <rect x="165" y="120" width="110" height="30" rx="5" fill="white" stroke="black" stroke-width="1.6" filter="url(#sketch)"/>
+    <text x="220" y="140" text-anchor="middle" font-size="10" fill="black">MCP client</text>
 
-    <rect x="360" y="130" width="160" height="60" rx="10" fill="#ffe6cc" stroke="black" stroke-width="2.6" filter="url(#sketch)"/>
-    <text x="440" y="155" text-anchor="middle" font-size="12" fill="black">MCP</text>
-    <text x="440" y="173" text-anchor="middle" font-size="12" fill="black">one shared protocol</text>
+    <rect x="30" y="175" width="260" height="90" rx="8" fill="#e1d5e7" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="45" y="217" font-size="12" fill="black">agent app B</text>
+    <text x="45" y="233" font-size="10" fill="black">(the host)</text>
+    <rect x="165" y="185" width="110" height="30" rx="5" fill="white" stroke="black" stroke-width="1.6" filter="url(#sketch)"/>
+    <text x="220" y="205" text-anchor="middle" font-size="10" fill="black">MCP client</text>
+    <rect x="165" y="225" width="110" height="30" rx="5" fill="white" stroke="black" stroke-width="1.6" filter="url(#sketch)"/>
+    <text x="220" y="245" text-anchor="middle" font-size="10" fill="black">MCP client</text>
 
-    <path d="M180,93 L360,150" stroke="black" stroke-width="1.8" marker-end="url(#arrow)" filter="url(#sketch)"/>
-    <path d="M180,163 L360,163" stroke="black" stroke-width="1.8" marker-end="url(#arrow)" filter="url(#sketch)"/>
-    <path d="M180,233 L360,176" stroke="black" stroke-width="1.8" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <rect x="30" y="280" width="260" height="90" rx="8" fill="#e1d5e7" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="45" y="322" font-size="12" fill="black">agent app C</text>
+    <text x="45" y="338" font-size="10" fill="black">(the host)</text>
+    <rect x="165" y="290" width="110" height="30" rx="5" fill="white" stroke="black" stroke-width="1.6" filter="url(#sketch)"/>
+    <text x="220" y="310" text-anchor="middle" font-size="10" fill="black">MCP client</text>
+    <rect x="165" y="330" width="110" height="30" rx="5" fill="white" stroke="black" stroke-width="1.6" filter="url(#sketch)"/>
+    <text x="220" y="350" text-anchor="middle" font-size="10" fill="black">MCP client</text>
 
-    <rect x="660" y="55" width="160" height="46" rx="8" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
-    <text x="740" y="83" text-anchor="middle" font-size="12" fill="black">terraform registry</text>
-    <rect x="660" y="140" width="160" height="46" rx="8" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
-    <text x="740" y="168" text-anchor="middle" font-size="12" fill="black">github</text>
-    <rect x="660" y="225" width="160" height="46" rx="8" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
-    <text x="740" y="253" text-anchor="middle" font-size="12" fill="black">a cloud provider</text>
+    <!-- servers, each written once -->
+    <rect x="640" y="90" width="200" height="50" rx="8" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="740" y="112" text-anchor="middle" font-size="12" fill="black">terraform registry</text>
+    <text x="740" y="128" text-anchor="middle" font-size="10" fill="black">MCP server</text>
+    <rect x="640" y="195" width="200" height="50" rx="8" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="740" y="217" text-anchor="middle" font-size="12" fill="black">github</text>
+    <text x="740" y="233" text-anchor="middle" font-size="10" fill="black">MCP server</text>
+    <rect x="640" y="300" width="200" height="50" rx="8" fill="#dae8fc" stroke="black" stroke-width="2.2" filter="url(#sketch)"/>
+    <text x="740" y="322" text-anchor="middle" font-size="12" fill="black">a cloud provider</text>
+    <text x="740" y="338" text-anchor="middle" font-size="10" fill="black">MCP server</text>
 
-    <path d="M520,150 L660,78" stroke="black" stroke-width="1.8" marker-end="url(#arrow)" filter="url(#sketch)"/>
-    <path d="M520,160 L660,163" stroke="black" stroke-width="1.8" marker-end="url(#arrow)" filter="url(#sketch)"/>
-    <path d="M520,170 L660,248" stroke="black" stroke-width="1.8" marker-end="url(#arrow)" filter="url(#sketch)"/>
+    <!-- one direct connection per client, each landing on its own point of the server border -->
+    <g stroke="black" stroke-width="1.8" fill="none" marker-end="url(#arrow)" filter="url(#sketch)">
+      <path d="M275,95 L637,104"/>
+      <path d="M275,200 L637,126"/>
+      <path d="M275,135 L637,209"/>
+      <path d="M275,305 L637,231"/>
+      <path d="M275,240 L637,314"/>
+      <path d="M275,345 L637,336"/>
+    </g>
+    <text x="440" y="388" text-anchor="middle" font-size="10" fill="black">each arrow is one client-to-server MCP connection (stdio or HTTP), not a shared session</text>
   </g>
-  <text x="440" y="300" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="14" fill="black">six connectors instead of nine, and a new tool only needs one new spoke</text>
+  <text x="440" y="410" text-anchor="middle" font-family="Segoe Print, Bradley Hand, Comic Sans MS, cursive" font-size="14" fill="black">three servers written once instead of nine bespoke connectors, and a new tool needs one new server</text>
 </svg>

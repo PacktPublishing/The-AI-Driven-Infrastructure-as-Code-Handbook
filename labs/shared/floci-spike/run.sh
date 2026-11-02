@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Floci Tier-1 spike. Exits non-zero on any pass-criterion failure.
 set -uo pipefail
+. "$(dirname "${BASH_SOURCE[0]}")/../tool-shims.sh"   # checkov resolver for Git Bash on Windows
 FLOCI_VERSION="${FLOCI_VERSION:-1.7.0}"
 KEEP=0; [ "${1:-}" = "--keep" ] && KEEP=1
 fail(){ echo "FAIL: $*" >&2; exit 1; }
@@ -9,7 +10,7 @@ echo "==> starting floci ${FLOCI_VERSION}"
 docker rm -f floci >/dev/null 2>&1
 # The docker socket mount is REQUIRED: RDS and EC2 spawn real backend containers.
 # Without it, aws_db_instance hangs indefinitely.
-docker run -d --name floci -p 4566:4566 \
+MSYS_NO_PATHCONV=1 docker run -d --name floci -p 4566:4566 \
   -v /var/run/docker.sock:/var/run/docker.sock \
   "floci/floci:${FLOCI_VERSION}" >/dev/null || fail "could not start floci"
 
@@ -46,7 +47,7 @@ echo "    ok"
 
 echo "==> verification gates (M09 evidence)"
 command -v trivy   >/dev/null && trivy config --quiet --severity HIGH,CRITICAL . 2>/dev/null | tail -5
-command -v checkov >/dev/null && checkov -d . --quiet --compact --framework terraform 2>/dev/null | grep -E "Passed checks|Failed checks" | tail -2
+CHECKOV=$(checkov_cmd) && $CHECKOV -d . --quiet --compact --framework terraform 2>/dev/null | grep -E "Passed checks|Failed checks" | tail -2
 
 if [ "$KEEP" = "1" ]; then
   echo "==> --keep: leaving the stack up. 'terraform destroy && docker rm -f floci' when done."

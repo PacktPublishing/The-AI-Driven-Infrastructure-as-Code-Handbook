@@ -90,6 +90,7 @@ resource "docker_container" "site" {
   ports {
     internal = 80
     external = 8080
+    ip       = "127.0.0.1"
   }
 
   volumes {
@@ -155,6 +156,8 @@ Terraform will perform the following actions:
       + ports {
           + external = 8080
           + internal = 80
+          + ip       = "127.0.0.1"
+          + protocol = "tcp"
         }
       + volumes {
           + container_path = "/usr/share/nginx/html/index.html"
@@ -187,6 +190,12 @@ Plan: 4 to add, 0 to change, 0 to destroy.
 
 Four resources, nothing destructive, nothing surprising. `terraform plan` will tell you a plaintext
 key is about to land in a file. If you were reading fast, this is the line you'd miss.
+
+One more line worth a glance: `ip = "127.0.0.1"` inside the `ports` block. The intent said
+"I don't need it exposed outside this machine", and that line is what makes it true. Leave
+`ip` out and the Docker provider defaults to `0.0.0.0`, which publishes port 8080 on every
+network interface the host has, instead of loopback only. Nothing is exposed by this lab,
+because this lab never applies. The plan is still where you would catch it.
 
 ## Step 4: Run Checkov, watch it fail
 
@@ -304,6 +313,7 @@ resource "docker_container" "site" {
   ports {
     internal = 80
     external = 8080
+    ip       = "127.0.0.1"
   }
 
   volumes {

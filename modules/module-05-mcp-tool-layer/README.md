@@ -7,41 +7,42 @@ Real data in, not a better guess. Where M04 gave the agent a skill it reaches fo
 own, this module gives it a live connection to real systems, through a shared protocol,
 so it can read real state instead of guessing from stale training data.
 
-Spec: [`specs/M05-spec.md`](../../specs/M05-spec.md). Read it before changing anything here.
-
 ## What's in this module
 
 ```
 modules/module-05-mcp-tool-layer/
   README.md               this file, delivery guide
   explainer/
-    EXPLAINER.md           7 diagram beats, narrator notes, timing
-    deck/
-      build_deck.py         generator, mirrors M01/M03/M04/M06's own generator
-      m05-mcp-tool-layer.html   13-slide self-contained deck
-      m05-sequence.md        slide table, fragment map, coverage check
-    diagrams/               6 hand-drawn SVGs (title slide has its own inline SVG)
+    sim/
+      stale-vs-live-sim.html   interactive stale-vs-live lookup simulator
   LAB.md                   Project 05: Build an RDS Module Using the Terraform MCP Server (Tier 1, ~40 min)
   lab/
     mcp-config/             real terraform.mcp.json and github.mcp.json
+    module/                  the RDS module the lab applies against Floci: network, db, provider stub
     evidence/                real captured before/after answers and PR open/close JSON
     run.sh                   validates the image, config, and evidence for real, no secrets needed
   reading/
-    concepts.md              ~15 min standalone read, also book/chapters/05-mcp-tool-layer.md
+    concepts.md              ~15 min standalone read, the spine of Chapter 5 of the book
     reference.md              one-page A4 cheat sheet
+    diagrams/                8 hand-drawn SVGs, one per section of concepts.md
   QUIZ.md                  7 questions, collapsible answers
   PROJECTS.md              3 stretch project seeds
 ```
 
 ## Delivery guide: live workshop
 
-Run in this order, roughly 55 minutes with a break:
+Run in this order, roughly 55 minutes with a break. Each step walks one or two sections of
+`reading/concepts.md` with its diagram from `reading/diagrams/` on screen:
 
-1. Walk `explainer/EXPLAINER.md` beats 1-2 (before/after MCP), ~6 min.
-2. Walk beat 3 (skill vs hook vs MCP), ~5 min.
-3. Walk beat 4 (the real before-and-after), the module's centerpiece, ~6 min.
-4. Walk beats 5-6 (PR is not merge, still step 3), ~6 min.
-5. Walk beat 7 (the lab bridge), ~2 min.
+1. "Before MCP: One-Off Integrations" and "MCP: One Protocol, Many Clients"
+   (`before-mcp-tangled.svg`, `after-mcp-spokes.svg`), ~6 min.
+2. "What an MCP Tool Call Actually Is" (`skill-hook-mcp.svg`), skill vs hook vs MCP, ~5 min.
+3. "Stale Training Data Is a Real Failure Mode" and "A Live Lookup Can Build the Real Thing"
+   (`stale-vs-live.svg`, `param-group-build.svg`), the module's centerpiece, ~6 min. Demo
+   `explainer/sim/stale-vs-live-sim.html` at the "Try it" subsection.
+4. "Official Doesn't Mean Ready", "Opening a Pull Request Is Not Merging It" and "Still
+   Step 3" (`aws-iac-mcp-honest.svg`, `pr-not-merge.svg`, `still-step3.svg`), ~6 min.
+5. "MCP Servers Are Still a Permission Surface", the lab bridge, ~2 min.
 6. Break, then run `LAB.md` live, ~20 min. Real Terraform MCP server, real before/after
    answers, a real pull request opened and closed against a throwaway branch.
 7. Close on the exercise: register one more real MCP server, capture one real answer.
@@ -82,13 +83,11 @@ everything the agent produces before anything real happens.
 
 ## Definition-of-done status
 
-- [x] `specs/M05-spec.md` read before building
 - [x] All module directories present (`explainer/`, `lab/`, `reading/`, plus root `LAB.md`,
       `QUIZ.md`, `PROJECTS.md`, `README.md`)
-- [x] `EXPLAINER.md` has narrator notes and timing for every diagram beat
 - [x] `LAB.md` steps are copy-pasteable, solo-completable, Tier 1, real captured output only
-- [x] `reading/concepts.md` is standalone-readable (~15 min) and doubles as
-      `book/chapters/05-mcp-tool-layer.md`
+- [x] `reading/concepts.md` is standalone-readable (~15 min) and doubles as the draft of
+      Chapter 5 of the book
 - [x] `reading/reference.md` is a one-side-of-A4 cheat sheet
 - [x] `QUIZ.md`: 7 questions, collapsible answers, scenario-heavy
 - [x] `PROJECTS.md`: 3 stretch projects, hints not solutions
@@ -101,20 +100,18 @@ everything the agent produces before anything real happens.
 - [x] Skill vs hook vs MCP distinction is precise, MCP is never blurred into "just another
       skill"
 - [x] No new autonomy step introduced or implied
-- [x] Diagram beats: 6 hand-drawn SVGs in `explainer/diagrams/`, same visual contract as
-      M01/M03/M04/M06, every diagram's real text verified present in the rendered deck
-- [x] Deck: 13 self-contained slides, zero external refs, real Playwright render check,
-      zero invisible-line regressions
-- [x] Course slide voiceover script: `planning/voiceover/m05-slide-voiceover.md`
+- [x] Diagrams: 8 hand-drawn SVGs in `reading/diagrams/`, same visual contract as
+      M01/M03/M04/M06
 - [x] Lab validation script: `lab/run.sh`, checks the real evidence end to end, no secrets
       required
 - [x] Zero "rung" anywhere in learner-facing content (grepped, confirmed)
-- [ ] No simulator this module, per spec: an install/configure module doesn't benefit from
-      being driven the way a mechanism (blast radius, a pipeline) does
+- [x] Simulator: `explainer/sim/stale-vs-live-sim.html`, the stale-vs-live lookup, embedded
+      at the "Try it" subsection of `reading/concepts.md`
 
 ## Delivery guide: Udemy
 
 This module's lecture cut mirrors M01/M03/M04/M06's pattern: one concept per lecture, 3-6
-minutes each, following the deck's 6 sections. `LAB.md` ships as a standalone hands-on
-lecture after the concept lectures. `QUIZ.md` publishes as the module's Udemy quiz.
-`PROJECTS.md` publishes as downloadable resources.
+minutes each, following the ten sections of `reading/concepts.md`. `LAB.md` ships as a
+standalone hands-on lecture after the concept lectures. `QUIZ.md` publishes as the module's
+Udemy quiz. `PROJECTS.md` publishes as downloadable resources. The stale-vs-live simulator
+ships as an embedded interactive alongside the lesson page.

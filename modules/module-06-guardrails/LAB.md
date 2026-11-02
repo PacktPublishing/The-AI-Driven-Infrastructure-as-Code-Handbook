@@ -75,6 +75,10 @@ docker run -d --name floci -p 4566:4566 \
   floci/floci:1.7.0
 ```
 
+From Git Bash on Windows, put `MSYS_NO_PATHCONV=1` in front of `docker run`, or start Floci with
+`docker compose -f labs/shared/docker-compose.floci.yml up -d` from the repository root instead
+(see Appendix A).
+
 **Apply** the baseline:
 
 ```
@@ -183,36 +187,105 @@ decides whether it's safe to apply at all.
 `file: hooks/blast_radius_gate.sh`
 ```
 #!/usr/bin/env bash
+# Pre-apply gate. Blocks a terraform plan based on blast radius, mechanically,
+# by reading `terraform show -json` output, not by asking the agent nicely.
+#
+# Usage: blast_radius_gate.sh <plan.json>
+# Exit 0 = pass, safe to apply. Exit 1 = blocked, do not apply.
+#
+# Policy, overridable via env:
+#   MAX_RESOURCES      default 5
+#   BLOCK_ON_DELETE     default 1 (true)
+#   HIGH_RADIUS_TYPES   default "aws_vpc,aws_iam_policy,aws_iam_role"
 set -uo pipefail
+
 PLAN_JSON="${1:?usage: blast_radius_gate.sh <plan.json>}"
 MAX_RESOURCES="${MAX_RESOURCES:-5}"
 BLOCK_ON_DELETE="${BLOCK_ON_DELETE:-1}"
 HIGH_RADIUS_TYPES="${HIGH_RADIUS_TYPES:-aws_vpc,aws_iam_policy,aws_iam_role}"
 
-TOTAL=$(jq '[.resource_changes[] | select(.change.actions != ["no-op"])] | length' "$PLAN_JSON")
-DELETES=$(jq '[.resource_changes[] | select(.change.actions | index("delete"))] | length' "$PLAN_JSON")
+[ -f "$PLAN_JSON" ] || { echo "GATE ERROR: no such plan file: $PLAN_JSON" >&2; exit 1; }
+command -v jq >/dev/null 2>&1 || { echo "GATE ERROR: jq not found on PATH." >&2; exit 1; }
+
+# Fail closed. `set -uo pipefail` does not stop this script on a failed command,
+# because -e is not enabled, so every jq call is checked here instead. Without
+# this, a malformed or mis-structured plan makes jq print nothing, the integer
+# tests below silently evaluate to false, and the script falls through to
+# "gate passes". A plan this gate cannot read is not a zero-risk plan.
+count() {
+  local out
+  out=$(jq "$1" "$PLAN_JSON" 2>/dev/null) || return 1
+  case "$out" in ''|*[!0-9]*) return 1 ;; esac
+  printf '%s' "$out"
+}
+unreadable() {
+  echo "GATE ERROR: could not read a valid Terraform plan from $PLAN_JSON." >&2
+  echo "BLOCKED: parser or tool failure is not a pass. Failing closed." >&2
+  exit 1
+}
+
+jq -e 'type == "object" and (.resource_changes | type) == "array"' "$PLAN_JSON" >/dev/null 2>&1 || unreadable
+
+# Every entry must carry what the three policies read: a string .type and a non-empty
+# .change.actions array of strings. An entry missing either cannot be classified, and an
+# unclassifiable entry is not a zero-risk entry. Without this check, an entry with no
+# actions counts as "one change, no delete" and sails through.
+jq -e 'all(.resource_changes[];
+          type == "object"
+          and (.type | type) == "string"
+          and (.change | type) == "object"
+          and (.change.actions | type) == "array"
+          and (.change.actions | length) > 0
+          and all(.change.actions[]; type == "string"))' "$PLAN_JSON" >/dev/null 2>&1 || {
+  echo "GATE ERROR: a resource_changes entry in $PLAN_JSON has no readable .type or .change.actions." >&2
+  echo "BLOCKED: an entry the gate cannot classify is not a zero-risk entry. Failing closed." >&2
+  exit 1
+}
+
+TOTAL=$(count '[.resource_changes[] | select(.change.actions != ["no-op"])] | length') || unreadable
+DELETES=$(count '[.resource_changes[] | select(.change.actions | index("delete"))] | length') || unreadable
+
+echo "==> gate: ${TOTAL} resource change(s), ${DELETES} delete(s), max allowed ${MAX_RESOURCES}"
 
 if [ "$BLOCK_ON_DELETE" = "1" ] && [ "$DELETES" -gt 0 ]; then
-  echo "BLOCKED: ${DELETES} delete action(s) in this plan." >&2
+  echo "BLOCKED: ${DELETES} delete action(s) in this plan. block-on-delete is on." >&2
+  jq -r '.resource_changes[] | select(.change.actions | index("delete")) | "  - delete: \(.type).\(.name)"' "$PLAN_JSON" >&2
   exit 1
 fi
+
 if [ "$TOTAL" -gt "$MAX_RESOURCES" ]; then
-  echo "BLOCKED: ${TOTAL} resource changes exceeds max-resources ${MAX_RESOURCES}." >&2
+  echo "BLOCKED: ${TOTAL} resource changes exceeds the max-resources policy of ${MAX_RESOURCES}." >&2
   exit 1
 fi
+
 IFS=',' read -ra TYPES <<< "$HIGH_RADIUS_TYPES"
 for t in "${TYPES[@]}"; do
-  HIT=$(jq --arg t "$t" '[.resource_changes[] | select(.type == $t) | select(.change.actions != ["no-op"])] | length' "$PLAN_JSON")
-  [ "$HIT" -gt 0 ] && { echo "BLOCKED: touches high-radius type '${t}'." >&2; exit 1; }
+  HIT=$(count "[.resource_changes[] | select(.type == \"$t\") | select(.change.actions != [\"no-op\"])] | length") || unreadable
+  if [ "$HIT" -gt 0 ]; then
+    echo "BLOCKED: this plan touches ${HIT} resource(s) of high-radius type '${t}'." >&2
+    exit 1
+  fi
 done
+
+echo "    ok, gate passes"
 exit 0
 ```
 
 Three policies, in order: block any delete, block a batch over `MAX_RESOURCES` (default 5), block
 a change to a resource type on the high-radius list (`aws_vpc`, `aws_iam_policy`, `aws_iam_role` by
-default). Exit 0 means safe to apply. Exit non-zero means refuse. `hooks/apply_with_gate.sh` wraps
-`terraform plan` → `terraform show -json` → this script → `terraform apply`, in that order, and
-never reaches `apply` if the gate exits non-zero.
+default). Exit 0 means safe to apply. Exit non-zero means refuse.
+
+The two `jq -e` checks before the policies are the gate failing closed. The first rejects a file
+that is not a plan at all. The second rejects any `resource_changes` entry with no string `type`
+or no non-empty `change.actions` array, because an entry the gate cannot classify is invisible to
+all three policies. Without those checks, a malformed plan makes `jq` print nothing, the integer
+tests evaluate to false, and the script falls through to "gate passes". A plan the gate cannot
+read is treated as a blocked plan, never as a safe one.
+
+`hooks/apply_with_gate.sh` wraps `terraform plan`, then `terraform show -json`, then this script,
+then `terraform apply`, in that order. It never reaches `apply` if the gate exits non-zero, and it
+returns Terraform's own exit status when `apply` itself fails, so a caller sees the failure even
+though the wrapper cleans up the plan files afterwards.
 
 ### Step 5: Watch the same delete get blocked
 
@@ -302,16 +375,23 @@ settings file, not a Terraform concept:
 {
   "permissions": {
     "deny": [
-      "Write(shared/**)",
-      "Edit(shared/**)"
+      "Edit(/shared/**)"
     ]
   }
 }
 ```
 
-This is a config-level guardrail: the agent's write tools are denied on anything under `shared/`,
-enforced by the harness before the agent ever gets a chance to propose a change there, the same
-way the gate above is enforced before `apply`. This lab doesn't stage a live denied-write
+This is a config-level guardrail. The `Edit` path rule denies every built-in file-editing tool,
+`Write` included, on anything under `shared/`. Claude Code matches file edits against `Edit(path)`
+and `Read(path)` rules only. It accepts a `Write(path)` rule and never matches anything against
+it, so a `Write(shared/**)` line would be dead config. The single leading slash anchors the path
+at the directory this settings file belongs to, so `/shared/**` means `shared/` under the lab
+directory you start the session in. A path from the filesystem root takes two slashes,
+`//shared/**`. Both rules are in Claude Code's permissions reference at
+https://code.claude.com/docs/en/permissions.
+
+The harness enforces this before the agent ever gets a chance to propose a change there, the
+same way the gate above is enforced before `apply`. This lab doesn't stage a live denied-write
 transcript, that depends on the specific agent runtime enforcing it, but the mechanism works the
 same way as the hook: a rule that runs regardless of what the agent decided to do.
 
@@ -531,7 +611,15 @@ cd modules/module-06-guardrails/lab
 - Baseline apply, then an ungated delete that destroys a real object
 - The same delete, blocked by the gate, plus a safe change that still passes, a high-radius
   type blocked, and an oversized batch blocked
-- The full propose-approve-apply harness against a real Claude Code session
+- A `terraform apply` that fails after the gate passes, which the wrapper must report as a
+  non-zero exit instead of hiding behind its own cleanup
+- Fail-closed cases: unreadable plan files and well-formed JSON with malformed
+  `resource_changes` entries all block, while a valid empty plan and a single create pass
+- The full propose-approve-apply harness against a real Claude Code session, with a stub
+  standing in for the agent when the `claude` CLI is absent, labelled SIMULATED in the output
+- The harness refusing an implementation step that exits non-zero, or exits zero without
+  touching `module/main.tf`, tested with a stub `claude` because the real CLI cannot be made
+  to fail on demand
 - Reconcile and destroy, all against the real Floci container
 
 ## Summary

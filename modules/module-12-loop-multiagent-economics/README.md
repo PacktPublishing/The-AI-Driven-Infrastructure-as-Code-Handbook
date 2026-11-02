@@ -12,9 +12,9 @@ in Codex. Then it adds the one thing infrastructure needs that a coding loop can
 without: the loop's "done" is decided by the pipeline, not by the agent's transcript. A Stop hook
 runs a scanner-backed `verify.sh`, and a guard hook stops the agent editing it.
 
-Spec: [`specs/M12-spec.md`](../../specs/M12-spec.md). Read it before changing anything here.
-Why this module was rewritten on 2026-10-25: [`decisions/0008-teach-real-loop-engineering.md`](../../decisions/0008-teach-real-loop-engineering.md).
-The directory keeps its old name so published paths do not move.
+This module was rewritten on 2026-10-25 to teach loop engineering as practitioners use it,
+`/goal`, Stop hooks and `/loop` in Claude Code and hooks in Codex, rather than an invented
+loop pattern. The directory keeps its old name so published paths do not move.
 
 ## Versions shown on screen
 
@@ -34,15 +34,8 @@ The directory keeps its old name so published paths do not move.
 modules/module-12-loop-multiagent-economics/
   README.md                this file, delivery guide
   explainer/
-    EXPLAINER.md            14 beats, narrator notes, timing
-    deck/
-      build_deck.py          generator, same lineage as M08
-      m12-loop-multiagent-economics.html   16-slide self-contained deck
-      m12-sequence.md        slide table, coverage check, diagram-to-figure map
-    diagrams/                7 hand-drawn SVGs, the same files as book/figures/12/
     sim/
       stopping-condition-sim.html       who decides "done": phrase, /goal evaluator or Stop gate
-      stopping-condition-sim.test.mjs
   LAB.md                    Project 12: Build an Infrastructure Loop That Only the Pipeline Can End (Tier 0, ~40 min)
   lab/
     .gitignore
@@ -71,9 +64,9 @@ modules/module-12-loop-multiagent-economics/
       stage4-codex-trusted.txt  stage4-codex-state.md
       stage5-loop.txt  stage5-state.md
   reading/
-    concepts.md              the chapter draft, the same body as book/chapters/12-loop-multiagent-economics.md
+    concepts.md              the chapter draft, the same body as Chapter 12 of the book
     reference.md             one-page cheat sheet
-    diagrams/                the same 7 SVGs, for the reading
+    diagrams/                7 hand-drawn SVGs, one per section of concepts.md
   QUIZ.md                   10 questions, collapsible answers
   PROJECTS.md               5 stretch projects
 ```
@@ -82,16 +75,22 @@ modules/module-12-loop-multiagent-economics/
 
 ## Delivery guide: live workshop
 
-Run in this order, roughly 75 minutes with a break:
+Run in this order, roughly 75 minutes with a break. Each step walks one or two sections of
+`reading/concepts.md` with its diagram from `reading/diagrams/` on screen:
 
-1. Walk `explainer/EXPLAINER.md` beats 1 to 3 (the story, the third layer, harness first), ~6 min.
-2. Walk beats 4 to 6 (where it came from, the six parts, four primitives), ~8 min. Keep the
-   dates on screen; the history is short and sourced.
-3. Walk beat 7 (who decides "done"), ~5 min. This is the module. Then open the simulator and run
-   the narrow ticket under all three judges.
-4. Walk beat 8 (the gate in action), ~3 min.
-5. Walk beats 9 to 12 (topologies, cost, step 6, the ladder), ~10 min. Say the JetBrains numbers
-   with their date, setup and sample size.
+1. The opening story and "The Third Layer, and What a Loop Is" (`three-layers-loop.svg`,
+   `harness-foundation.svg`), harness first, ~6 min.
+2. "Where Loop Engineering Came From", "The Parts of a Loop" and "Four Primitives, Two
+   Runtimes" (`six-parts-of-a-loop.svg`), ~8 min. Keep the dates on screen; the history is
+   short and sourced.
+3. "Who Decides "Done"" (`who-decides-done.svg`), ~5 min. This is the module. Then open
+   `explainer/sim/stopping-condition-sim.html` and run the narrow ticket under all three
+   judges.
+4. "A Loop the Pipeline Judges", under "Seeing It Work", the gate in action, ~3 min.
+5. "Loop Topology: One Agent or Several", "What a Loop Costs", "Step 6, Unattended, and the
+   Second Kind of Agent" and the ladder closed in "Summary" (`loop-topologies.svg`,
+   `step6-unattended.svg`, `ladder-closed.svg`), ~10 min. Say the JetBrains numbers with
+   their date, setup and sample size.
 6. Break, then run `LAB.md` live, ~40 min. Stage 3 is the moment people remember: the gate sends
    the agent back for a key it was never asked about. In Stage 4, run `codex exec` before
    trusting the hooks and let the room see the empty state file.
@@ -139,16 +138,16 @@ a workflow harness from M08, a pipeline from M09) and never teaches step 6 as a 
 
 One concept per lecture, 3 to 6 minutes each.
 
-| # | Lecture | Slides | ~min |
+| # | Lecture | Section of `reading/concepts.md` | ~min |
 |---|---|---|---|
-| 1 | The Third Layer, Built Last on Purpose | 1 to 3 | 5 |
-| 2 | Where Loop Engineering Came From | 4 | 4 |
-| 3 | The Six Parts of a Loop and Four Primitives | 5, 6 | 6 |
-| 4 | Who Decides "Done"? | 7, 8 | 5 |
-| 5 | The Stop Gate in Action | 9 | 4 |
-| 6 | Loop Topologies: One Agent or Several | 10, 11 | 4 |
-| 7 | What a Loop Costs | 12 | 5 |
-| 8 | Step 6, Unattended, and the Ladder Closed | 13 to 15 | 5 |
+| 1 | The Third Layer, Built Last on Purpose | opening story, "The Third Layer, and What a Loop Is" | 5 |
+| 2 | Where Loop Engineering Came From | "Where Loop Engineering Came From" | 4 |
+| 3 | The Six Parts of a Loop and Four Primitives | "The Parts of a Loop", "Four Primitives, Two Runtimes" | 6 |
+| 4 | Who Decides "Done"? | "Who Decides "Done"" and its "Try It" | 5 |
+| 5 | The Stop Gate in Action | "A Loop the Pipeline Judges" under "Seeing It Work" | 4 |
+| 6 | Loop Topologies: One Agent or Several | "Loop Topology: One Agent or Several" | 4 |
+| 7 | What a Loop Costs | "What a Loop Costs" | 5 |
+| 8 | Step 6, Unattended, and the Ladder Closed | "Step 6, Unattended, and the Second Kind of Agent", "Summary" | 5 |
 | 9 | Lab: Build the Stopping Condition | LAB Stage 1 | 4 |
 | 10 | Lab: A Loop the Model Judges | LAB Stage 2 | 5 |
 | 11 | Lab: A Loop the Pipeline Judges | LAB Stage 3 | 6 |
@@ -159,15 +158,13 @@ One concept per lecture, 3 to 6 minutes each.
 Lectures 9 to 14 are screen-recorded; Stages 4 and 5 need interactive sessions. `QUIZ.md`
 publishes as the module's Udemy quiz. `PROJECTS.md`, `reading/reference.md`, `lab/loop/` and
 `lab/solution/trigger-workflow.example.yml` publish as downloadable resources. The Module 12
-lectures recorded before 2026-10-25 are retired; re-record from
-`planning/voiceover/m12-slide-voiceover.md`.
+lectures recorded before 2026-10-25 are retired; re-record from the current
+`reading/concepts.md`.
 
 ## Definition-of-done status
 
-- [x] `specs/M12-spec.md` and `decisions/0008-teach-real-loop-engineering.md` read before building
 - [x] All module directories present (`explainer/`, `lab/`, `reading/`, plus root `LAB.md`,
       `QUIZ.md`, `PROJECTS.md`, `README.md`)
-- [x] `EXPLAINER.md` has narrator notes and timing for every beat
 - [x] `LAB.md` steps are copy-pasteable, solo-completable, Tier 0, real captured output only
 - [x] Every loop runs a real agent; no hardcoded fix
 - [x] The `/goal` result and the gated result both shown honestly
@@ -180,6 +177,6 @@ lectures recorded before 2026-10-25 are retired; re-record from
 - [x] Origin dates stated with sources; token-tool numbers stated with date, setup and sample size
 - [x] Step 6 stated precisely, with what has to be true first
 - [x] No retired tools presented as current
-- [x] Course slide voiceover script: `planning/voiceover/m12-slide-voiceover.md`
 - [x] Lab validation script: `lab/run.sh`
-- [x] Simulator test: `node --test explainer/sim/*.test.mjs`
+- [x] Simulator: `explainer/sim/stopping-condition-sim.html`, all three judges verified headless
+      before publishing

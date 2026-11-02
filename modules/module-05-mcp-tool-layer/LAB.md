@@ -19,8 +19,8 @@ diagram.
   `long_query_time`), applied, verified, and destroyed against Floci
 - A seeded encryption gap on that same instance, caught for real by Checkov's `CKV_AWS_16`,
   then fixed
-- A second AWS-specific MCP server, tried live, found broken on startup, a real lesson that
-  "official" and "ready" are not the same claim
+- A second AWS-specific MCP server, tried live, found broken on startup in the captured run,
+  a real lesson that "official" and "ready" are not the same claim
 - A third MCP server, connected to GitHub, used to open a real pull request
 - A real PR, opened then closed without merging, the human decision still in place
 
@@ -243,39 +243,88 @@ terraform destroy -auto-approve
 
 ## Stage 4: Try aws-iac-mcp-server
 
-This course's own conventions name `aws-iac-mcp-server` as the modern, AWS-endorsed
-replacement for the deprecated `awslabs/terraform-mcp-server`. Try it:
+`aws-iac-mcp-server` is real, but AWS names it as the successor to its deprecated
+CloudFormation and CDK MCP servers (`awslabs/cdk-mcp-server` and `cfn-mcp-server`), not to
+its deprecated `awslabs/terraform-mcp-server`. For Terraform, AWS points at HashiCorp's
+official Terraform MCP server, the one you connected in Stage 1. Try the AWS server anyway,
+because what it does on startup is the lesson:
 
 ```
 uvx awslabs.aws-iac-mcp-server@latest --help
 ```
 
 `file: lab/evidence/aws-iac-mcp-server-attempt.txt` has the real captured output from
-building this project. It installs, 86 packages, a real dependency tree including
-`cfn-lint` and `botocore`, then crashes on startup with `ModuleNotFoundError: No module
-named 'fastmcp.server.proxy'`. Pinning an older `fastmcp` doesn't fix it, it just trades
-one crash for a different one, a `pydantic` incompatibility.
+building this project, recorded on 31 August 2026. In that run it installed, 86 packages, a
+real dependency tree including `cfn-lint` and `botocore`, then crashed on startup with
+`ModuleNotFoundError: No module named 'fastmcp.server.proxy'`. Pinning an older `fastmcp`
+didn't fix it, it just traded one crash for a different one, a `pydantic` incompatibility.
+Your own run may behave differently: the package is actively maintained and a later release
+may well start cleanly. That is not the point. The point is what you do before you trust it.
 
 Two things are true at once here. `aws-iac-mcp-server` is the genuine AWS Labs package, and
 its documented tool list (`validate_cloudformation_template`,
 `check_cloudformation_template_compliance`, `search_cdk_documentation`, six more) would be
-exactly what you want if part of your stack is CFN or CDK rather than Terraform. As
-installed today, in a clean environment, it doesn't start, and even once running, it speaks
+exactly what you want if part of your stack is CFN or CDK rather than Terraform. In the
+captured run, in a clean environment, it didn't start, and even once running, it speaks
 CloudFormation and CDK, never Terraform HCL. Verify a server actually connects and actually
 covers your tool before you plan a workflow around it, the same caution this course already
 gives Floci itself as a still-maturing project.
 
 ## Stage 5: Connect the GitHub MCP Server
 
-**Register** the official, hosted GitHub MCP server, using a `gh` token you already have:
+**Register** the official, hosted GitHub MCP server, using a `gh` token you already have,
+and expose only the one tool this project needs, `create_pull_request`:
 
 ```
-claude mcp add --transport http github https://api.githubcopilot.com/mcp/ --header "Authorization: Bearer $(gh auth token)"
+claude mcp add --transport http github https://api.githubcopilot.com/mcp/ --header "Authorization: Bearer $(gh auth token)" --header "X-MCP-Tools: create_pull_request"
 ```
+
+The `X-MCP-Tools` header is the hosted server's comma-separated allow-list of tools. The
+GitHub MCP server also ships `merge_pull_request`. With this header, that tool is never
+offered to the agent at all, so the only thing the agent can do through this connection is
+propose.
 
 `file: lab/mcp-config/github.mcp.json` is the same config as a file, `${GITHUB_TOKEN}`
-expanded from your environment instead of inline. Claude Code expands the braced form in
-`.mcp.json` headers; the bare `$GITHUB_TOKEN` form is not expanded.
+expanded from your environment instead of inline, carrying the same `X-MCP-Tools`
+restriction. Claude Code expands the braced form in `.mcp.json` headers; the bare
+`$GITHUB_TOKEN` form is not expanded.
+
+```json
+{
+  "mcpServers": {
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer ${GITHUB_TOKEN}",
+        "X-MCP-Tools": "create_pull_request"
+      }
+    }
+  }
+}
+```
+
+**Verify** that the restriction took, the same way you verified the Terraform server:
+
+```
+claude mcp get github
+```
+
+The entry should report `Status: ✔ Connected` and list both headers. The `Authorization`
+line prints your token in clear, so don't paste that output anywhere. If `X-MCP-Tools`
+names a tool the server doesn't know, the hosted server rejects the connection with
+`unknown tools specified in WithTools: <name>` and the status shows the failure instead,
+which is the right failure: a typo in an allow-list should be loud.
+
+One limit worth stating plainly, because the chapter does. `X-MCP-Tools` restricts what
+*this MCP server* exposes. It does not stop a shell command such as `gh pr merge`. Two
+other things keep the merge human in this project: the agent invocation in Stage 6 passes
+no `--allowedTools`, so in print mode any tool that is not already approved in your own
+Claude Code settings, including `Bash`, is denied rather than prompted for; and the only
+`gh` command in the sequence is the close you type yourself. In a real repository, add the
+third layer, a branch ruleset that requires a review before merge, which Module 11 builds.
+Check your own settings before you run Stage 6: if you have allowed `Bash` globally, the
+restriction on the MCP server alone is not what protects the merge.
 
 ## Stage 6: Ship it, then hand the merge decision to a human
 

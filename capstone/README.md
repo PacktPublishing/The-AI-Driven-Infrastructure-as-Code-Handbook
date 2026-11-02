@@ -22,8 +22,8 @@ would sit and not enforced, because it needs an account this course does not ass
 
 - A storage and config module (S3 + DynamoDB) that fails the pipeline on purpose, then a
   fixed version that clears every gate
-- A real human-approval gate: `apply` runs only from the saved plan a human approved, and
-  refuses any other plan
+- A human-approval gate, simulated in this lab by a flag: `apply` runs only from the saved
+  plan whose hash was recorded at approval, and refuses any other plan
 - Real drift, introduced by hand against the emulated S3 API, caught on the next `plan`
 - Kubernetes infrastructure reconciled onto a real `kind` cluster by Argo CD from the
   companion repository, unattended
@@ -39,6 +39,16 @@ one screen.
 `lab/tier1-floci/`: the full pipeline against a real Floci-backed AWS emulation. No
 cloud account, no cost. You need Terraform, Trivy, Checkov, Conftest, `jq`, Docker, and
 the AWS CLI (the drift step uses it; the run fails rather than skips without it).
+
+**What the lab supplies, and what it does not.** The capstone supplies two prepared
+Terraform modules, `starter` and `solution`, already written and checked in under
+`lab/tier1-floci/`. It does not record a new agent-generation session. The generation step,
+an agent reading `spec.md` and `AGENTS.md` and writing the module, is the step every
+earlier module taught, and the pipeline here inspects what that step produces: one module
+built to fail the gates, one built to pass them. To see the live version, point your own
+agent at `spec.md` with `AGENTS.md` and the `capstone-conventions` skill in place, and run
+whatever it writes through the same `pipeline.sh`. The gates do not care who wrote the
+module.
 
 ```
 cd lab/tier1-floci
@@ -88,9 +98,17 @@ terraform -chdir=solution destroy -auto-approve -no-color
 to `.pipeline/solution.approved.sha256`. `pipeline.sh apply solution` recomputes the hash
 of the plan on disk, refuses if it differs from the record or if there is no record,
 applies that saved plan and nothing else, then deletes the record. One approval, one
-apply. The flag is a stand-in for a human reading the plan summary the gate prints; who
-is allowed to run `pipeline.sh apply` at all is an organisational control (repository
-permissions, CI environment protection, IAM) that sits outside a lab on one laptop.
+apply.
+
+`CAPSTONE_HUMAN_APPROVED=1` is a lab simulation of an approval record. It stands in for a
+human reading the plan summary the gate prints, and what it produces is a record bound to
+the saved plan's SHA-256, not an authenticated approval: nothing checks who set the flag,
+and on a laptop anyone at the keyboard can. A real organisation would bind the approval to
+an identity and to a pull request review: repository roles, a required reviewer on a
+protected branch, CI environment protection, and a cloud identity that can plan but not
+apply. Those controls sit outside a lab on one laptop, and the flag does not pretend to
+replace them. What the gate does prove is narrower and still real: no apply happens
+without a record for the exact plan, and one record buys exactly one apply.
 
 **How failures stop the run.** A tool that cannot run stops the pipeline immediately. A
 gate that runs and finds something records the failure, the remaining mechanical gates
@@ -133,7 +151,12 @@ worth being exact about which is which:
 
 Real, verified: Argo CD, pointed at the companion repository path, reached real
 `Synced`/`Healthy` state and composed a real `ConfigMap` with the merged content.
-Numbered teardown removes the Argo CD application and deletes the cluster.
+Numbered teardown removes the Argo CD application, deletes the cluster, and then asks
+Docker whether any container from the cluster survived. If Docker names one, or cannot be
+asked at all, the run fails rather than print a teardown it could not confirm. That check
+is tested on its own, without a cluster, by `lab/tier2-kubernetes/test_teardown_check.sh`.
+The latest full run from a clean environment is captured, unedited, in
+`lab/tier2-kubernetes/evidence/`.
 
 ## Stage 3: Run the pipeline against real AWS (Tier 3, optional)
 

@@ -463,8 +463,15 @@ would, and comes back with the one thing that reviewer could not settle:
 
 Read that twice. The answer you typed contained a mistake: "the AWS-owned key" is what the
 table already uses, so there would be nothing to test. The harness caught it before a line of
-HCL existed, which is the entire point of asking first. **Open** the design doc it wrote; the
-goals, non-goals and anti-goals sections are the ones to read:
+HCL existed, which is the entire point of asking first.
+
+One line of that answer needs a correction of its own. "Both cost nothing" is not quite right:
+only the AWS-owned key is free of charge. The AWS-managed key has no monthly key fee, but AWS
+KMS charges apply to its use, and a customer-managed key adds a monthly key fee on top. The
+design doc's own copy of that sentence carries a dated revision note that says so.
+
+**Open** the design doc it wrote; the goals, non-goals and anti-goals sections are the ones to
+read:
 
 ```
 sed -n 1,40p docs/superpowers/specs/2026-10-22-orders-table-production-readiness-design.md
@@ -624,9 +631,13 @@ attribute would be computed, and plan mode would report `Unknown condition value
 "Condition expression could not be evaluated at this time". That is an error, not a RED. The
 test never evaluated, so it cannot turn GREEN for the right reason either. This is why the
 starter writes the current settings out as `enabled = false`: a plan-mode test can only assert
-on a value the configuration states. The recorded Stage 3 session, `stage3-session.jsonl`,
-ran against the earlier starter without those two blocks, so its transcript shows the
-unknown-value error that the starter has since been tightened to avoid.
+on a value the configuration states. Two records of this live in `evidence/`, and they differ
+on purpose. `stage3-session.jsonl` is the original session log from 2026-10-22. It ran against
+the earlier starter without those two blocks, so its transcript shows the unknown-value error.
+`orders-red-pitr.txt`, printed above, and `orders-red-sse.txt` are re-runs from 2026-10-28
+against the current starter with the explicit `enabled = false` settings, which is why they
+show a failed assertion instead. Every other `orders-*.txt` file is the session's own capture,
+unchanged.
 
 The policy test fails as a plain assertion too, and it prints the exact diff:
 
@@ -761,6 +772,12 @@ sse.tftest.hcl
 A design you approved, a plan you read, one test file per property that failed before the fix,
 and a directory of captured output for every claim the agent made. That is what "the agent
 proposes" looks like when a workflow harness is doing the proposing.
+
+The reference copies of those two documents ship in `lab/solution/docs/superpowers/`. Each
+carries a dated revision note at its top recording what changed after the session (the
+starter's explicit `enabled = false` settings, RED as a failed assertion rather than an
+unknown-value error, and the key cost), followed by the session's own text. Your own session
+writes fresh copies with no such note.
 
 
 ## Stage 4: Add one IaC skill to the harness
@@ -908,9 +925,18 @@ cd modules/module-08-harness-engineering/lab
   that evaluate to false (not as unknown values or undeclared-resource errors), printing the
   hardening reasons the tests name
 - The solution module passes the same tests
-- Checkov's JSON report shows the scan ran, examined `aws_dynamodb_table.orders`, and passed
-  `CKV_AWS_28` (point-in-time recovery); the one accepted finding, `CKV_AWS_119`, stays listed
-- The solution applies and destroys for real against Floci, two resources each way
+- Checkov's JSON report shows the scan ran, examined `aws_dynamodb_table.orders`, passed
+  `CKV_AWS_28` (point-in-time recovery), and failed no check other than the one accepted
+  finding, `CKV_AWS_119`, which must still be listed. Any other failed check, on any resource,
+  stops the runner
+- The solution applies for real against Floci, two resources added
+- Between apply and destroy, `terraform plan -detailed-exitcode` exits 0 with `No changes.`,
+  and `terraform show -json` reads back `point_in_time_recovery[0].enabled` and
+  `server_side_encryption[0].enabled` as `true` and `deletion_protection_enabled` as `false`.
+  Floci 1.7.0 also records a 35-day recovery period and an AWS-managed `kms_key_arn`; the
+  runner does not assert on either, because the configuration sets neither
+- The solution destroys for real against Floci, two resources destroyed. A check that fails
+  after the apply destroys first, then stops
 - With `M08_LIVE_AGENT=1`: the Claude Code probe answers "yes" and lists the skills
 
 ## Summary

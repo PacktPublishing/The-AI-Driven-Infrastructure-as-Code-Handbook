@@ -110,6 +110,29 @@ TF_CLI_ARGS_plan="$TFV" ./hooks/apply_with_gate.sh >/tmp/m06-safe-add.log 2>&1 |
 grep -q "Apply complete" /tmp/m06-safe-add.log || fail "docs bucket should have been created"
 echo "    ok, gate passed a safe change"
 
+echo "==> a failed terraform apply must surface as a non-zero wrapper exit, never masked by the cleanup after it"
+# The gate passes (nothing to block), then apply itself fails. The only way to make a real
+# terraform apply fail on demand here is a shim that delegates every subcommand to the real
+# binary except apply, which it fails the way a provider error would.
+SHIM=$(mktemp -d)
+REAL_TF=$(command -v terraform)
+cat > "$SHIM/terraform" <<EOF
+#!/usr/bin/env bash
+if [ "\${1:-}" = "apply" ]; then
+  echo "Error: shim provider failure: apply refused by test shim" >&2
+  exit 1
+fi
+exec "$REAL_TF" "\$@"
+EOF
+chmod +x "$SHIM/terraform"
+PATH="$SHIM:$PATH" TF_CLI_ARGS_plan="$TFV" ./hooks/apply_with_gate.sh >/tmp/m06-apply-fail.log 2>&1
+CODE=$?
+rm -rf "$SHIM"
+[ "$CODE" -ne 0 ] || fail "apply_with_gate.sh returned 0 after terraform apply failed. A wrapper that hides a failed apply is worse than no wrapper: $(cat /tmp/m06-apply-fail.log)"
+grep -q "apply refused by test shim" /tmp/m06-apply-fail.log || fail "expected the apply error to be visible: $(cat /tmp/m06-apply-fail.log)"
+[ ! -f module/tfplan.bin ] && [ ! -f module/tfplan.json ] || fail "plan files should still be cleaned up after a failed apply"
+echo "    ok, failed apply propagates exit ${CODE} through the wrapper, plan files still cleaned up"
+
 echo "==> high-radius resource type must BLOCK"
 cat >> module/main.tf <<'EOF'
 
@@ -163,8 +186,29 @@ done
 printf '%s' '{"format_version":"1.2","resource_changes":[]}' > "$FC_TMP/empty-plan.json"
 ./hooks/blast_radius_gate.sh "$FC_TMP/empty-plan.json" >/dev/null 2>&1 \
   || fail "gate blocked a valid no-change plan; fail-closed must not mean fail-always"
-rm -rf "$FC_TMP"
 echo "    ok, unreadable plans block, a valid empty plan still passes"
+
+echo "==> fail-closed: a resource_changes entry the gate cannot classify must BLOCK, even when the top-level JSON is valid"
+# The top-level checks above pass these. Each one is an entry whose actions the gate
+# cannot read, so none of the three policies can see it. Before the entry-level check
+# existed, every one of these fell through as a pass.
+printf '%s' '{"resource_changes":[{"type":"aws_s3_bucket","name":"logs"}]}'                                        > "$FC_TMP/entry-no-change.json"
+printf '%s' '{"resource_changes":[{"type":"aws_s3_bucket","name":"logs","change":{}}]}'                            > "$FC_TMP/entry-no-actions.json"
+printf '%s' '{"resource_changes":[{"type":"aws_s3_bucket","name":"logs","change":{"actions":"delete"}}]}'          > "$FC_TMP/entry-actions-not-array.json"
+printf '%s' '{"resource_changes":[{"type":"aws_s3_bucket","name":"logs","change":{"actions":[]}}]}'                > "$FC_TMP/entry-actions-empty.json"
+printf '%s' '{"resource_changes":[{"type":"aws_s3_bucket","name":"logs","change":{"actions":[{"op":"delete"}]}}]}' > "$FC_TMP/entry-actions-not-strings.json"
+printf '%s' '{"resource_changes":[{"name":"vpc","change":{"actions":["create"]}}]}'                                > "$FC_TMP/entry-no-type.json"
+printf '%s' '{"resource_changes":["aws_s3_bucket.logs"]}'                                                          > "$FC_TMP/entry-not-object.json"
+for bad in entry-no-change entry-no-actions entry-actions-not-array entry-actions-empty entry-actions-not-strings entry-no-type entry-not-object; do
+  ./hooks/blast_radius_gate.sh "$FC_TMP/$bad.json" >/tmp/m06-entry-$bad.log 2>&1
+  [ $? -ne 0 ] || fail "gate passed a plan with a malformed resource_changes entry ($bad.json). An entry the gate cannot classify is not a zero-risk entry."
+  grep -q "BLOCKED" /tmp/m06-entry-$bad.log || fail "expected a BLOCKED line for $bad.json: $(cat /tmp/m06-entry-$bad.log)"
+done
+printf '%s' '{"resource_changes":[{"type":"aws_s3_bucket","name":"docs","change":{"actions":["create"]}}]}' > "$FC_TMP/entry-valid-create.json"
+./hooks/blast_radius_gate.sh "$FC_TMP/entry-valid-create.json" >/dev/null 2>&1 \
+  || fail "gate blocked a well-formed single create; the entry check must not reject valid plans"
+rm -rf "$FC_TMP"
+echo "    ok, malformed entries block, a well-formed create still passes"
 
 echo "==> mechanism 3: plan-review-approve-apply harness, real claude -p calls"
 if command -v claude >/dev/null 2>&1; then
@@ -196,8 +240,66 @@ EOF
   echo "    ok, approved plan applied for real, audit bucket created"
   rm -f plans/*.md plans/*.approved 2>/dev/null
 else
-  echo "    SKIPPED: claude CLI not on PATH in this environment, harness needs a live Claude Code session"
+  echo "    SKIPPED: claude CLI not on PATH, the real-session propose step was not tested"
+  echo "    SIMULATED: approve-then-apply handoff with a stub claude that appends the audit bucket, so the approval check, the checksum check and the gate still run for real"
+  SIM=$(mktemp -d)
+  rm -f plans/*.md plans/*.approved 2>/dev/null
+  printf '%s\n' "# stub plan" "Add an S3 bucket resource named audit with bucket name m06-lab-audit." > plans/stub-audit.md
+  cat > "$SIM/claude" <<'EOF'
+#!/usr/bin/env bash
+cat >> module/main.tf <<'HCL'
+
+resource "aws_s3_bucket" "audit" {
+  bucket = "m06-lab-audit"
+  tags = { Environment = "lab", Owner = "m06-lab", ManagedBy = "terraform" }
+}
+HCL
+echo "stub claude: appended the audit bucket to module/main.tf"
+EOF
+  chmod +x "$SIM/claude"
+  PATH="$SIM:$PATH" ./harness/apply_with_approval.sh plans/stub-audit.md >/tmp/m06-sim-refused.log 2>&1
+  CODE=$?
+  [ "$CODE" -ne 0 ] || fail "apply_with_approval should refuse an unapproved plan"
+  grep -q "REFUSED" /tmp/m06-sim-refused.log || fail "expected a REFUSED message: $(cat /tmp/m06-sim-refused.log)"
+  echo "    ok, apply refused before approval"
+  APPROVER=run.sh ./harness/approve.sh plans/stub-audit.md >/dev/null 2>&1 || fail "approve.sh failed"
+  PATH="$SIM:$PATH" TF_CLI_ARGS_plan="$TFV" ./harness/apply_with_approval.sh plans/stub-audit.md >/tmp/m06-sim-apply.log 2>&1 || { cat /tmp/m06-sim-apply.log; fail "approved stub plan should have applied"; }
+  terraform -chdir=module state list | grep -q "aws_s3_bucket.audit" || fail "audit bucket should exist after the approved apply"
+  echo "    ok, approved plan applied for real through the gate (agent simulated by a stub, see SKIPPED above)"
+  rm -rf "$SIM"
+  rm -f plans/*.md plans/*.approved 2>/dev/null
 fi
+
+echo "==> harness failure paths: the implementation step exits non-zero, or exits zero and leaves module/main.tf unchanged"
+# The real claude CLI cannot be made to fail on demand, so these two paths are tested with
+# a stub claude placed ahead of the real one on PATH. The stub stands in for the agent
+# only; apply_with_approval.sh, its checksum check and its refusal messages are the real
+# scripts. The happy path above is the one that exercises a live session.
+STUB=$(mktemp -d)
+cp /tmp/m06-main.baseline module/main.tf
+rm -f plans/*.md plans/*.approved 2>/dev/null
+printf '%s\n' "# stub plan" "Add an S3 bucket named stub." > plans/stub-plan.md
+APPROVER=run.sh ./harness/approve.sh plans/stub-plan.md >/dev/null 2>&1 || fail "could not approve the stub plan"
+BEFORE_SUM=$(shasum module/main.tf | cut -d' ' -f1)
+
+printf '%s\n' '#!/usr/bin/env bash' 'echo "stub claude: simulated agent crash" >&2' 'exit 1' > "$STUB/claude"
+chmod +x "$STUB/claude"
+PATH="$STUB:$PATH" ./harness/apply_with_approval.sh plans/stub-plan.md >/tmp/m06-impl-nonzero.log 2>&1
+CODE=$?
+[ "$CODE" -ne 0 ] || fail "apply_with_approval should refuse when the implementation step exits non-zero"
+grep -q "REFUSED: the implementation step exited non-zero" /tmp/m06-impl-nonzero.log || fail "expected the non-zero refusal message: $(cat /tmp/m06-impl-nonzero.log)"
+[ "$(shasum module/main.tf | cut -d' ' -f1)" = "$BEFORE_SUM" ] || fail "module/main.tf should be untouched after a failed implementation step"
+echo "    ok, implementation step exit 1 refused, nothing applied (tested with a stub claude, the real CLI cannot be made to fail on demand)"
+
+printf '%s\n' '#!/usr/bin/env bash' 'echo "I would need more information before editing module/main.tf."' 'exit 0' > "$STUB/claude"
+PATH="$STUB:$PATH" ./harness/apply_with_approval.sh plans/stub-plan.md >/tmp/m06-impl-noop.log 2>&1
+CODE=$?
+[ "$CODE" -ne 0 ] || fail "apply_with_approval should refuse when the implementation step exits zero but changes nothing"
+grep -q "REFUSED: the implementation step exited zero but module/main.tf is byte-identical" /tmp/m06-impl-noop.log || fail "expected the byte-identical refusal message: $(cat /tmp/m06-impl-noop.log)"
+[ "$(shasum module/main.tf | cut -d' ' -f1)" = "$BEFORE_SUM" ] || fail "module/main.tf should be untouched after a no-op implementation step"
+echo "    ok, implementation step exit 0 with no edit refused, nothing applied (tested with a stub claude)"
+rm -rf "$STUB"
+rm -f plans/*.md plans/*.approved 2>/dev/null
 
 echo "==> reconcile to final state and destroy everything"
 cp /tmp/m06-main.baseline module/main.tf
@@ -217,14 +319,8 @@ echo "    ok, all buckets destroyed"
 
 docker rm -f floci-m06-ci >/dev/null 2>&1
 rm -rf module/.terraform module/.terraform.lock.hcl module/terraform.tfstate module/terraform.tfstate.backup module/tfplan.bin module/tfplan.json
+# Leave the checked-in starter at two buckets. LAB.md adds docs in the safe-add step.
 cp /tmp/m06-main.baseline module/main.tf
-cat >> module/main.tf <<'EOF'
-
-resource "aws_s3_bucket" "docs" {
-  bucket = "m06-lab-docs"
-  tags = { Environment = "lab", Owner = "m06-lab", ManagedBy = "terraform" }
-}
-EOF
 
 echo
-echo "LAB PASSED: ungated delete destroys a real object, gated delete blocks it, high-radius type blocks, oversized batch blocks, safe change passes, propose-approve-apply harness refuses before approval and applies for real after it, real floci ${FLOCI_VERSION} throughout"
+echo "LAB PASSED: ungated delete destroys a real object, gated delete blocks it, high-radius type blocks, oversized batch blocks, safe change passes, failed apply propagates, malformed plan entries block, propose-approve-apply harness refuses before approval, refuses a failed or no-op implementation step, and applies for real after approval, real floci ${FLOCI_VERSION} throughout"

@@ -32,6 +32,9 @@ set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
 cd "$HERE"
+# Shared shims, found relative to this script: a checkov command that also works from Git
+# Bash on Windows, where pip's launcher on PATH cannot be executed by bash.
+. "$HERE/../../../labs/shared/tool-shims.sh"
 WORK="$HERE/.pipeline"
 mkdir -p "$WORK"
 
@@ -84,7 +87,8 @@ if [ "$ACTION" = "apply" ]; then
 fi
 
 # ---------------------------------------------------------------- gates ------
-for t in trivy checkov conftest; do need "$t"; done
+for t in trivy conftest; do need "$t"; done
+CHECKOV=$(checkov_cmd) || fail "required tool not found: checkov (see Appendix A)"
 rm -f "$APPROVAL" "$PLAN" "$PLAN_JSON"
 FAILED=""
 
@@ -109,7 +113,8 @@ fi
 
 echo "==> stage 3: checkov, spec SC-002 scope (gate 4)"
 CHECKOV_CODE=0
-checkov -d "$MODULE_DIR" --compact --quiet --check "$CHECKOV_CHECKS" >"$LOG.checkov.log" 2>&1 || CHECKOV_CODE=$?
+# $CHECKOV is unquoted on purpose: on Windows it may be "python -m checkov.main".
+$CHECKOV -d "$MODULE_DIR" --compact --quiet --check "$CHECKOV_CHECKS" >"$LOG.checkov.log" 2>&1 || CHECKOV_CODE=$?
 grep -q "Passed checks:" "$LOG.checkov.log" || fail "checkov did not run cleanly: $(tail -5 "$LOG.checkov.log")"
 if [ "$CHECKOV_CODE" -ne 0 ]; then
   echo "    FAILED: $(grep -o "CKV[0-9_A-Z]*" "$LOG.checkov.log" | sort -u | tr '\n' ' ')"

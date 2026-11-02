@@ -1,0 +1,18 @@
+$ ./run.sh    # 2026-10-30T03:24Z, Darwin arm64, kind v0.33.0, helm v4.2.3+g43e8b7f, kubectl v1.37.0, crossplane chart 2.4.0, argo cd v3.5.6
+==> 1. real evidence: the merged PR's fix is really in place
+    ok
+==> 2. kind cluster up, node image pinned by digest
+    ok
+==> 3. crossplane v2, real helm chart
+    ok
+==> 4. function-patch-and-transform, XRD, Composition
+    ok
+==> 5. argo cd v3.5.6, pinned upstream manifest, server-side apply
+    ok
+==> 6. point argo cd at the real, merged repo path
+    ok, Synced/Healthy, real ConfigMap reconciled from the merged repo
+==> 7. numbered teardown: remove application, delete cluster
+    ok, application removed, cluster deleted, no orphans (docker confirmed)
+
+TIER 2 PIPELINE PASSED -- real merged PR evidence, real crossplane v2, real argo cd synced/healthy, teardown clean
+exit=0

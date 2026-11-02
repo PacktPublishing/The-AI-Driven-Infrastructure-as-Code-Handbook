@@ -9,21 +9,14 @@ points here: "the agent can't get one task right at all." The fix: give the agen
 the same standing information a new hire would get on day one, an `AGENTS.md`, not
 a bigger model or a cleverer prompt.
 
-Spec: [`specs/M03-spec.md`](../../specs/M03-spec.md). Read it before changing
-anything here.
-
 ## What's in this module
 
 ```
 modules/module-03-context-engineering/
   README.md               this file, delivery guide
   explainer/
-    EXPLAINER.md           8 diagram beats, narrator notes, timing
-    deck/
-      build_deck.py         generator, mirrors M01's own generator
-      m03-context-engineering.html  19-slide self-contained deck
-      m03-sequence.md        slide table, fragment map, coverage check
-    diagrams/               7 hand-drawn SVGs (beat 1 has no diagram, title only)
+    sim/
+      context-window-sim.html   interactive context window visualizer
   LAB.md                   Project 03: Manage Context for an Nginx Module Using AGENTS.md and STATE.md (Tier 0-1, ~15 min)
   lab/
     starter/main.tf          run 1, no AGENTS.md, fails checkov same as M01
@@ -32,22 +25,27 @@ modules/module-03-context-engineering/
     run.sh                   validates both runs + AGENTS.md structure, for real
     .gitignore
   reading/
-    concepts.md              ~15 min standalone read, also book/chapters/03-context-engineering.md
+    concepts.md              ~15 min standalone read, the spine of Chapter 3 of the book
     reference.md              one-page A4 cheat sheet
+    diagrams/                10 hand-drawn SVGs, one per section of concepts.md
   QUIZ.md                  7 questions, collapsible answers
   PROJECTS.md              5 stretch project seeds
 ```
 
 ## Delivery guide: live workshop
 
-Run in this order, roughly 55 minutes with a break:
+Run in this order, roughly 55 minutes with a break. Each step walks one or two sections of
+`reading/concepts.md` with its diagram from `reading/diagrams/` on screen:
 
-1. Walk `explainer/EXPLAINER.md` beats 1-3 (the recap, the scarce window, context vs
-   prompt), ~5 min.
-2. Walk beats 4-5 (the anatomy, the retrieval funnel), ~4 min.
-3. Walk beats 6-7 (the information gap, before/after), ~4 min. Say the "11 of 14, not
-   79%" caveat out loud, it's part of the material.
-4. Walk beat 8 (the callback), ~1 min.
+1. "Recap", "The Context Window Is a Scarce Resource" and "Context Engineering Is Three
+   Disciplines, Not One" (`context-window.svg`, `three-r.svg`), ~5 min. Demo
+   `explainer/sim/context-window-sim.html` at the "Try it" subsection.
+2. "Reduce", "Retain" and "Route" (`reduce-compact.svg`, `agentsmd-anatomy.svg`,
+   `retrieval-funnel.svg`, `route-wall.svg`), the anatomy and the retrieval funnel, ~4 min.
+3. "The Information Gap" (`information-gap.svg`), "Context Engineering, Not Prompt
+   Engineering" (`context-vs-prompt.svg`) and "Before and After" (`before-after.svg`),
+   ~4 min. Say the "11 of 14, not 79%" caveat out loud, it's part of the material.
+4. The callback to M01's three layers (`three-layers-context.svg`), ~1 min.
 5. Break, then run `LAB.md` live, ~15 min, everyone on their own machine and their own
    agent. Run 1, write the file, run 2, diff.
 6. Close on the lab's "Which failure was which" section, it's the hinge into M06.
@@ -67,7 +65,7 @@ cd modules/module-03-context-engineering/lab
 Requires `terraform`, and `checkov` (pin `3.3.16`, matching Environment Setup; if it's
 not on `PATH`, install into a scratch venv first). Expect: run 1 (no
 `AGENTS.md`) fails checkov on `CKV_SECRET_2`, run 2 (with `AGENTS.md`) is clean,
-`AGENTS.md` has all four required sections.
+`AGENTS.md` has all five required sections.
 
 ## Autonomy ladder
 
@@ -77,14 +75,12 @@ wrote those lines.
 
 ## Definition-of-done status
 
-- [x] `specs/M03-spec.md` read before building
 - [x] All module directories present (`explainer/`, `lab/`, `reading/`, plus root
       `LAB.md`, `QUIZ.md`, `PROJECTS.md`, `README.md`)
-- [x] `EXPLAINER.md` has narrator notes and timing for every diagram beat
 - [x] `LAB.md` steps are copy-pasteable, solo-completable, Tier 0-1, real captured
       output only
-- [x] `reading/concepts.md` is standalone-readable (~15 min) and doubles as
-      `book/chapters/03-context-engineering.md`
+- [x] `reading/concepts.md` is standalone-readable (~15 min) and doubles as the draft of
+      Chapter 3 of the book
 - [x] `reading/reference.md` is a one-side-of-A4 cheat sheet
 - [x] `QUIZ.md`: 7 questions, collapsible answers, scenario-heavy
 - [x] `PROJECTS.md`: 5 stretch projects, hints not solutions
@@ -92,17 +88,15 @@ wrote those lines.
 - [x] No retired tools presented as current
 - [x] No "prompt engineering" used as the umbrella term anywhere in this module
 - [x] The 11/14 fraction stated correctly everywhere it appears (not rounded to 79%)
-- [x] Beat 8 / slide 17 explicitly calls back to M01's three-layer diagram
+- [x] The recap calls back explicitly to M01's three-layer model
+      (`reading/diagrams/three-layers-context.svg`)
 - [x] The before/after diff in the lab is real, captured `diff -u` output
-- [x] Diagram beats: 7 hand-drawn SVGs in `explainer/diagrams/`, same visual contract
-      as M01
-- [x] Deck: 19 self-contained slides, zero external refs, real Playwright render check
-- [x] Course slide voiceover script: `planning/voiceover/m03-slide-voiceover.md`
+- [x] Diagrams: 10 hand-drawn SVGs in `reading/diagrams/`, same visual contract as M01
 - [x] Lab validation script: `lab/run.sh`, checks both runs + AGENTS.md structure
 
 ## Delivery guide: Udemy
 
 This module's lecture cut mirrors M01's pattern: one concept per lecture, 3-6 minutes
-each, following the deck's 8 sections. `LAB.md` ships as a standalone hands-on lecture
-after the concept lectures. `QUIZ.md` publishes as the module's Udemy quiz.
+each, following the eight sections of `reading/concepts.md`. `LAB.md` ships as a
+standalone hands-on lecture after the concept lectures. `QUIZ.md` publishes as the module's Udemy quiz.
 `PROJECTS.md` publishes as downloadable resources.

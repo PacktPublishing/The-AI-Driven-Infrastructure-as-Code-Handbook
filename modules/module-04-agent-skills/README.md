@@ -8,21 +8,14 @@ context it always has, this module gives it a skill it reaches for on its own, a
 the line between a skill (voluntary) and a harness gate (enforced), the seam M06 and M08
 pick up next.
 
-Spec: [`specs/M04-spec.md`](../../specs/M04-spec.md). Read it before changing anything
-here.
-
 ## What's in this module
 
 ```
 modules/module-04-agent-skills/
   README.md               this file, delivery guide
   explainer/
-    EXPLAINER.md           8 diagram beats, narrator notes, timing
-    deck/
-      build_deck.py         generator, mirrors M01/M03's own generator
-      m04-agent-skills.html  15-slide self-contained deck
-      m04-sequence.md        slide table, fragment map, coverage check
-    diagrams/               7 hand-drawn SVGs (title slide has its own inline SVG)
+    sim/
+      skill-discoverability-sim.html   interactive skill discoverability simulator
   LAB.md                   Project 04: Build a Terraform VPC Module Using a Claude Code Skill (Tier 1, ~40 min, 2 stages)
   lab/
     .claude/skills/terraform-module-conventions/SKILL.md    Part I's skill, pure prose
@@ -40,21 +33,27 @@ modules/module-04-agent-skills/
                               seeded collision), and two real floci apply/destroy cycles
     .gitignore
   reading/
-    concepts.md              ~15 min standalone read, also book/chapters/04-agent-skills.md
+    concepts.md              ~15 min standalone read, the spine of Chapter 4 of the book
     reference.md              one-page A4 cheat sheet
+    diagrams/                6 hand-drawn SVGs, one per section of concepts.md
   QUIZ.md                  9 questions, collapsible answers
   PROJECTS.md              4 stretch project seeds
 ```
 
 ## Delivery guide: live workshop
 
-Run in this order, roughly 75 minutes with a break:
+Run in this order, roughly 75 minutes with a break. Each step walks one or two sections of
+`reading/concepts.md` with its diagram from `reading/diagrams/` on screen:
 
-1. Walk `explainer/EXPLAINER.md` beats 1-3 (the boundary, anatomy of a `SKILL.md`), ~7 min.
-2. Walk beats 4-5 (discoverability, house convention), ~6 min.
-3. Walk beats 6-7 (skill vs harness, still step 3), ~7 min. The skill-vs-harness slide is
-   the one to slow down on, it's a distinction M06/M08 assume the learner already has.
-4. Walk the new "skill ships code" beat (prose vs a bundled script), ~5 min.
+1. "Context vs Skill vs Prompt" and "Anatomy of a SKILL.md" (`context-vs-skill-prompt.svg`,
+   `skill-anatomy.svg`), the boundary, ~7 min.
+2. "Discoverability Is the Whole Game" and "Skills Package House Convention"
+   (`discoverability.svg`, `house-convention.svg`), ~6 min. Demo
+   `explainer/sim/skill-discoverability-sim.html` at the "Try it" subsection.
+3. "Skills vs Harness" and "Where This Sits on the Ladder" (`skill-vs-harness.svg`,
+   `ladder-rung3.svg`), ~7 min. The skill-vs-harness diagram is the one to slow down on,
+   it's a distinction M06/M08 assume the learner already has.
+4. "A Skill That Ships Code, Not Just Prose" (prose vs a bundled script), ~5 min.
 5. Break, then run `LAB.md` Part I live, ~15 min. Docker socket mounted, Floci pinned, real
    apply and destroy of a single S3 bucket.
 6. Run `LAB.md` Part II live, ~20 min: the multi-environment VPC module, the bundled CIDR
@@ -91,13 +90,11 @@ plan before `apply` runs, that stays a human, every time, same as step 2.
 
 ## Definition-of-done status
 
-- [x] `specs/M04-spec.md` read before building
 - [x] All module directories present (`explainer/`, `lab/`, `reading/`, plus root
       `LAB.md`, `QUIZ.md`, `PROJECTS.md`, `README.md`)
-- [x] `EXPLAINER.md` has narrator notes and timing for every diagram beat
 - [x] `LAB.md` steps are copy-pasteable, solo-completable, Tier 1, real captured output only
-- [x] `reading/concepts.md` is standalone-readable (~15 min) and doubles as
-      `book/chapters/04-agent-skills.md`
+- [x] `reading/concepts.md` is standalone-readable (~15 min) and doubles as the draft of
+      Chapter 4 of the book
 - [x] `reading/reference.md` is a one-side-of-A4 cheat sheet
 - [x] `QUIZ.md`: 9 questions, collapsible answers, scenario-heavy
 - [x] `PROJECTS.md`: 4 stretch projects, hints not solutions
@@ -112,11 +109,7 @@ plan before `apply` runs, that stays a human, every time, same as step 2.
       prose alone, catching a genuine seeded CIDR collision, not a staged one
 - [x] Part II's three VPC environments are materially different (AZ count AND NAT
       strategy), not a tfvars copy with one value changed
-- [x] Diagram beats: 7 hand-drawn SVGs in `explainer/diagrams/`, same visual contract as
-      M01/M03
-- [x] Deck: self-contained slides, zero external refs, real Playwright render check,
-      no invisible-line regressions
-- [x] Course slide voiceover script: `planning/voiceover/m04-slide-voiceover.md`
+- [x] Diagrams: 6 hand-drawn SVGs in `reading/diagrams/`, same visual contract as M01/M03
 - [x] Lab validation script: `lab/run.sh`, checks both parts: runs, tags, provider pin,
       the overlap checker (clean and seeded-collision), and two real Floci apply/destroy
       cycles
@@ -124,6 +117,6 @@ plan before `apply` runs, that stays a human, every time, same as step 2.
 ## Delivery guide: Udemy
 
 This module's lecture cut mirrors M01/M03's pattern: one concept per lecture, 3-6 minutes
-each, following the deck's 8 sections. `LAB.md` ships as a standalone hands-on lecture
-after the concept lectures. `QUIZ.md` publishes as the module's Udemy quiz. `PROJECTS.md`
+each, following the nine sections of `reading/concepts.md`. `LAB.md` ships as a standalone
+hands-on lecture after the concept lectures. `QUIZ.md` publishes as the module's Udemy quiz. `PROJECTS.md`
 publishes as downloadable resources.

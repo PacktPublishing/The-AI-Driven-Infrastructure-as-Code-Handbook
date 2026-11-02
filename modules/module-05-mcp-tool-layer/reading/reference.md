@@ -20,11 +20,16 @@ one-off integration to every tool.
   `awslabs/terraform-mcp-server`.
 - **GitHub MCP server**, the official, hosted server at
   `https://api.githubcopilot.com/mcp/`, HTTP transport, a bearer token in the
-  `Authorization` header.
-- **`aws-iac-mcp-server`**, AWS Labs' official server (`uvx awslabs.aws-iac-mcp-server@latest`).
-  Real, installs cleanly, CloudFormation/CDK-scoped, never Terraform. Crashes on startup as
-  of this pass (`ModuleNotFoundError: fastmcp.server.proxy`). Verify a server actually
-  starts and actually covers your IaC tool before you plan a workflow around it.
+  `Authorization` header, and `X-MCP-Tools: create_pull_request` so the server offers the
+  agent the PR-open tool and never `merge_pull_request`. The header limits this server
+  only; a shell `gh pr merge` is stopped by the agent's tool permissions and by repository
+  rules, not by MCP.
+- **`aws-iac-mcp-server`**, AWS Labs' official server (`uvx awslabs.aws-iac-mcp-server@latest`),
+  the successor to AWS's deprecated CloudFormation and CDK MCP servers, not to its Terraform
+  one. Real, installs cleanly, CloudFormation/CDK-scoped, never Terraform. Crashed on
+  startup in the captured run of 31 August 2026 (`ModuleNotFoundError:
+  fastmcp.server.proxy`). Verify a server actually starts and actually covers your IaC tool
+  before you plan a workflow around it.
 
 ## What aws_db_parameter_group actually needs
 
@@ -39,14 +44,14 @@ one-off integration to every tool.
 
 ```
 claude mcp add --transport stdio terraform -- docker run --rm -i hashicorp/terraform-mcp-server:latest stdio
-claude mcp add --transport http github https://api.githubcopilot.com/mcp/ --header "Authorization: Bearer $(gh auth token)"
+claude mcp add --transport http github https://api.githubcopilot.com/mcp/ --header "Authorization: Bearer $(gh auth token)" --header "X-MCP-Tools: create_pull_request"
 claude mcp get <name>       # verify it connected
 claude mcp list             # see everything configured
 ```
 
 ## The rule that doesn't change
 
-Opening a pull request through the GitHub MCP server is still just a proposal. The agent
-proposes, the pipeline decides, same as module 1. A human reads the diff and merges, or
-doesn't. This module's lab is still autonomy step 3, propose with plan, the same step as
+Opening a pull request through the GitHub MCP server is still just a proposal, because the
+merge tool was never exposed to the agent. The agent proposes, the pipeline decides, same as
+module 1. A human reads the diff and merges, or doesn't. This module's lab is still autonomy step 3, propose with plan, the same step as
 module 4's.

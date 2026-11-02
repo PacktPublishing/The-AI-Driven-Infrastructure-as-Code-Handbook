@@ -14,10 +14,10 @@ Cheapest, fastest checks first. The most expensive step, a person's attention, l
 
 | Tool | Catches | Doesn't catch |
 |---|---|---|
-| Trivy | Misconfigurations, granular public-access-block checks | Your org's own rules, cost |
-| Checkov | A broader Terraform rule set for most AWS resources (replication, lifecycle, event notifications) | Your org's own rules, cost |
+| Trivy | Misconfigurations, granular public-access-block checks | Your org's own rules (not in its default bundle), cost |
+| Checkov | A broader Terraform rule set for most AWS resources (replication, lifecycle, event notifications) | Your org's own rules (not in its default bundle), cost |
 | Conftest / OPA | Whatever rule you write in Rego, your org's own conventions | Anything not explicitly written as policy |
-| Infracost | Real dollar estimates against a real threshold | Security misconfigurations, org policy |
+| Infracost | Real dollar estimates for a plan. A report in this lab; M12 wires the threshold that makes it a gate | Security misconfigurations, org policy |
 
 **Rule: run Trivy and Checkov together, always.** One alone is a coverage gap, not a safety
 margin.
@@ -36,7 +36,8 @@ checkov -d . --compact --quiet --framework terraform --skip-download
 
 A report is a number a human might read. A gate is a check wired to fail the pipeline. An
 Infracost estimate printed to a Slack channel is a report. The same check with a real
-threshold and a non-zero exit code is a gate.
+threshold and a non-zero exit code is a gate. This lab's `pipeline.sh` runs the report and
+fails only if the Infracost CLI itself errors. M12 wires the threshold.
 
 ## Checkov suppressions: scope them to the resource
 

@@ -60,7 +60,9 @@ the newest code first, a capacity ceiling nobody measured against, and no instan
 decided at all, which is the setting a target-tracking policy actually waits on.
 
 `terraform apply` doesn't know the difference between that and a careful, spec-driven module.
-Both are valid HCL. Both apply cleanly. The gap only shows up later, when the tier thrashes
+Both are valid HCL. Both pass `fmt`, `validate` and `plan` in this module's lab, and nothing in
+that sequence tells them apart. The lab applies only the spec-driven module. The gap only shows
+up later, when the tier thrashes
 because a healthy instance kept getting killed for booting too slowly, or a canary release gets
 scaled away on the very host it needed protected, or worse, when nobody catches it at all.
 Application code that's "close enough" usually gets a chance to be fixed in the next release.
@@ -106,7 +108,7 @@ what gets generated. It was never supposed to replace what checks it afterward.
 ### Try it: spec-driven vs vibe-coded
 
 Pick a path for the same autoscaling-tier ask and watch the real checkov numbers from this
-module's own lab play out: [Spec-Driven vs Vibe-Coded Simulator](./sim/spec-vs-vibe-sim.html).
+module's own lab play out: [Spec-Driven vs Vibe-Coded Simulator](../explainer/sim/spec-vs-vibe-sim.html).
 
 **Seeded failure:** the same one-line ticket, give me an autoscaling web tier for our checkout
 service, answered without a spec, diverges from the same ticket answered with one on five real
@@ -148,10 +150,11 @@ handed deserves the three extra sections this chapter just walked through.
 
 Terraform is BUSL-licensed. OpenTofu, the Linux Foundation fork, is MPL-2.0. The
 lab's Step 6 applies the exact same spec-driven module twice, once with each
-binary, no changes to the `.tf` files, and both runs produce the same three
-resources with the same values. For a module with no provider-specific
-Terraform-only features, the choice between them is a license and tooling
-decision, not a different infrastructure outcome.
+binary, no changes to the `.tf` files. The same HCL produces the same resource
+count under a different binary. The lab does not compare individual state values.
+For this supplied module and provider usage, the result demonstrates
+compatibility between Terraform and OpenTofu. It does not prove that every
+Terraform and OpenTofu module behaves identically.
 
 ## Vocabulary
 
