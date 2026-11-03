@@ -19,29 +19,31 @@ answer, would you not? You do not get one.
 ![Two scanners pointed at the same Terraform code, returning different finding counts, Trivy 7 and Checkov 25, drawn as two separate report cards from one input.](./diagrams/opening-demo.svg)
 
 Trivy reports **7 HIGH or CRITICAL findings**. Checkov reports **25 failed checks**. Same
-code, same run, same day. This is not a bug in either tool. It is the real, reproducible
-result of `labs/shared/floci-spike/run.sh` in this course's own repository, and this
-chapter's own lab reproduces it again, live, on your machine, in under a minute.
+code, same run, same day. This is not a bug in either tool, and the two totals are not the
+same measure: the spike's Trivy run is filtered to HIGH and CRITICAL, while Checkov reports
+every failed check. It is the recorded result of `labs/shared/floci-spike/run.sh` in this
+course's own repository at the pinned tool versions, and this chapter's own lab reproduces
+it on your machine in under a minute. Newer rule bundles can move the numbers.
 
 ## Why They Disagree
 
 Neither number is wrong. Trivy and Checkov each ship their own rule set, and for
-Terraform's AWS resources, the two rule sets only partly overlap. Checkov's is the
-strictly larger one here: it checks things like cross region replication, event
-notifications, and lifecycle configuration that Trivy's rule set does not encode at all
-for this resource type. Trivy, in turn, sometimes splits one Checkov check into several
-more granular ones, for example separate findings for blocking public ACLs, blocking
-public policies, and ignoring public ACLs, where Checkov collapses that into one public
-access block check.
+Terraform's AWS resources, the two rule sets only partly overlap. In the recorded scans,
+Checkov reported findings for cross region replication, event notifications, and lifecycle
+configuration that Trivy's bundle did not encode for this resource type. That is a gap at
+these versions, not a universal ranking of the two tools. Trivy, in turn, sometimes splits
+one Checkov check into several more granular ones, for example separate findings for
+blocking public ACLs, blocking public policies, and ignoring public ACLs, where Checkov
+collapses that into one public access block check.
 
 The gap is in the rule sets, not in what each engine can see. Both tools follow references
 between resources. Point Trivy at a bare `aws_s3_bucket` and it reports that the data is not
 versioned and that no public access block exists. Add a separate `aws_s3_bucket_versioning`
 and `aws_s3_bucket_public_access_block` that reference the bucket, and those findings clear.
 Checkov does the same. Checkov's bundle simply ships checks, cross region replication among
-them, that Trivy's bundle does not include for this resource type.
+them, that Trivy's bundle did not include for this resource type at the versions recorded.
 
-![Two overlapping circles representing Trivy's rule set and Checkov's rule set for Terraform AWS resources, with Checkov's circle larger and only partial overlap between them.](./diagrams/rule-set-overlap.svg)
+![Two overlapping circles representing Trivy's rule set and Checkov's rule set for Terraform AWS resources, with partial overlap and more findings on Checkov's side in the recorded scans, not a universal ranking.](./diagrams/rule-set-overlap.svg)
 
 That is the whole lesson in one sentence: **running one scanner is a coverage gap, not a
 safety margin.** You would not ship with only one of the four asymmetries from module one
@@ -166,7 +168,7 @@ the capstone's optional Tier 3.
 | Term | Meaning |
 |---|---|
 | Trivy | A misconfiguration and vulnerability scanner, one of two scanners this course always runs together |
-| Checkov | The second scanner this course always runs, with a broader Terraform rule set than Trivy for most AWS resources |
+| Checkov | The second scanner this course always runs; its rule set partly overlaps Trivy's and, in the recorded runs, included checks Trivy's did not |
 | OPA | Open Policy Agent, a general purpose policy engine for rules the scanners' default bundles do not encode |
 | Conftest | The command line tool that runs OPA policies against structured input like a Terraform plan |
 | Rego | The policy language OPA and Conftest policies are written in |

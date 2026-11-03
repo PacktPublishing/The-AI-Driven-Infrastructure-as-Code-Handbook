@@ -12,8 +12,8 @@ buckets, both deliberately left unhardened.
 
 - Both scanners run yourself, against a real 21-resource module and against this project's own
   module, reproducing the exact numbers from the reading
-- **A real Checkov finding Trivy never reports**, proof the two tools don't cover the same
-  ground
+- **A real Checkov finding the Trivy scan does not report**, proof the two tools don't cover
+  the same ground at the pinned versions
 - **A real OPA policy**, written from scratch, for a rule neither scanner's default rule bundle
   knows
 - **A real cost check**, wired honestly: it runs for real if you have an Infracost key, and
@@ -113,17 +113,18 @@ terraform scan results:
 Passed checks: 9, Failed checks: 14, Skipped checks: 0
 ```
 
-**Read** one Checkov finding Trivy never reported at all:
+**Read** one Checkov finding Trivy did not report at all:
 
 ```
 Check: CKV_AWS_144: "Ensure that S3 bucket has cross-region replication enabled"
 	FAILED for resource: aws_s3_bucket.reports
 ```
 
-Search Trivy's 16 findings for anything about replication. There isn't one. Trivy's rule set
-for this resource type doesn't encode it. That's the coverage gap from the reading, made
-concrete: Checkov's own rule set is the strictly larger one here, and only running Trivy
-would have missed this finding entirely.
+Search Trivy's 16 findings for anything about replication. There isn't one. At the pinned
+versions, Trivy's rule set for this resource type doesn't encode it. That's the coverage gap
+from the reading, made concrete: the two bundles differ, and running only Trivy would have
+missed this finding entirely. Rule bundles move on their own schedule, so treat this as a
+gap at these versions, not a permanent ranking of the two tools.
 
 ## Step 3: Write an OPA Policy
 
@@ -602,7 +603,7 @@ cd modules/module-09-verifying-ai-infra/lab
 What you built:
 
 - Both scanners reproduced against a real module, same numbers as the reading
-- A real Checkov finding Trivy never reported, the coverage gap made concrete
+- A real Checkov finding Trivy did not report, one coverage gap made concrete
 - A real OPA policy for the one rule neither scanner's default rule bundle checks
 - A cost check wired to skip honestly, never to guess
 - A five-stage pipeline that blocks on the first real failure, cheap checks first

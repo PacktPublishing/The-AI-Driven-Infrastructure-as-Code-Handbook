@@ -73,7 +73,7 @@ Asked from memory alone, with no MCP server available, the answer was **"~3.6.2,
 guess, not certain."** Asked again with the Terraform MCP server available, the agent
 called `get_latest_provider_version` and got back the real number from the registry:
 **4.5.0**. Not close. A learner trusting the first answer would have written a version
-constraint against a release that's several minor versions behind current.
+constraint against a release from the previous major version.
 
 ![A real captured example: from memory, a guess of roughly version three point six point two, low confidence. With the terraform MCP server available, the real answer from the registry, version four point five point zero.](./diagrams/stale-vs-live.svg)
 

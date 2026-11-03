@@ -93,7 +93,8 @@ claude -p --strict-mcp-config "Without searching the web or using any tools, fro
 
 `file: lab/evidence/stale-answer.txt` has the real captured answer from building this
 project. Your own run will differ in wording, but watch for the same pattern: a guess, low
-confidence, maybe a version number that's several minors behind.
+confidence, maybe a version number a whole major release behind (the captured run guessed
+v3.6.2; the registry said 4.5.0).
 
 **Ask** the identical question again, this time letting the agent actually use the tool:
 

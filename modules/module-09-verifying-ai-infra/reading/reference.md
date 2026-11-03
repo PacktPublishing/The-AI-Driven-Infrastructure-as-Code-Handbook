@@ -15,7 +15,7 @@ Cheapest, fastest checks first. The most expensive step, a person's attention, l
 | Tool | Catches | Doesn't catch |
 |---|---|---|
 | Trivy | Misconfigurations, granular public-access-block checks | Your org's own rules (not in its default bundle), cost |
-| Checkov | A broader Terraform rule set for most AWS resources (replication, lifecycle, event notifications) | Your org's own rules (not in its default bundle), cost |
+| Checkov | Terraform configuration checks that, in the recorded comparison, included replication, lifecycle and event-notification findings Trivy did not report | Your org's own rules (not in its default bundle), cost |
 | Conftest / OPA | Whatever rule you write in Rego, your org's own conventions | Anything not explicitly written as policy |
 | Infracost | Real dollar estimates for a plan. A report in this lab; M12 wires the threshold that makes it a gate | Security misconfigurations, org policy |
 

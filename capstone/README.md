@@ -1,8 +1,11 @@
 # Capstone Project: Ship Infrastructure Through a Propose-Verify-Approve-Apply Pipeline
 
-In this project, you will run one real infrastructure change through a full pipeline: an
-agent proposes it, Trivy, Checkov, and OPA verify it, a human approves it, and only then does
-it apply for real. **The agent proposes, the pipeline decides.**
+In this project, you will run one real infrastructure change through a full pipeline:
+Trivy, Checkov, and OPA verify a proposed module, an approval record is written, and only
+then does the approved plan apply for real. The modules are prepared, the approval is
+simulated by a flag, and a separate Kubernetes lab shows GitOps reconciliation; the section
+below on what the lab supplies spells each of those out. **The agent proposes, the
+pipeline decides.**
 
 ```
 Spec+context → Agent generates → validate (fmt/plan)
@@ -12,7 +15,8 @@ Spec+context → Agent generates → validate (fmt/plan)
   → apply → observe + drift → reopens the spec
 ```
 
-That diagram names every stage of the course thesis. Counted as things that can stop a
+That diagram is the course's architecture, not a transcript of one capstone run: the lab
+uses prepared modules and a simulated approval. Counted as things that can stop a
 run, the lab's pipeline enforces **seven gates**: `fmt`, `validate`, Trivy, Checkov, the
 OPA tags policy, the blast-radius gate, and human approval. Infracost is named where it
 would sit and not enforced, because it needs an account this course does not assume.
@@ -22,7 +26,7 @@ would sit and not enforced, because it needs an account this course does not ass
 
 - A storage and config module (S3 + DynamoDB) that fails the pipeline on purpose, then a
   fixed version that clears every gate
-- A human-approval gate, simulated in this lab by a flag: `apply` runs only from the saved
+- An approval gate, simulated in this lab by a flag: `apply` runs only from the saved
   plan whose hash was recorded at approval, and refuses any other plan
 - Real drift, introduced by hand against the emulated S3 API, caught on the next `plan`
 - Kubernetes infrastructure reconciled onto a real `kind` cluster by Argo CD from the
@@ -190,15 +194,15 @@ Run all three (Stage 3 optional) before you consider the capstone done.
 What you built:
 
 - One real spec, deliberately imperfect, run through Trivy, Checkov, and OPA
-- A human-approval gate that records the exact plan a human approved, and an `apply` that
+- A simulated approval gate that records the exact plan approved, and an `apply` that
   refuses any other plan
-- Real drift, introduced on purpose, caught by the pipeline on its own
+- Real drift, introduced on purpose, caught on the next `terraform plan`
 - A real unattended GitOps apply on Kubernetes, from the companion repository
 - Optionally, the same discipline proven once against a real AWS account, then torn down
 
-Twelve modules, one pipeline, seven enforced gates. Every stage above is a real,
-independent proof that "the agent proposes, the pipeline decides" holds up end to end, not
-just per module.
+Twelve modules, a seven-gate Terraform pipeline, and a separate Kubernetes reconciliation
+loop. Each stage above was run and its output captured. What the lab does not record is a
+live agent-generation session or an authenticated human approval, and it says so.
 
 ## The closing exercise
 

@@ -2,9 +2,10 @@
 
 ## Recap: A One-Line Intent Was Enough, Once
 
-**The project this chapter builds:** a real autoscaling web tier for a checkout service, built
-twice from the same one-line ticket, once with a written spec first and once by feel, then
-compared against the same real, applied infrastructure.
+**The project this chapter builds:** an autoscaling web tier for a checkout service, designed
+twice from the same one-line ticket, once with a written spec first and once by feel. Both
+versions are validated and planned side by side; only the spec-driven one is applied, for
+real, against the local AWS emulator.
 
 Module 1's lab handed you a single line: give me a local nginx container, serving a page you
 control, nothing exposed outside the machine. That was fine. It was a first exercise, small

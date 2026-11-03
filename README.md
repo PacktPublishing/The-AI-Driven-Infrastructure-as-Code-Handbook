@@ -34,9 +34,10 @@ The book cites these paths directly, and they resolve here exactly as printed.
 Chapters 3, 4 and 9 also run against `labs/shared/floci-spike/`, the pinned local AWS
 emulator every Tier 1 lab uses.
 
-That claim is checked, not asserted. `./tools/check-book-contract.sh` asserts that all 176
-commands the book prints appear verbatim in a lab file here, and that every path a chapter
-names resolves. It runs in CI on every push, and you can run it yourself.
+That claim is checked, not asserted. `./tools/check-book-contract.sh` asserts that every
+command the book prints appears verbatim in a lab file here, and that every path a chapter
+names resolves (three paths the reader's own agent writes are listed as absent by design).
+It runs in CI on every push, and you can run it yourself.
 
 ## Quick start
 

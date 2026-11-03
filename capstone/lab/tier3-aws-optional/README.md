@@ -1,10 +1,10 @@
 # Tier 3, Optional: the same pipeline against a real AWS account
 
-**This part is optional. Nothing in the capstone requires it. Tier 1 (Floci) and Tier 2
-(kind + Crossplane v2 + Argo CD) already exercise every stage of the pipeline for
-real, at zero cost.** Run this only if you want the extra step of seeing the exact
-same discipline hold up against a real cloud account, and only after reading the
-three things below.
+**This part is optional. Nothing in the capstone requires it. Tier 1 (Floci) runs the
+seven scan, policy, and simulated-approval gates; Tier 2 (kind + Crossplane v2 + Argo CD)
+separately demonstrates Kubernetes reconciliation, both at zero cost.** Run this only if
+you want the extra step of seeing the same Terraform pipeline hold up against a real cloud
+account, and only after reading the three things below.
 
 ## Before you touch a real AWS account
 

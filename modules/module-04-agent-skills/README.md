@@ -16,7 +16,7 @@ modules/module-04-agent-skills/
   explainer/
     sim/
       skill-discoverability-sim.html   interactive skill discoverability simulator
-  LAB.md                   Project 04: Build a Terraform VPC Module Using a Claude Code Skill (Tier 1, ~40 min, 2 stages)
+  LAB.md                   Project 04: Build a Terraform VPC Module Using a Claude Code Skill (Tier 1, ~40 min, 3 stages)
   lab/
     .claude/skills/terraform-module-conventions/SKILL.md    Part I's skill, pure prose
     .claude/skills/vpc-environment-scaffold/
@@ -35,7 +35,7 @@ modules/module-04-agent-skills/
   reading/
     concepts.md              ~15 min standalone read, the spine of Chapter 4 of the book
     reference.md              one-page A4 cheat sheet
-    diagrams/                6 hand-drawn SVGs, one per section of concepts.md
+    diagrams/                7 hand-drawn SVGs illustrating concepts.md
   QUIZ.md                  9 questions, collapsible answers
   PROJECTS.md              4 stretch project seeds
 ```
@@ -109,7 +109,7 @@ plan before `apply` runs, that stays a human, every time, same as step 2.
       prose alone, catching a genuine seeded CIDR collision, not a staged one
 - [x] Part II's three VPC environments are materially different (AZ count AND NAT
       strategy), not a tfvars copy with one value changed
-- [x] Diagrams: 6 hand-drawn SVGs in `reading/diagrams/`, same visual contract as M01/M03
+- [x] Diagrams: 7 hand-drawn SVGs in `reading/diagrams/`, same visual contract as M01/M03
 - [x] Lab validation script: `lab/run.sh`, checks both parts: runs, tags, provider pin,
       the overlap checker (clean and seeded-collision), and two real Floci apply/destroy
       cycles
